@@ -1,0 +1,175 @@
+{{>fragments/header}}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Loan Details #{{loan.id}}</h2>
+        <a href="/loan/manage" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+    {{#success}}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{success}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {{/success}}
+
+    {{#error}}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{error}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {{/error}}
+
+    <div class="row">
+        <!-- Loan Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Loan Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-{{#loan.status}}warning{{/loan.status}} text-dark">
+                                {{loan.status}}
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Amount</dt>
+                        <dd class="col-sm-8">€{{loan.requestedAmount}}</dd>
+
+                        <dt class="col-sm-4">Term</dt>
+                        <dd class="col-sm-8">{{loan.termMonths}} months</dd>
+
+                        <dt class="col-sm-4">Request Date</dt>
+                        <dd class="col-sm-8">{{loan.requestDate}}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Name</dt>
+                        <dd class="col-sm-8">{{loan.user.fullName}}</dd>
+
+                        <dt class="col-sm-4">DNI</dt>
+                        <dd class="col-sm-8">{{loan.user.dni}}</dd>
+
+                        <dt class="col-sm-4">Income</dt>
+                        <dd class="col-sm-8">€{{loan.user.monthlyIncome}}</dd>
+
+                        <dt class="col-sm-4">Years w/ Bank</dt>
+                        <dd class="col-sm-8">{{loan.user.yearsWithBank}}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evaluation Result -->
+    {{#loan.evaluationResult}}
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="card-title mb-0">System Evaluation</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">Recommendation</dt>
+                        <dd class="col-sm-8">
+                            {{#approved}}
+                            <span class="badge bg-success">APPROVE</span>
+                            {{/approved}}
+                            {{^approved}}
+                            <span class="badge bg-danger">REJECT</span>
+                            {{/approved}}
+                        </dd>
+
+                        <dt class="col-sm-4">Reason</dt>
+                        <dd class="col-sm-8">{{reason}}</dd>
+                    </dl>
+                </div>
+
+                {{#approved}}
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-6">Approved Amount</dt>
+                        <dd class="col-sm-6">€{{approvedAmount}}</dd>
+
+                        <dt class="col-sm-6">Suggested Interest</dt>
+                        <dd class="col-sm-6">{{interestRate}}%</dd>
+
+                        <dt class="col-sm-6">Estimated Payment</dt>
+                        <dd class="col-sm-6">€{{monthlyPayment}}</dd>
+                    </dl>
+                </div>
+                {{/approved}}
+            </div>
+        </div>
+    </div>
+    {{/loan.evaluationResult}}
+    {{^loan.evaluationResult}}
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="card-title mb-0">System Evaluation</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-0">No automated evaluation result available for this loan.</p>
+        </div>
+    </div>
+    {{/loan.evaluationResult}}
+
+    <!-- Actions -->
+    <div class="card">
+        <div class="card-body text-end">
+            <form action="/loan/approve" method="post" style="display:inline;">
+                <input type="hidden" name="{{_csrf.parameterName}}" value="{{_csrf.token}}" />
+                <input type="hidden" name="loanId" value="{{loan.id}}">
+                <button type="submit" class="btn btn-success btn-lg me-2">Approve Loan</button>
+            </form>
+
+            <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                Reject Loan
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/loan/reject" method="post">
+                <input type="hidden" name="{{_csrf.parameterName}}" value="{{_csrf.token}}" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Loan #{{loan.id}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="loanId" value="{{loan.id}}">
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Rejection Reason</label>
+                        <textarea class="form-control" id="reason" name="reason" rows="3"
+                            required>{{#loan.evaluationResult}}{{#approved}}{{/approved}}{{^approved}}{{reason}}{{/approved}}{{/loan.evaluationResult}}</textarea>
+                        <div class="form-text">System reason pre-filled if available</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{>fragments/footer}}

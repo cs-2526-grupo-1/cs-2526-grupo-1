@@ -1,0 +1,57 @@
+{{>fragments/header}}
+    
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h2>Transfer Money</h2>
+                
+                {{#error}}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{error}}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {{/error}}
+                
+                <div class="card">
+                    <div class="card-body">
+                        <form action="/transfer" method="post">
+                            <input type="hidden" name="{{_csrf.parameterName}}" value="{{_csrf.token}}"/>
+                            <input type="hidden" name="customerId" value="{{user.id}}">
+                            
+                            <div class="mb-3">
+                                <label for="fromAccount" class="form-label">From Account</label>
+                                <select class="form-select" id="fromAccount" name="fromAccount" required>
+                                    <option value="">Select account...</option>
+                                    {{#accounts}}
+                                    <option value="{{accountNumber}}">
+                                        {{accountNumber}} ({{accountType}}) - Balance: €{{balance}}
+                                    </option>
+                                    {{/accounts}}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="toAccount" class="form-label">To Account Number</label>
+                                <input type="text" class="form-control" id="toAccount" 
+                                       name="toAccount" placeholder="ES0000000000" required>
+                                <small class="form-text text-muted">
+                                    Enter the destination account number
+                                </small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Amount (EUR)</label>
+                                <input type="number" class="form-control" id="amount" 
+                                       name="amount" required>
+                            </div>
+                            
+                            <button type="submit" id="transferButton" class="btn btn-primary">Transfer</button>
+                            <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{{>fragments/footer}}

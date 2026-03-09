@@ -1,0 +1,64 @@
+{{>fragments/header}}
+    
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h2>Request a Loan</h2>
+                
+                {{#error}}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{error}}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {{/error}}
+                
+                <div class="card">
+                    <div class="card-body">
+                        <form action="/loan/request" method="post" id="loanForm">
+                            <input type="hidden" name="{{_csrf.parameterName}}" value="{{_csrf.token}}"/>
+                            <input type="hidden" name="customerId" value="{{user.id}}">
+                            
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Loan Amount (EUR)</label>
+                                <input type="number" class="form-control" id="amount" 
+                                       name="amount" step="0.01" min="1000" max="50000" required>
+                                <small class="form-text text-muted">
+                                    Minimum: €1,000 - Maximum: €50,000
+                                </small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="termMonths" class="form-label">Repayment Term (months)</label>
+                                <select class="form-select" id="termMonths" name="termMonths" required>
+                                    <option value="">Select term...</option>
+                                    <option value="6">6 months</option>
+                                    <option value="12">12 months</option>
+                                    <option value="24">24 months</option>
+                                    <option value="36">36 months</option>
+                                    <option value="48">48 months</option>
+                                    <option value="60">60 months</option>
+                                    <option value="72">72 months</option>
+                                    <option value="84">84 months</option>
+                                    <option value="96">96 months</option>
+                                    <option value="120">120 months</option>
+                                </select>
+                                <small class="form-text text-muted">
+                                    Minimum: 6 months - Maximum: 120 months
+                                </small>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <strong>Note:</strong> Your loan request will be reviewed by our team. 
+                                You will receive a notification once a decision has been made.
+                            </div>
+                            
+                            <button type="submit" id="submitLoanButton" class="btn btn-success">Submit Request</button>
+                            <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{{>fragments/footer}}

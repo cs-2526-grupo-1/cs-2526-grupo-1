@@ -1,0 +1,58 @@
+{{>fragments/header}}
+
+<div class="container mt-4">
+    <h2>Pending Loan Requests</h2>
+
+    {{#success}}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{success}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {{/success}}
+
+    {{#error}}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{error}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {{/error}}
+
+    <div class="table-responsive">
+        <table class="table table-striped" id="loanTable">
+            <thead>
+                <tr>
+                    <th>Loan ID</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Term</th>
+                    <th>Request Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#loans}}
+                <tr>
+                    <td>{{id}}</td>
+                    <td>{{user.fullName}}<br>
+                        <small class="text-muted">DNI: {{user.dni}}</small>
+                    </td>
+                    <td>€{{requestedAmount}}</td>
+                    <td>{{termMonths}} months</td>
+                    <td>{{requestDate}}</td>
+                    <td>
+                        <a href="/loan/details?id={{id}}" class="btn btn-primary btn-sm">View details</a>
+                    </td>
+                </tr>
+                {{/loans}}
+
+                {{^loans}}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No pending loan requests</td>
+                </tr>
+                {{/loans}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{>fragments/footer}}

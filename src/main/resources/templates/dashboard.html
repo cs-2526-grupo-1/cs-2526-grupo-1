@@ -1,0 +1,94 @@
+{{>fragments/header}}
+    
+    <div class="container mt-4">
+        {{#success}}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{success}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {{/success}}
+        
+        {{#error}}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{error}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {{/error}}
+        
+        <div class="row">
+            <div class="col-md-8">
+                <h2>My Accounts</h2>
+                
+                {{#accounts}}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{accountType}} Account</h5>
+                        <p class="card-text">
+                            <strong>Account Number:</strong> {{accountNumber}}<br>
+                            <strong>Balance:</strong> €<span id="balance-{{accountNumber}}">{{balance}}</span>
+                        </p>
+                        <a href="/account/transactions?accountNumber={{accountNumber}}&customerId={{user.id}}" 
+                           class="btn btn-sm btn-info">View Transactions</a>
+                    </div>
+                </div>
+                {{/accounts}}
+                
+                {{^accounts}}
+                <p class="text-muted">No accounts found.</p>
+                {{/accounts}}
+                
+                <h2 class="mt-4">My Loans</h2>
+                
+                {{#loans}}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Loan #{{id}}</h5>
+                        <p class="card-text">
+                            <strong>Amount:</strong> €{{requestedAmount}}<br>
+                            <strong>Status:</strong> <span class="badge bg-{{status}}">{{status}}</span><br>
+                            {{#approvedAmount}}
+                            <strong>Approved Amount:</strong> €{{approvedAmount}}<br>
+                            <strong>Remaining:</strong> €{{remainingAmount}}<br>
+                            <strong>Monthly Payment:</strong> €{{monthlyPayment}}<br>
+                            {{/approvedAmount}}
+                            {{#rejectionReason}}
+                            <strong>Rejection Reason:</strong> {{rejectionReason}}
+                            {{/rejectionReason}}
+                        </p>
+                    </div>
+                </div>
+                {{/loans}}
+                
+                {{^loans}}
+                <p class="text-muted">No loans found.</p>
+                {{/loans}}
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="/transfer" class="btn btn-primary w-100 mb-2">Transfer Money</a>
+                        <a href="/loan/request" class="btn btn-success w-100 mb-2">Request Loan</a>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5>Customer Info</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1"><strong>Name:</strong> {{user.fullName}}</p>
+                        <p class="mb-1"><strong>DNI:</strong> {{user.dni}}</p>
+                        <p class="mb-1"><strong>Email:</strong> {{user.email}}</p>
+                        <p class="mb-1"><strong>Phone:</strong> {{user.phone}}</p>
+                        <p class="mb-0"><strong>Monthly Income:</strong> €{{user.monthlyIncome}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{{>fragments/footer}}

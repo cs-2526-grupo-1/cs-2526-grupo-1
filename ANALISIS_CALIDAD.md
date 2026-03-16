@@ -20,7 +20,7 @@ A continuación se muestra un resumen de los issues encontrados en el análisis 
 ### Issue 1: Duplicación de Strings (Magic Strings) - Detectado por SonarQube
 
 **Reporte de la issue**:
-![Magic Strings](img/bad-smell-magic-strings)
+![Magic Strings](img/bad-smell-magic-strings.png)
 
 **Ubicación de la issue**
 Clase AccountService.java, en múltiples líneas (107, 114, 156, 163)

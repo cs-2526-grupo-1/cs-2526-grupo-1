@@ -1,4 +1,12 @@
-# Tarea 1 y 3: Análisis de Calidad del Código y Refactorización
+# Práctica 2: Análisis de Calidad del Código (Bad Smells) - Grupo 1
+
+## Integrantes del grupo 1
+- Daniel Bonachela Martínez
+- Marcelo Atanasio Domínguez Mateo
+- Gonzalo Fernández de Córdoba García
+- Alejandro García Prada
+- Sara Guillén Martínez
+- Samuel Melián Benito
 
 ## Captura de Pantalla del Overview de SonarQube
 

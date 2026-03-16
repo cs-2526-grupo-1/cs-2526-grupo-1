@@ -17,14 +17,18 @@
 
 A continuación se muestra un resumen de los issues encontrados en el análisis de calidad realizado con SonarQube y mediante el análisis manual del código:
 
-### Issue 1: Nombre de la issue
+### Issue 1: Duplicación de Strings (Magic Strings) - Detectado por SonarQube
 
 **Reporte de la issue**:
-- Si se detecta con Sonar, se adjuntará una captura de pantalla de la issue 
-- Si se detecta manualmente, se adjuntará una captura de pantalla del mal olor 
+![Magic Strings](img/bad-smell-magic-strings)
+
+**Ubicación de la issue**
+Clase AccountService.java, en múltiples líneas (107, 114, 156, 163)
   
 **Explicación de los alumnos del mal olor detectado** 
-- Si se ha reportado con Sonar, el alumno deberá indicar si se trata de un issue real o un falso positivo, razonando su decisión. 
+- El uso de Strings literales repetidos a lo largo del código, lo que usualmente se conoce como *Magic Strings*, hace que el sistema sea algo frágil. En caso de que se necesite modificar este mensaje literal que se repite en múltiples ocasiones (*"Deposit Confirmation"*), habrá que buscar en todo el código ese mensaje y reemplazarlo manualmente. Si olvidamos uno de ellos se pueden crear inconsistencias y comportamientos no esperados.
+
+- Por qué **NO es un falso positivo (Issue real)**: No es un falso positivo puesto que esta repetición de cadenas en 4 ocasiones viola directamente el principio conocido como DRY (*Don't repeat yourself*). Al no tener estos Strings centralizados en variables o constantes, cualquier cambio requerirá modificar la lógica de servicio, lo que aumentará la probabilidad de bugs o inconsistencias como ya hemos comentado anteriormente.
 
 **Refactorización**
 

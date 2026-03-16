@@ -10,7 +10,8 @@
 
 ## Captura de Pantalla del Overview de SonarQube
 
-![Overview SonarQube](img/ejemplo.png)
+![Overview SonarQube 1](img/sonar-overview-1.png)
+![Overview SonarQube 2](img/sonar-overview-2.png)
 
 ## Análisis de Calidad - Issues 
 

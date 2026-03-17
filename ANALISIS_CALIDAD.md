@@ -46,7 +46,7 @@ Clase `AccountService.java`, líneas 231, 232, 301
 **Explicación de los alumnos del mal olor detectado**
 - Hay dos variables de tipo `Account` llamadas `m` y `o`, y en el código no se aporta ningún contexto sobre qué representan (parecen ser cuenta de origen y cuenta de destino, pero lo desconocemos). Obligan a quien lee el código a deducir su propósito leyendo el resto de la función `transfer`. De igual manera, se nombra como `rm` al método para eliminar una cuenta en lugar de darle otro nombre más adecuado como deleteAccount o removeAccount. Estos nombres tan poco descriptivos obligan a estar constantemente "traduciendo" e interpretando el código, lo que dificulta detectar errores lógicos e impacta de forma negativa en la mantenibilidad.
 
-### Issue 3: Variables locales no utilizadas - Detectado por SonarQube
+### Issue 8: Variables locales no utilizadas - Detectado por SonarQube
 
 **Reporte de la issue**:
 
@@ -61,7 +61,7 @@ Clase `AccountService.java`, línea 185
 
 - Por qué **NO es un falso positivo (Issue real)**: Creemos que es un issue real porque este tipo de variables hacen que el código sea más difícil de entender. Cuando estás leyendo la función pierdes tiempo buscando dónde se usa esa variable para luego darte cuenta de que no se utiliza. Esto es una mala práctica de limpieza de código, por lo que si una variable no aporta nada al funcionamiento lo mejor es borrarla para que el método sea más sencillo de leer y mantener.
 
-### Issue 4: Uso de tipos primitivos para amount - Detectado por análisis manual
+### Issue 9: Uso de tipos primitivos para amount - Detectado por análisis manual
 
 **Reporte de la issue**:
 

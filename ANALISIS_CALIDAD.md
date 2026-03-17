@@ -44,7 +44,7 @@ Clase `AccountService.java`, líneas 231, 232, 301
 **Explicación de los alumnos del mal olor detectado**
 - Hay dos variables de tipo `Account` llamadas `m` y `o`, y en el código no se aporta ningún contexto sobre qué representan (parecen ser cuenta de origen y cuenta de destino, pero lo desconocemos). Obligan a quien lee el código a deducir su propósito leyendo el resto de la función `transfer`. De igual manera, se nombra como `rm` al método para eliminar una cuenta en lugar de darle otro nombre más adecuado como deleteAccount o removeAccount. Estos nombres tan poco descriptivos obligan a estar constantemente "traduciendo" e interpretando el código, lo que dificulta detectar errores lógicos e impacta de forma negativa en la mantenibilidad.
 
-### Issue 4: Large Class - Detectado por análisis manual
+### Issue 7: Large Class - Detectado por análisis manual
 
 **Reporte de la issue**:
 ![God Class](img/bad-smell-god-class.png)
@@ -61,7 +61,7 @@ Clase `AccountService.java` (al completo)
 - Esta acumulación de responsabilidades induce una violación del **Principio de Responsabilidad Única (SRP)**, ya que por razones ya apuntadas son muchas las funciones de la clase. Esto a la larga acabará dificultando el mantenimiento y aumentando el riesgo de errores. Además, aumenta sensiblemente el acoplamiento del código, lo cual, es algo a evitar en cualquier programa orientado a objetos.
 
 
-### Issue 5: Comentarios poco útiles o mal estructurados - Detectado por análisis manual
+### Issue 8: Comentarios poco útiles o mal estructurados - Detectado por análisis manual
 
 **Reporte de la issue**:
 ![Comentarios](img/bad-smell-comments.png)

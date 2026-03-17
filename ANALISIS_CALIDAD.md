@@ -43,3 +43,36 @@ Clase `AccountService.java`, líneas 231, 232, 301
   
 **Explicación de los alumnos del mal olor detectado**
 - Hay dos variables de tipo `Account` llamadas `m` y `o`, y en el código no se aporta ningún contexto sobre qué representan (parecen ser cuenta de origen y cuenta de destino, pero lo desconocemos). Obligan a quien lee el código a deducir su propósito leyendo el resto de la función `transfer`. De igual manera, se nombra como `rm` al método para eliminar una cuenta en lugar de darle otro nombre más adecuado como deleteAccount o removeAccount. Estos nombres tan poco descriptivos obligan a estar constantemente "traduciendo" e interpretando el código, lo que dificulta detectar errores lógicos e impacta de forma negativa en la mantenibilidad.
+
+
+### Issue 6: Métodos excesivamente largos - Detectado por análisis manual
+
+**Reporte de la issue**:
+![Long-Methods](img/bad-smell-long-methods-2.png)
+
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, métodos `deposit` (línea 77), `deposit` (línea 126), `withdraw` (línea 175) y `transfer` (línea 223)
+  
+**Explicación de los alumnos del mal olor detectado**
+- Debido a las violaciones de responsabilidad única (SRP), el código presenta métodos excesivamente largos (**Long Methods**) que presentan código que debería ser extraído a otros métodos auxiliares.
+
+En los 4 métodos (especialmente en `transfer`), encontramos secciones de código con propósitos diferenciados: comprobación de la cantidad introducida, validación del número de cuenta, comprobación del balance, realización de la operación, registro de la operación o envío de notificación. Esto empeora considerablemente al legibilidad del código y deriva en la presencia de comentarios que delimiten y agreguen contexto a las distintas secciones del método.
+
+
+### Issue 7: Comprobación de tipo mediante ifs-else -  Detectado por análisis manual
+
+**Reporte de la issue**:
+![Switch-Statements](img/bad-smell-switch-statements-1.png)
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, métodos `deposit` (línea 102), `deposit` (línea 151), `withdraw` (línea 201) y `transfer` (línea 266)
+  
+**Explicación de los alumnos del mal olor detectado**
+
+- En los 4 métodos se comprueba el tipo de notificación mediante bloques `if-else` encadenados. Esto se corresponde al bad smell de **Switch Statements**, ya que imposibilita la adición de tipos adicionales sin modificar el código existente (viola el **Open/Closed principle**). Esto resulta en un mayor acoplamiento del código, entorpeciendo tanto su mantenibilidad como su extensibilidad.
+
+
+

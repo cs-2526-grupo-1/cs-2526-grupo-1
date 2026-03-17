@@ -121,7 +121,6 @@ Clase `AccountService.java`, en la cabecera métodos
 - A lo largo del código se puede ver que alguien se esforzó por dejar constancia de que hacía el código, pero este no sigue ningún estándar. Además, algunos ni siquiera aportan información, simplemente describen superficialmente aquello que ya se puede inferir leyendo superficialmente el código.
 - Los comentarios superficiales no aportan valor al código y pueden inducir a error. Si el código cambia y los comentarios no se actualizan, la información que contienen deja de ser fiable. Esto afecta a la mantenibilidad y dificulta que otros desarrolladores comprendan el código.
 
-
 ### Issue 9: Métodos excesivamente largos - Detectado por análisis manual
 
 **Reporte de la issue**:
@@ -150,3 +149,34 @@ Clase `AccountService.java`, métodos `deposit` (línea 102), `deposit` (línea 
 **Explicación de los alumnos del mal olor detectado**
 
 - En los 4 métodos se comprueba el tipo de notificación mediante bloques `if-else` encadenados. Esto se corresponde al bad smell de **Switch Statements**, ya que imposibilita la adición de tipos adicionales sin modificar el código existente (viola el **Open/Closed principle**). Esto resulta en un mayor acoplamiento del código, entorpeciendo tanto su mantenibilidad como su extensibilidad.
+
+
+### Issue 11: Código duplicado en el método `deposit` - Detectado por análisis manual
+
+**Reporte de la issue**:
+Observamos que hay dos implementaciones idénticas del método `deposit`, que solo difieren en el argumento `String description`.
+
+La primera de ellas, toma tres argumentos, `String accountNumber`, `double amount`, `String description`.
+
+![Código duplicado 1](img/bad-smell-duplicate-1.png)
+
+La segunda, toma los mismos argumentos a excepción de `String description`.
+
+![Código duplicado 2](img/bad-smell-duplicate-2.png)
+
+**Ubicación de la issue**
+Clase `AccountService.java`, método `deposit`.
+
+**Explicación de los alumnos del mal olor detectado**
+- El código de ambas funciones es prácticamente idéntico, salvo en la línea en la que se crea el objeto de tipo `Transaction`:
+```java
+    // public Account deposit(String accountNumber, double amount, String description)
+    Transaction transaction = new Transaction(account, Transaction.TransactionType.DEPOSIT,
+            amount, description);
+            
+    // public Account deposit(String accountNumber, double amount)
+    Transaction transaction = new Transaction(account, Transaction.TransactionType.DEPOSIT,
+            amount, "Quick deposit");
+```
+
+- Esta diferencia no justifica la duplicación de más de 40 líneas, por lo que consideraremos esta práctica un *bad smell*. Esto afecta de manera considerable a la mantenibilidad y escalabilidad del código, ya que cualquier cambio que queramos hacer en `deposit`, supondrá un cambio en ambos lugares. 

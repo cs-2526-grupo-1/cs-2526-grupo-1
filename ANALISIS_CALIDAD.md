@@ -122,7 +122,6 @@ Clase `AccountService.java` (al completo)
 
 - Esta acumulación de responsabilidades induce una violación del **Principio de Responsabilidad Única (SRP)**, ya que por razones ya apuntadas son muchas las funciones de la clase. Esto a la larga acabará dificultando el mantenimiento y aumentando el riesgo de errores. Además, aumenta sensiblemente el acoplamiento del código, lo cual, es algo a evitar en cualquier programa orientado a objetos.
 
-
 ### Issue 8: Comentarios poco útiles o mal estructurados - Detectado por análisis manual
 
 **Reporte de la issue**:
@@ -136,21 +135,6 @@ Clase `AccountService.java`, en la cabecera métodos
 - A lo largo del código se puede ver que alguien se esforzó por dejar constancia de que hacía el código, pero este no sigue ningún estándar. Además, algunos ni siquiera aportan información, simplemente describen superficialmente aquello que ya se puede inferir leyendo superficialmente el código.
 - Los comentarios superficiales no aportan valor al código y pueden inducir a error. Si el código cambia y los comentarios no se actualizan, la información que contienen deja de ser fiable. Esto afecta a la mantenibilidad y dificulta que otros desarrolladores comprendan el código.
 
-<<<<<<< Issue12
-### Issue 12: Código inalcanzable (Dead Code) - Detectado por análisis manual
-
-**Reporte de la issue**:
-![Dead Code](img/bad-smell-dead-code-ammount.png)
-
-**Ubicación de la issue**
-
-Clase `AccountService.java`, método `deposit(String accountNumber, double amount)`
-
-**Explicación de los alumnos del mal olor detectado**
-- En el método `deposit`, se ve a simple vista una validación redundante donde se comprueba si `amount > 50000` después de haber validado previamente que `amount > 10000`. Trivialmente, cualquier valor mayor que 50000 ya es mayor que 10000, este bloque de código nunca llegará a ejecutarse.
-
-- Este tipo de código inalcanzable (*dead code*) introduce código innecesario y puede generar confusión en el mantenimiento, ya que sugiere la existencia de una lógica oculta adicional que en realidad nunca se aplica.
-=======
 ### Issue 9: Métodos excesivamente largos - Detectado por análisis manual
 
 **Reporte de la issue**:
@@ -165,7 +149,6 @@ Clase `AccountService.java`, métodos `deposit` (línea 77), `deposit` (línea 1
 - Como fue mencionado anteriormente en el *Issue 7*, el código aglutina demasiadas responsabilidades. Esto tiene como consecuencia directa la presencia de métodos excesivamente largos (**Long Methods**) con un bajo grado de cohesión, que presentan código que debería ser extraído a otros métodos auxiliares. 
 
 - En los 4 métodos (especialmente en `transfer`), encontramos secciones de código con propósitos diferenciados: comprobación de la cantidad introducida, validación del número de cuenta, comprobación del balance, realización de la operación, registro de la operación o envío de notificaciones. Esto empeora considerablemente la legibilidad del código y deriva en la presencia de comentarios que delimiten y agreguen contexto a las distintas secciones del método.
-
 
 ### Issue 10: Comprobación de tipo mediante ifs-else -  Detectado por análisis manual
 
@@ -210,4 +193,17 @@ Clase `AccountService.java`, método `deposit`.
 ```
 
 - Esta diferencia no justifica la duplicación de más de 40 líneas, por lo que consideraremos esta práctica un *bad smell*. Esto afecta de manera considerable a la mantenibilidad y escalabilidad del código, ya que cualquier cambio que queramos hacer en `deposit`, supondrá un cambio en ambos lugares. 
->>>>>>> main
+
+### Issue 12: Código inalcanzable (Dead Code) - Detectado por análisis manual
+
+**Reporte de la issue**:
+![Dead Code](img/bad-smell-dead-code-ammount.png)
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, método `deposit(String accountNumber, double amount)`
+
+**Explicación de los alumnos del mal olor detectado**
+- En el método `deposit`, se ve a simple vista una validación redundante donde se comprueba si `amount > 50000` después de haber validado previamente que `amount > 10000`. Trivialmente, cualquier valor mayor que 50000 ya es mayor que 10000, este bloque de código nunca llegará a ejecutarse.
+
+- Este tipo de código inalcanzable (*dead code*) introduce código innecesario y puede generar confusión en el mantenimiento, ya que sugiere la existencia de una lógica oculta adicional que en realidad nunca se aplica.

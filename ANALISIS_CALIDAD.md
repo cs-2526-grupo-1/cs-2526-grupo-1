@@ -43,3 +43,32 @@ Clase `AccountService.java`, líneas 231, 232, 301
   
 **Explicación de los alumnos del mal olor detectado**
 - Hay dos variables de tipo `Account` llamadas `m` y `o`, y en el código no se aporta ningún contexto sobre qué representan (parecen ser cuenta de origen y cuenta de destino, pero lo desconocemos). Obligan a quien lee el código a deducir su propósito leyendo el resto de la función `transfer`. De igual manera, se nombra como `rm` al método para eliminar una cuenta en lugar de darle otro nombre más adecuado como deleteAccount o removeAccount. Estos nombres tan poco descriptivos obligan a estar constantemente "traduciendo" e interpretando el código, lo que dificulta detectar errores lógicos e impacta de forma negativa en la mantenibilidad.
+
+### Issue 4: Large Class - Detectado por análisis manual
+
+**Reporte de la issue**:
+![God Class](img/bad-smell-god-class.png)
+
+**Ubicación de la issue**
+
+Clase `AccountService.java` (al completo)
+
+**Explicación de los alumnos del mal olor detectado**
+- Una *Large Class* es una clase que aglutina numerosas responsabilidades sin las que el programa funcionaría. En nuestro caso, `AccountService` cuenta con la gestión de las cuentas, las validaciones y las operaciones del negocio, lo cual entra perfectamente en la definición.
+
+- Se evidencia en el constructor, debido a la gran cantidad de funcionalidades es muy grande y hereda multitud de objetos.
+
+- Esta acumulación de responsabilidades induce una violación del **Principio de Responsabilidad Única (SRP)**, ya que por razones ya apuntadas son muchas las funciones de la clase. Esto a la larga acabará dificultando el mantenimiento y aumentando el riesgo de errores. Además, aumenta sensiblemente el acoplamiento del código, lo cual, es algo a evitar en cualquier programa orientado a objetos.
+
+
+### Issue 5: Comentarios poco útiles o mal estructurados - Detectado por análisis manual
+
+**Reporte de la issue**:
+![Comentarios](img/bad-smell-comments.png)
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, en la cabecera métodos
+
+**Explicación de los alumnos del mal olor detectado**
+- A lo largo del código se puede ver que alguien se esforzó por dejar constancia de que hacía el código, pero este no sigue ningún estándar. Además, algunos ni siquiera aportan información, simplemente describen superficialmente aquello que ya se puede inferir leyendo superficialmente el código.

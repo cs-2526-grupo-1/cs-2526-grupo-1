@@ -112,109 +112,11 @@ Observamos que hay dos implementaciones idénticas del método `deposit`, que so
 
 La primera de ellas, toma tres argumentos, `String accountNumber`, `double amount`, `String description`.
 
-```java
-/**
- * Deposit money into account
- */
-@Transactional
-public Account deposit(String accountNumber, double amount, String description) {
-    if (amount == 0) {
-        throw new IllegalArgumentException("Amount must be positive");
-    }
-    if (amount < 0) {
-        throw new IllegalArgumentException("Amount must be positive");
-    }
-    if (amount > 10000) {
-        throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
-    }
-    if (amount > 50000) {
-        throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
-    }
-
-    Account account = getAccount(accountNumber);
-    account.deposit(amount);
-
-    // Record transaction
-    Transaction transaction = new Transaction(account, Transaction.TransactionType.DEPOSIT,
-            amount, description);
-    transactionRepository.save(transaction);
-
-    Account savedAccount = accountRepository.save(account);
-
-    // Send notification
-    User.NotificationType notifType = account.getUser().getNotificationType();
-    if (notifType == User.NotificationType.EMAIL) {
-        emailService.sendNotification(
-                account.getUser(),
-                Notification.NotificationType.DEPOSIT,
-                "Deposit Confirmation",
-                String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
-                        amount, account.getBalance()));
-    } else if (notifType == User.NotificationType.SMS) {
-        smsService.sendNotification(
-                account.getUser(),
-                Notification.NotificationType.DEPOSIT,
-                "Deposit Confirmation",
-                String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
-                        amount, account.getBalance()));
-    }
-
-    return savedAccount;
-}
-```
+![Código duplicado 1](img/bad-smell-duplicate-1.png)
 
 La segunda, toma los mismos argumentos a excepción de `String description`.
 
-```java
-/**
- * Quick deposit without description
- */
-@Transactional
-public Account deposit(String accountNumber, double amount) {
-    if (amount == 0) {
-        throw new IllegalArgumentException("Amount must be positive");
-    }
-    if (amount < 0) {
-        throw new IllegalArgumentException("Amount must be positive");
-    }
-    if (amount > 10000) {
-        throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
-    }
-    if (amount > 50000) {
-        throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
-    }
-
-    Account account = getAccount(accountNumber);
-    account.deposit(amount);
-
-    // Record transaction
-    Transaction transaction = new Transaction(account, Transaction.TransactionType.DEPOSIT,
-            amount, "Quick deposit");
-    transactionRepository.save(transaction);
-
-    Account savedAccount = accountRepository.save(account);
-
-    // Send notification
-    User.NotificationType notifType = account.getUser().getNotificationType();
-    if (notifType == User.NotificationType.EMAIL) {
-        emailService.sendNotification(
-                account.getUser(),
-                Notification.NotificationType.DEPOSIT,
-                "Deposit Confirmation",
-                String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
-                        amount, account.getBalance()));
-    } else if (notifType == User.NotificationType.SMS) {
-        smsService.sendNotification(
-                account.getUser(),
-                Notification.NotificationType.DEPOSIT,
-                "Deposit Confirmation",
-                String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
-                        amount, account.getBalance()));
-    }
-
-    return savedAccount;
-}
-```
+![Código duplicado 2](img/bad-smell-duplicate-2.png)
 
 **Ubicación de la issue**
 Clase `AccountService.java`, método `deposit`.

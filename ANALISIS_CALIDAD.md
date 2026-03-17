@@ -91,6 +91,21 @@ Clase `AccountService.java`, en la línea 235
 
 - Por qué **NO es un falso positivo (Issue real)**: No es un falso positivo porque el uso de == para comparar Strings es una práctica incorrecta en Java cuando se desea comparar su contenido. SonarQube detecta correctamente este patrón como un posible bug o code smell, ya que puede derivar en fallos funcionales difíciles de detectar. La solución adecuada es utilizar equals().
 
+### Issue 6: Colisiones en la generación de Número de Cuenta - Detectado por análisis manual
+
+**Reporte de la issue**
+
+![Colisiones Random Number](img/bad-smell-random-numbers.png)
+
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, en la línea 55
+
+**Explicación de los alumnos del mal olor detectado**
+
+- El principal problema de este método es que no se garantiza la unicidad de los números de cuenta generados. Al basarse en un generador de números aleatorios dentro de un rango limitado, existe la posibilidad de que se produzcan colisiones, es decir, que se generen dos cuentas con el mismo identificador.
+
 ### Issue 7: Large Class - Detectado por análisis manual
 
 **Reporte de la issue**:

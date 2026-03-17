@@ -8,7 +8,7 @@
 | Samuel Melián Benito | s.melian.2022@alumnos.urjc.es| SamuelMelian |
 | Daniel Bonachela Martínez | d.bonachela.2022@alumnos.urjc.es | fuihfuefuiewn |
 | Alejandro García Prada | a.garciap.2022@alumnos.urjc.es | AlexGarciaPrada |
-| Marcelo Atanasio Domínguez Mateo Cantero | ma.dominguez.2022@alumnos.urjc.es | Sa4dUs |
+| Marcelo Atanasio Domínguez Mateo | ma.dominguez.2022@alumnos.urjc.es | Sa4dUs |
 | Sara Guillén Martínez | s.guillenm.2022@alumnos.urjc.es | saraguillenmtz |
 | Gonzalo Fernández de Córdoba García | g.fernandezg.2023@alumnos.urjc.es | gonfdcg |
 
@@ -50,7 +50,7 @@ He cooperado con el equipo en encontrar los bad smells del código. Me he encarg
 
 ---
 
-#### **Alumno 4 - Marcelo Atanasio Domínguez Mateo Cantero**
+#### **Alumno 4 - Marcelo Atanasio Domínguez Mateo**
 
 He cooperado con el equipo en encontrar los bad smells del código. Me he encargado de documentar el issue 11 (Código Duplicado).
 

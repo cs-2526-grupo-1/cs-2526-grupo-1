@@ -104,3 +104,132 @@ Clase `AccountService.java`, en la cabecera métodos
 **Explicación de los alumnos del mal olor detectado**
 - A lo largo del código se puede ver que alguien se esforzó por dejar constancia de que hacía el código, pero este no sigue ningún estándar. Además, algunos ni siquiera aportan información, simplemente describen superficialmente aquello que ya se puede inferir leyendo superficialmente el código.
 - Los comentarios superficiales no aportan valor al código y pueden inducir a error. Si el código cambia y los comentarios no se actualizan, la información que contienen deja de ser fiable. Esto afecta a la mantenibilidad y dificulta que otros desarrolladores comprendan el código.
+
+### Issue 11: Código duplicado en el método `deposit` - Detectado por análisis manual
+
+**Reporte de la issue**:
+Observamos que hay dos implementaciones idénticas del método `deposit`, que solo difieren en el argumento `String description`.
+
+La primera de ellas, toma tres argumentos, `String accountNumber`, `double amount`, `String description`.
+
+```java
+/**
+ * Deposit money into account
+ */
+@Transactional
+public Account deposit(String accountNumber, double amount, String description) {
+    if (amount == 0) {
+        throw new IllegalArgumentException("Amount must be positive");
+    }
+    if (amount < 0) {
+        throw new IllegalArgumentException("Amount must be positive");
+    }
+    if (amount > 10000) {
+        throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
+    }
+    if (amount > 50000) {
+        throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
+    }
+
+    Account account = getAccount(accountNumber);
+    account.deposit(amount);
+
+    // Record transaction
+    Transaction transaction = new Transaction(account, Transaction.TransactionType.DEPOSIT,
+            amount, description);
+    transactionRepository.save(transaction);
+
+    Account savedAccount = accountRepository.save(account);
+
+    // Send notification
+    User.NotificationType notifType = account.getUser().getNotificationType();
+    if (notifType == User.NotificationType.EMAIL) {
+        emailService.sendNotification(
+                account.getUser(),
+                Notification.NotificationType.DEPOSIT,
+                "Deposit Confirmation",
+                String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
+                        amount, account.getBalance()));
+    } else if (notifType == User.NotificationType.SMS) {
+        smsService.sendNotification(
+                account.getUser(),
+                Notification.NotificationType.DEPOSIT,
+                "Deposit Confirmation",
+                String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
+                        amount, account.getBalance()));
+    }
+
+    return savedAccount;
+}
+```
+
+La segunda, toma los mismos argumentos a excepción de `String description`.
+
+```java
+/**
+ * Quick deposit without description
+ */
+@Transactional
+public Account deposit(String accountNumber, double amount) {
+    if (amount == 0) {
+        throw new IllegalArgumentException("Amount must be positive");
+    }
+    if (amount < 0) {
+        throw new IllegalArgumentException("Amount must be positive");
+    }
+    if (amount > 10000) {
+        throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
+    }
+    if (amount > 50000) {
+        throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
+    }
+
+    Account account = getAccount(accountNumber);
+    account.deposit(amount);
+
+    // Record transaction
+    Transaction transaction = new Transaction(account, Transaction.TransactionType.DEPOSIT,
+            amount, "Quick deposit");
+    transactionRepository.save(transaction);
+
+    Account savedAccount = accountRepository.save(account);
+
+    // Send notification
+    User.NotificationType notifType = account.getUser().getNotificationType();
+    if (notifType == User.NotificationType.EMAIL) {
+        emailService.sendNotification(
+                account.getUser(),
+                Notification.NotificationType.DEPOSIT,
+                "Deposit Confirmation",
+                String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
+                        amount, account.getBalance()));
+    } else if (notifType == User.NotificationType.SMS) {
+        smsService.sendNotification(
+                account.getUser(),
+                Notification.NotificationType.DEPOSIT,
+                "Deposit Confirmation",
+                String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
+                        amount, account.getBalance()));
+    }
+
+    return savedAccount;
+}
+```
+
+**Ubicación de la issue**
+Clase `AccountService.java`, método `deposit`.
+
+**Explicación de los alumnos del mal olor detectado**
+- El código de ambas funciones es prácticamente idéntico, salvo en la línea en la que se crea el objeto de tipo `Transaction`:
+```java
+    // public Account deposit(String accountNumber, double amount, String description)
+    Transaction transaction = new Transaction(account, Transaction.TransactionType.DEPOSIT,
+            amount, description);
+            
+    // public Account deposit(String accountNumber, double amount)
+    Transaction transaction = new Transaction(account, Transaction.TransactionType.DEPOSIT,
+            amount, "Quick deposit");
+```
+
+- Esta diferencia no justifica la duplicación de más de 40 líneas, por lo que consideraremos esta práctica un *bad smell*. Esto afecta de manera considerable a la mantenibilidad y escalabilidad del código, ya que cualquier cambio que queramos hacer en `deposit`, supondrá un cambio en ambos lugares. 
+

@@ -75,6 +75,22 @@ Clase `AccountService.java`, líneas 77, 126, 175, 223, 314
 **Explicación de los alumnos del mal olor detectado**
 - Nos hemos dado cuenta de que para gestionar los saldos y las cantidades de las transferencias se está usando el tipo `double`. El problema es que los `double` no son exactos para temas de dinero porque funcionan con un sistema de coma flotante binaria, es decir, cuando se realizan operaciones matemáticas pueden aparecer decimales infinitos o errores de precisión muy raros. Por ejemplo, te puede pasar que una cuenta que debería tener $0.30$ acabe teniendo $0.30000000000000004$ por un error de redondeo, por lo que puede llegar a ser un problema bastante crítico. Es un problema real y bastante grave porque pone en peligro la fiabilidad de los datos financieros. Si usásemos BigDecimal o una clase propia llamada Money podríamos controlar exactamente cuántos decimales queremos y cómo queremos que se haga el redondeo. Al tenerlo como un double habría que gestionar los redondeos y el formato en cada método donde se haga el cálculo. Esto implica que la responsabilidad de cómo tratar el dinero acabe dispersa por todo el `AccountService` en lugar de estar en un solo sitio centralizado . Si esto se quedase así a la larga habrá desajustes en las cuentas de los clientes y será casi imposible encontrar dónde empezó el error.
 
+### Issue 5: Comparación de strings sin utilizar equals() - Detectado por SonarQube
+
+**Reporte de la issue**:
+![Comparación sin equals()](img/bad-smell-compare-strings.png)
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, en la línea 235
+  
+**Explicación de los alumnos del mal olor detectado** 
+- La comparación de Strings utilizando el operador == en lugar del método equals() puede provocar errores lógicos. En Java, el operador == compara referencias en memoria, no el contenido del objeto. Por lo tanto, aunque dos cadenas tengan el mismo texto, la comparación puede devolver false si no apuntan al mismo objeto.
+
+- Esto puede generar comportamientos inesperados en la aplicación, especialmente en condiciones (if) donde se espera comparar valores. El uso incorrecto de == en lugar de equals() rompe la correcta comparación de contenido y puede afectar a la lógica del negocio.
+
+- Por qué **NO es un falso positivo (Issue real)**: No es un falso positivo porque el uso de == para comparar Strings es una práctica incorrecta en Java cuando se desea comparar su contenido. SonarQube detecta correctamente este patrón como un posible bug o code smell, ya que puede derivar en fallos funcionales difíciles de detectar. La solución adecuada es utilizar equals().
+
 ### Issue 7: Large Class - Detectado por análisis manual
 
 **Reporte de la issue**:

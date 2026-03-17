@@ -9,6 +9,7 @@
 | [Nombre 2] | [email2]@alumnos.urjc.es | [User2] |
 | [Nombre 3] | [email3]@alumnos.urjc.es | [User3] |
 | [Nombre 4] | [email4]@alumnos.urjc.es | [User4] |
+| [Gonzalo Fernández de Córdoba García] | [email4]g.fernandezg.2023@alumnos.urjc.es | [gonfdcg] |
 
 ---
 
@@ -70,13 +71,13 @@
 
 ---
 
-#### **Alumno 5 - [Nombre Completo]**
+#### **Alumno 5 - Gonzalo Fernández de Córdoba García**
 
-[Descripción de las tareas y responsabilidades principales del alumno en el proyecto]
+Identificación y documentación de los Issues 9 y 10
 
 | Nº    | Commits      |
 |:------------: |:------------:|
-|1| [Issue detectada](URL_commit_1)  |
+|1| [Issue detectada](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/1f0ea1ce3c2cc159935f9562d1dbe9389ba45e4f)  |
 |2| [Prueba unitaria implementada](URL_commit_2)  |
 |3| [Refactorización implementada](URL_commit_3)  |
 |4| [Caso de TDD implementado](URL_commit_4)  |

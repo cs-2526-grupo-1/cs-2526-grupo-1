@@ -120,3 +120,33 @@ Clase `AccountService.java`, en la cabecera métodos
 **Explicación de los alumnos del mal olor detectado**
 - A lo largo del código se puede ver que alguien se esforzó por dejar constancia de que hacía el código, pero este no sigue ningún estándar. Además, algunos ni siquiera aportan información, simplemente describen superficialmente aquello que ya se puede inferir leyendo superficialmente el código.
 - Los comentarios superficiales no aportan valor al código y pueden inducir a error. Si el código cambia y los comentarios no se actualizan, la información que contienen deja de ser fiable. Esto afecta a la mantenibilidad y dificulta que otros desarrolladores comprendan el código.
+
+
+### Issue 9: Métodos excesivamente largos - Detectado por análisis manual
+
+**Reporte de la issue**:
+![Long-Methods](img/bad-smell-long-methods-2.png)
+
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, métodos `deposit` (línea 77), `deposit` (línea 126), `withdraw` (línea 175) y `transfer` (línea 223)
+  
+**Explicación de los alumnos del mal olor detectado**
+- Como fue mencionado anteriormente en el *Issue 7*, el código aglutina demasiadas responsabilidades. Esto tiene como consecuencia directa la presencia de métodos excesivamente largos (**Long Methods**) con un bajo grado de cohesión, que presentan código que debería ser extraído a otros métodos auxiliares. 
+
+- En los 4 métodos (especialmente en `transfer`), encontramos secciones de código con propósitos diferenciados: comprobación de la cantidad introducida, validación del número de cuenta, comprobación del balance, realización de la operación, registro de la operación o envío de notificaciones. Esto empeora considerablemente la legibilidad del código y deriva en la presencia de comentarios que delimiten y agreguen contexto a las distintas secciones del método.
+
+
+### Issue 10: Comprobación de tipo mediante ifs-else -  Detectado por análisis manual
+
+**Reporte de la issue**:
+![Switch-Statements](img/bad-smell-switch-statements-1.png)
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, métodos `deposit` (línea 102), `deposit` (línea 151), `withdraw` (línea 201) y `transfer` (línea 266)
+  
+**Explicación de los alumnos del mal olor detectado**
+
+- En los 4 métodos se comprueba el tipo de notificación mediante bloques `if-else` encadenados. Esto se corresponde al bad smell de **Switch Statements**, ya que imposibilita la adición de tipos adicionales sin modificar el código existente (viola el **Open/Closed principle**). Esto resulta en un mayor acoplamiento del código, entorpeciendo tanto su mantenibilidad como su extensibilidad.

@@ -75,6 +75,22 @@ Clase `AccountService.java`, líneas 77, 126, 175, 223, 314
 **Explicación de los alumnos del mal olor detectado**
 - Nos hemos dado cuenta de que para gestionar los saldos y las cantidades de las transferencias se está usando el tipo `double`. El problema es que los `double` no son exactos para temas de dinero porque funcionan con un sistema de coma flotante binaria, es decir, cuando se realizan operaciones matemáticas pueden aparecer decimales infinitos o errores de precisión muy raros. Por ejemplo, te puede pasar que una cuenta que debería tener $0.30$ acabe teniendo $0.30000000000000004$ por un error de redondeo, por lo que puede llegar a ser un problema bastante crítico. Es un problema real y bastante grave porque pone en peligro la fiabilidad de los datos financieros. Si usásemos BigDecimal o una clase propia llamada Money podríamos controlar exactamente cuántos decimales queremos y cómo queremos que se haga el redondeo. Al tenerlo como un double habría que gestionar los redondeos y el formato en cada método donde se haga el cálculo. Esto implica que la responsabilidad de cómo tratar el dinero acabe dispersa por todo el `AccountService` en lugar de estar en un solo sitio centralizado . Si esto se quedase así a la larga habrá desajustes en las cuentas de los clientes y será casi imposible encontrar dónde empezó el error.
 
+### Issue 5: Comparación de strings sin utilizar equals() - Detectado por SonarQube
+
+**Reporte de la issue**:
+![Comparación sin equals()](img/bad-smell-compare-strings.png)
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, en la línea 235
+  
+**Explicación de los alumnos del mal olor detectado** 
+- La comparación de Strings utilizando el operador == en lugar del método equals() puede provocar errores lógicos. En Java, el operador == compara referencias en memoria, no el contenido del objeto. Por lo tanto, aunque dos cadenas tengan el mismo texto, la comparación puede devolver false si no apuntan al mismo objeto.
+
+- Esto puede generar comportamientos inesperados en la aplicación, especialmente en condiciones (if) donde se espera comparar valores. El uso incorrecto de == en lugar de equals() rompe la correcta comparación de contenido y puede afectar a la lógica del negocio.
+
+- Por qué **NO es un falso positivo (Issue real)**: No es un falso positivo porque el uso de == para comparar Strings es una práctica incorrecta en Java cuando se desea comparar su contenido. SonarQube detecta correctamente este patrón como un posible bug o code smell, ya que puede derivar en fallos funcionales difíciles de detectar. La solución adecuada es utilizar equals().
+
 ### Issue 7: Large Class - Detectado por análisis manual
 
 **Reporte de la issue**:
@@ -105,6 +121,36 @@ Clase `AccountService.java`, en la cabecera métodos
 - A lo largo del código se puede ver que alguien se esforzó por dejar constancia de que hacía el código, pero este no sigue ningún estándar. Además, algunos ni siquiera aportan información, simplemente describen superficialmente aquello que ya se puede inferir leyendo superficialmente el código.
 - Los comentarios superficiales no aportan valor al código y pueden inducir a error. Si el código cambia y los comentarios no se actualizan, la información que contienen deja de ser fiable. Esto afecta a la mantenibilidad y dificulta que otros desarrolladores comprendan el código.
 
+### Issue 9: Métodos excesivamente largos - Detectado por análisis manual
+
+**Reporte de la issue**:
+![Long-Methods](img/bad-smell-long-methods-2.png)
+
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, métodos `deposit` (línea 77), `deposit` (línea 126), `withdraw` (línea 175) y `transfer` (línea 223)
+  
+**Explicación de los alumnos del mal olor detectado**
+- Como fue mencionado anteriormente en el *Issue 7*, el código aglutina demasiadas responsabilidades. Esto tiene como consecuencia directa la presencia de métodos excesivamente largos (**Long Methods**) con un bajo grado de cohesión, que presentan código que debería ser extraído a otros métodos auxiliares. 
+
+- En los 4 métodos (especialmente en `transfer`), encontramos secciones de código con propósitos diferenciados: comprobación de la cantidad introducida, validación del número de cuenta, comprobación del balance, realización de la operación, registro de la operación o envío de notificaciones. Esto empeora considerablemente la legibilidad del código y deriva en la presencia de comentarios que delimiten y agreguen contexto a las distintas secciones del método.
+
+
+### Issue 10: Comprobación de tipo mediante ifs-else -  Detectado por análisis manual
+
+**Reporte de la issue**:
+![Switch-Statements](img/bad-smell-switch-statements-1.png)
+
+**Ubicación de la issue**
+
+Clase `AccountService.java`, métodos `deposit` (línea 102), `deposit` (línea 151), `withdraw` (línea 201) y `transfer` (línea 266)
+  
+**Explicación de los alumnos del mal olor detectado**
+
+- En los 4 métodos se comprueba el tipo de notificación mediante bloques `if-else` encadenados. Esto se corresponde al bad smell de **Switch Statements**, ya que imposibilita la adición de tipos adicionales sin modificar el código existente (viola el **Open/Closed principle**). Esto resulta en un mayor acoplamiento del código, entorpeciendo tanto su mantenibilidad como su extensibilidad.
+
+
 ### Issue 11: Código duplicado en el método `deposit` - Detectado por análisis manual
 
 **Reporte de la issue**:
@@ -134,4 +180,3 @@ Clase `AccountService.java`, método `deposit`.
 ```
 
 - Esta diferencia no justifica la duplicación de más de 40 líneas, por lo que consideraremos esta práctica un *bad smell*. Esto afecta de manera considerable a la mantenibilidad y escalabilidad del código, ya que cualquier cambio que queramos hacer en `deposit`, supondrá un cambio en ambos lugares. 
-

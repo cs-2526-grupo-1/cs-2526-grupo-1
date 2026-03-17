@@ -73,11 +73,14 @@ Clase `AccountService.java`, línea 185
 Clase `AccountService.java`, líneas 77, 126, 175, 223, 314
   
 **Explicación de los alumnos del mal olor detectado**
-- Nos hemos dado cuenta de que para gestionar los saldos y las cantidades de las transferencias se está usando el tipo `double`. El problema es que los `double` no son exactos para temas de dinero porque funcionan con un sistema de coma flotante binaria, es decir, cuando se realizan operaciones matemáticas pueden aparecer decimales infinitos o errores de precisión muy raros. Por ejemplo, te puede pasar que una cuenta que debería tener $0.30$ acabe teniendo $0.30000000000000004$ por un error de redondeo, por lo que puede llegar a ser un problema bastante crítico. Es un problema real y bastante grave porque pone en peligro la fiabilidad de los datos financieros. Si usásemos BigDecimal o una clase propia llamada Money podríamos controlar exactamente cuántos decimales queremos y cómo queremos que se haga el redondeo. Al tenerlo como un double habría que gestionar los redondeos y el formato en cada método donde se haga el cálculo. Esto implica que la responsabilidad de cómo tratar el dinero acabe dispersa por todo el `AccountService` en lugar de estar en un solo sitio centralizado . Si esto se quedase así a la larga habrá desajustes en las cuentas de los clientes y será casi imposible encontrar dónde empezó el error.
+- Nos hemos dado cuenta de que para gestionar los saldos y las cantidades de las transferencias se está usando el tipo `double`. El problema es que los `double` no son exactos para temas de dinero porque funcionan con un sistema de coma flotante binaria, es decir, cuando se realizan operaciones matemáticas pueden aparecer decimales infinitos o errores de precisión muy raros. Por ejemplo, te puede pasar que una cuenta que debería tener $0.30$ acabe teniendo $0.30000000000000004$ por un error de redondeo, por lo que puede llegar a ser un problema bastante crítico.
+
+- Es un problema real y bastante grave porque pone en peligro la fiabilidad de los datos financieros. Si usásemos BigDecimal o una clase propia llamada Money podríamos controlar exactamente cuántos decimales queremos y cómo queremos que se haga el redondeo. Al tenerlo como un double habría que gestionar los redondeos y el formato en cada método donde se haga el cálculo. Esto implica que la responsabilidad de cómo tratar el dinero acabe dispersa por todo el `AccountService` en lugar de estar en un solo sitio centralizado. Si esto se quedase así a la larga habrá desajustes en las cuentas de los clientes y será casi imposible encontrar dónde empezó el error.
 
 ### Issue 5: Comparación de strings sin utilizar equals() - Detectado por SonarQube
 
 **Reporte de la issue**:
+
 ![Comparación sin equals()](img/bad-smell-compare-strings.png)
 
 **Ubicación de la issue**
@@ -109,6 +112,7 @@ Clase `AccountService.java`, en la línea 55
 ### Issue 7: Large Class - Detectado por análisis manual
 
 **Reporte de la issue**:
+
 ![God Class](img/bad-smell-god-class.png)
 
 **Ubicación de la issue**
@@ -118,7 +122,7 @@ Clase `AccountService.java` (al completo)
 **Explicación de los alumnos del mal olor detectado**
 - Una *Large Class* es una clase que aglutina numerosas responsabilidades sin las que el programa funcionaría. En nuestro caso, `AccountService` cuenta con la gestión de las cuentas, las validaciones y las operaciones del negocio, lo cual entra perfectamente en la definición.
 
-- Se evidencia en el constructor, debido a la gran cantidad de funcionalidades es muy grande y hereda multitud de objetos.
+- Se evidencia en el constructor, debido a que la cantidad de funcionalidades es muy grande y se inyectan multitud de objetos.
 
 - Esta acumulación de responsabilidades induce una violación del **Principio de Responsabilidad Única (SRP)**, ya que por razones ya apuntadas son muchas las funciones de la clase. Esto a la larga acabará dificultando el mantenimiento y aumentando el riesgo de errores. Además, aumenta sensiblemente el acoplamiento del código, lo cual, es algo a evitar en cualquier programa orientado a objetos.
 
@@ -138,6 +142,7 @@ Clase `AccountService.java`, en la cabecera métodos
 ### Issue 9: Métodos excesivamente largos - Detectado por análisis manual
 
 **Reporte de la issue**:
+
 ![Long-Methods](img/bad-smell-long-methods-2.png)
 
 
@@ -153,6 +158,7 @@ Clase `AccountService.java`, métodos `deposit` (línea 77), `deposit` (línea 1
 ### Issue 10: Comprobación de tipo mediante ifs-else -  Detectado por análisis manual
 
 **Reporte de la issue**:
+
 ![Switch-Statements](img/bad-smell-switch-statements-1.png)
 
 **Ubicación de la issue**

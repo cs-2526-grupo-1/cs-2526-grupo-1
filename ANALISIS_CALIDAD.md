@@ -20,6 +20,7 @@ A continuación se muestra un resumen de los issues encontrados en el análisis 
 ### Issue 1: Duplicación de Strings (Magic Strings) - Detectado por SonarQube
 
 **Reporte de la issue**:
+
 ![Magic Strings](img/bad-smell-magic-strings.png)
 
 **Ubicación de la issue**
@@ -34,6 +35,7 @@ Clase `AccountService.java`, en múltiples líneas (107, 114, 156, 163)
 ### Issue 2: Nombres de variables y métodos poco descriptivos - Detectado por análisis manual
 
 **Reporte de la issue**:
+
 ![Magic Strings](img/bad-smell-var-method-names-1.png)
 ![Magic Strings](img/bad-smell-var-method-names-2.png)
 
@@ -47,6 +49,7 @@ Clase `AccountService.java`, líneas 231, 232, 301
 ### Issue 3: Variables locales no utilizadas - Detectado por SonarQube
 
 **Reporte de la issue**:
+
 ![Variables locales no utilizadas](img/bad-smell-unused-local-variable.png)
 
 **Ubicación de la issue**

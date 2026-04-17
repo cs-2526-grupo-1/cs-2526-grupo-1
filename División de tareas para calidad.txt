@@ -1,0 +1,8 @@
+División de tareas para calidad
+Daniel-> createAccount, de deposit la segunda parte (x2*)
+Alex-> generateAccountNumber, amount de deposit (x4*)
+Gonzalo-> getAccount, método transfer hasta //Perform transfer (el comentario)
+Samu y Sara-> getUserAccounts, rm y withdraw
+Marcelo-> getBalance, getTransactions, método transfer //Desde perform transferm  
+
+

@@ -129,4 +129,13 @@ class AccountServiceTest {
                 when(accountRepository.findByUser(emailUser)).thenReturn(List.of(accountA));
                 assertThat(accountService.getUserAccounts(emailUser)).isEqualTo(List.of(accountA));
         }
+
+        @Test
+        @DisplayName("remove an account with a balance greater than zero should throw IllegalArgumentException")
+        public void rmAccountWithBalanceGreaterThanZeroShouldThrowIllegalArgumentException() {
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+
+                assertThatThrownBy(() -> accountService.rm(ACC_A)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Cannot delete account with non-zero balance");
+        }
+
 }

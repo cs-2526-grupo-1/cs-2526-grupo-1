@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("When running AccountService")
 class AccountServiceTest {
 
         @Mock
@@ -69,4 +70,6 @@ class AccountServiceTest {
                 accountB = new Account(ACC_B, Account.AccountType.CHECKING, 200.0);
                 accountB.setUser(smsUser);
         }
+
+        
 }

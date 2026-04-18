@@ -77,5 +77,11 @@ class AccountServiceTest {
                 assertThatThrownBy(() -> accountService.withdraw(ACC_A, -200, "Withdraw negative amount")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Amount must be positive");
         }
 
+        @Test
+        @DisplayName("withdraw an amount that exceeds limit should throw IllegalArgumentException")
+        public void withrawExceedLimitAmountShouldThrowIllegalArgumentException() {
+                assertThatThrownBy(() -> accountService.withdraw(ACC_A, 6000, "Withdraw a lot of money")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Amount exceeds maximum withdrawal limit");
+        }
+
         
 }

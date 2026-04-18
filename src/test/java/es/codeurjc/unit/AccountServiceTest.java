@@ -71,5 +71,27 @@ class AccountServiceTest {
                 accountB.setUser(smsUser);
         }
 
+        @Test
+        void testCreateAccount() {
+                //Given
+                User user = this.emailUser;
+
+                Account testAccount = new Account("1", Account.AccountType.CHECKING, 0);
+                testAccount.setUser(user);
+
+                when(accountRepository.save(any(Account.class))).thenReturn(testAccount);
+                
+                //When
+                Account result = accountService.createAccount(user, Account.AccountType.CHECKING);
+                
+                //Then
+                verify(accountRepository).save(any(Account.class));
+                assertThat(result).isNotNull();
+                assertThat(result.getUser()).isEqualTo(user);
+                assertThat(result.getAccountType()).isEqualTo(Account.AccountType.CHECKING);
+                assertThat(result.getBalance()).isEqualTo(0);
+                assertThat(result.getAccountNumber()).isEqualTo("1");
+                assertThat(result).isEqualTo(testAccount);
+        }
         
 }

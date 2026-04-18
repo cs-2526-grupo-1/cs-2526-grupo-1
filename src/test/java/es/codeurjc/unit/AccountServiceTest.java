@@ -132,10 +132,19 @@ class AccountServiceTest {
 
         @Test
         @DisplayName("remove an account with a balance greater than zero should throw IllegalArgumentException")
-        public void rmAccountWithBalanceGreaterThanZeroShouldThrowIllegalArgumentException() {
+        public void removeAccountWithBalanceGreaterThanZeroShouldThrowIllegalArgumentException() {
                 when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
 
                 assertThatThrownBy(() -> accountService.rm(ACC_A)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Cannot delete account with non-zero balance");
+        }
+
+        @Test
+        @DisplayName("remove an account with a balance of zero shoud delete account")
+        public void removeAccountWithBalanceZeroShouldDeleteAccount(){
+                Account zeroBalanceAccount = new Account(ACC_A, Account.AccountType.CHECKING, 0.0);
+                when(accountRepository.findByAccountNumber(any())).thenReturn(Optional.of(zeroBalanceAccount));
+                accountService.rm(ACC_A);
+                verify(accountRepository).delete(zeroBalanceAccount);
         }
 
 }

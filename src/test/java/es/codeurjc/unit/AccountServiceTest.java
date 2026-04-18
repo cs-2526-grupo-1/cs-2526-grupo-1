@@ -95,8 +95,11 @@ class AccountServiceTest {
         public void withdrawValidAmountDecreasesBalanceAndTriggersEmailNotification(){
                 when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
                 when(accountRepository.save(accountA)).thenReturn(accountA);
+                
+                double balanceBefore = accountA.getBalance();
                 accountService.withdraw(ACC_A, 100, "Padel match");
-                assertThat(accountA.getBalance()).isEqualTo(400);
+                
+                assertThat(accountA.getBalance()).isEqualTo(balanceBefore - 100);
                 verify(emailService).sendNotification(any(), any(), any(), any());
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
@@ -106,8 +109,11 @@ class AccountServiceTest {
         public void withdrawValidAmountDecreasesBalanceAndTriggersSmsNotification(){
                 when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
                 when(accountRepository.save(accountB)).thenReturn(accountB);
+                
+                double balanceBefore = accountB.getBalance();
                 accountService.withdraw(ACC_B, 100, "Padel match");
-                assertThat(accountB.getBalance()).isEqualTo(100);
+                
+                assertThat(accountB.getBalance()).isEqualTo(balanceBefore - 100);
                 verify(smsService).sendNotification(any(), any(), any(), any());
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
         }

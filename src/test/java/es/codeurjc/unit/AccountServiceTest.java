@@ -14,10 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.codeurjc.model.Account;
+import es.codeurjc.model.Transaction;
 import es.codeurjc.model.User;
 import es.codeurjc.repository.AccountRepository;
 import es.codeurjc.repository.TransactionRepository;
@@ -128,5 +130,44 @@ class AccountServiceTest {
         public void getUserAccountsReturnsUserAccounts() {
                 when(accountRepository.findByUser(emailUser)).thenReturn(List.of(accountA));
                 assertThat(accountService.getUserAccounts(emailUser)).isEqualTo(List.of(accountA));
+        }
+
+        @Test
+        @DisplayName("getTransactions returns transactions ordered by timestamp descending")
+        public void getTransactionsReturnsOrderedList() {
+                Transaction deposit = new Transaction(accountA, Transaction.TransactionType.DEPOSIT, 100.0, "dep");
+                Transaction withdrawal = new Transaction(accountA, Transaction.TransactionType.WITHDRAWAL, 50.0, "wd");
+
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(transactionRepository.findByAccountOrderByTimestampDesc(accountA))
+                                .thenReturn(List.of(withdrawal, deposit));
+
+                List<Transaction> result = accountService.getTransactions(ACC_A);
+
+                assertThat(result).hasSize(2);
+                assertThat(result.get(0).getType()).isEqualTo(Transaction.TransactionType.WITHDRAWAL);
+                assertThat(result.get(1).getType()).isEqualTo(Transaction.TransactionType.DEPOSIT);
+                verify(transactionRepository).findByAccountOrderByTimestampDesc(accountA);
+        }
+
+        @Test
+        @DisplayName("getTransactions returns empty list when account has no transactions")
+        public void getTransactionsReturnsEmptyListWhenNoTransactions() {
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(transactionRepository.findByAccountOrderByTimestampDesc(accountA)).thenReturn(List.of());
+
+                assertThat(accountService.getTransactions(ACC_A)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("getTransactions for an unknown account should throw IllegalArgumentException")
+        public void getTransactionsUnknownAccountShouldThrowIllegalArgumentException() {
+                when(accountRepository.findByAccountNumber(ACC_MISSING)).thenReturn(Optional.empty());
+
+                assertThatThrownBy(() -> accountService.getTransactions(ACC_MISSING))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Account not found");
+
+                verifyNoInteractions(transactionRepository);
         }
 }

@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("When running AccountService")
+@DisplayName("When running AccountService ")
 class AccountServiceTest {
 
         @Mock
@@ -69,6 +69,53 @@ class AccountServiceTest {
 
                 accountB = new Account(ACC_B, Account.AccountType.CHECKING, 200.0);
                 accountB.setUser(smsUser);
+        }
+
+        @Test
+        @DisplayName("withdraw zero or negative amount should throw IllegalArgumentException")
+        public void withdrawZeroOrNegativeAmountShouldThrowIllegalArgumentException() {
+                assertThatThrownBy(() -> accountService.withdraw(ACC_A, -200, "Withdraw negative amount")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Amount must be positive");
+        }
+
+        @Test
+        @DisplayName("withdraw an amount that exceeds limit should throw IllegalArgumentException")
+        public void withdrawExceedLimitAmountShouldThrowIllegalArgumentException() {
+                assertThatThrownBy(() -> accountService.withdraw(ACC_A, 6000, "Withdraw a lot of money")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Amount exceeds maximum withdrawal limit");
+        }
+
+        @Test
+        @DisplayName("withdraw an amount that exceeds balance should throw IllegalArgumentException")
+        public void withdrawAmountThatExceedsBalanceShouldThrowIllegalArgumentException() {
+                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
+                assertThatThrownBy(() -> accountService.withdraw(ACC_B, 300, "Padel match was a bit expensive")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Insufficient funds");
+        }
+
+        @Test
+        @DisplayName("withdraw a valid amount in an account with email notification triggers an email notification")
+        public void withdrawValidAmountDecreasesBalanceAndTriggersEmailNotification(){
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.save(accountA)).thenReturn(accountA);
+                
+                double balanceBefore = accountA.getBalance();
+                accountService.withdraw(ACC_A, 100, "Padel match");
+                
+                assertThat(accountA.getBalance()).isEqualTo(balanceBefore - 100);
+                verify(emailService).sendNotification(any(), any(), any(), any());
+                verify(smsService, never()).sendNotification(any(), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("withdraw a valid amount in an account with SMS notification triggers an SMS notification")
+        public void withdrawValidAmountDecreasesBalanceAndTriggersSmsNotification(){
+                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
+                when(accountRepository.save(accountB)).thenReturn(accountB);
+                
+                double balanceBefore = accountB.getBalance();
+                accountService.withdraw(ACC_B, 100, "Padel match");
+                
+                assertThat(accountB.getBalance()).isEqualTo(balanceBefore - 100);
+                verify(smsService).sendNotification(any(), any(), any(), any());
+                verify(emailService, never()).sendNotification(any(), any(), any(), any());
         }
 
         

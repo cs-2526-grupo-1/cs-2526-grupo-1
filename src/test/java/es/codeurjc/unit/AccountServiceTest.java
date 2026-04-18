@@ -101,5 +101,16 @@ class AccountServiceTest {
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
 
+        @Test
+        @DisplayName("withdraw a valid amount in an account with SMS notification triggers an SMS notification")
+        public void withdrawValidAmountDecreasesBalanceAndTriggersSmsNotification(){
+                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
+                when(accountRepository.save(accountB)).thenReturn(accountB);
+                accountService.withdraw(ACC_B, 100, "Padel match");
+                assertThat(accountB.getBalance()).isEqualTo(100);
+                verify(smsService).sendNotification(any(), any(), any(), any());
+                verify(emailService, never()).sendNotification(any(), any(), any(), any());
+        }
+
         
 }

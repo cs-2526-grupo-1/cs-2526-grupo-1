@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("When running AccountService")
+@DisplayName("When running AccountService ")
 class AccountServiceTest {
 
         @Mock
@@ -69,6 +69,12 @@ class AccountServiceTest {
 
                 accountB = new Account(ACC_B, Account.AccountType.CHECKING, 200.0);
                 accountB.setUser(smsUser);
+        }
+
+        @Test
+        @DisplayName("withdraw zero or negative amount should throw IllegalArgumentException")
+        public void withrawZeroOrNegativeAmountShouldThrowIllegalArgumentException() {
+                assertThatThrownBy(() -> accountService.withdraw(ACC_A, -200, "Withdraw negative amount")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Amount must be positive");
         }
 
         

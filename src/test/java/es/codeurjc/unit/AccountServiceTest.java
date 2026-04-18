@@ -83,5 +83,12 @@ class AccountServiceTest {
                 assertThatThrownBy(() -> accountService.withdraw(ACC_A, 6000, "Withdraw a lot of money")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Amount exceeds maximum withdrawal limit");
         }
 
+        @Test
+        @DisplayName("withdraw an amount that exceeds balance should throw IllegalArgumentException")
+        public void withdrawAmountThatExceedsBalanceShouldThrowIllegalArgumentException() {
+                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
+                assertThatThrownBy(() -> accountService.withdraw(ACC_B, 300, "Padel match was a bit expensive")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Insufficient funds");
+        }
+
         
 }

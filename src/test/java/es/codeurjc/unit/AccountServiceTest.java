@@ -90,5 +90,16 @@ class AccountServiceTest {
                 assertThatThrownBy(() -> accountService.withdraw(ACC_B, 300, "Padel match was a bit expensive")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Insufficient funds");
         }
 
+        @Test
+        @DisplayName("withdraw a valid amount triggers an email notification")
+        public void withdrawValidAmountTriggersEmailNotification(){
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.save(accountA)).thenReturn(accountA);
+                accountService.withdraw(ACC_A, 100, "Padel match");
+                assertThat(accountA.getBalance()).isEqualTo(400);
+                verify(emailService).sendNotification(any(), any(), any(), any());
+                verify(smsService, never()).sendNotification(any(), any(), any(), any());
+        }
+
         
 }

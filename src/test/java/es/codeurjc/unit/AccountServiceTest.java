@@ -91,8 +91,8 @@ class AccountServiceTest {
         }
 
         @Test
-        @DisplayName("withdraw a valid amount triggers an email notification")
-        public void withdrawValidAmountTriggersEmailNotification(){
+        @DisplayName("withdraw a valid amount in an account with email notification triggers an email notification")
+        public void withdrawValidAmountDecreasesBalanceAndTriggersEmailNotification(){
                 when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
                 when(accountRepository.save(accountA)).thenReturn(accountA);
                 accountService.withdraw(ACC_A, 100, "Padel match");

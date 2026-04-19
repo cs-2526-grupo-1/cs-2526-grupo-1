@@ -1,7 +1,23 @@
 package es.codeurjc.unit;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import es.codeurjc.model.Account;
-import es.codeurjc.model.Transaction;
 import es.codeurjc.model.User;
 import es.codeurjc.repository.AccountRepository;
 import es.codeurjc.repository.TransactionRepository;
@@ -9,23 +25,6 @@ import es.codeurjc.service.AccountService;
 import es.codeurjc.service.RandomService;
 import es.codeurjc.service.notifications.EmailNotificationService;
 import es.codeurjc.service.notifications.SmsNotificationService;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("When running AccountService ")
@@ -74,31 +73,37 @@ class AccountServiceTest {
         @Test
         @DisplayName("withdraw zero or negative amount should throw IllegalArgumentException")
         public void withdrawZeroOrNegativeAmountShouldThrowIllegalArgumentException() {
-                assertThatThrownBy(() -> accountService.withdraw(ACC_A, -200, "Withdraw negative amount")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Amount must be positive");
+                assertThatThrownBy(() -> accountService.withdraw(ACC_A, -200, "Withdraw negative amount"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Amount must be positive");
         }
 
         @Test
         @DisplayName("withdraw an amount that exceeds limit should throw IllegalArgumentException")
         public void withdrawExceedLimitAmountShouldThrowIllegalArgumentException() {
-                assertThatThrownBy(() -> accountService.withdraw(ACC_A, 6000, "Withdraw a lot of money")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Amount exceeds maximum withdrawal limit");
+                assertThatThrownBy(() -> accountService.withdraw(ACC_A, 6000, "Withdraw a lot of money"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Amount exceeds maximum withdrawal limit");
         }
 
         @Test
         @DisplayName("withdraw an amount that exceeds balance should throw IllegalArgumentException")
         public void withdrawAmountThatExceedsBalanceShouldThrowIllegalArgumentException() {
                 when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
-                assertThatThrownBy(() -> accountService.withdraw(ACC_B, 300, "Padel match was a bit expensive")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Insufficient funds");
+                assertThatThrownBy(() -> accountService.withdraw(ACC_B, 300, "Padel match was a bit expensive"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Insufficient funds");
         }
 
         @Test
         @DisplayName("withdraw a valid amount in an account with email notification triggers an email notification")
-        public void withdrawValidAmountDecreasesBalanceAndTriggersEmailNotification(){
+        public void withdrawValidAmountDecreasesBalanceAndTriggersEmailNotification() {
                 when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
                 when(accountRepository.save(accountA)).thenReturn(accountA);
-                
+
                 double balanceBefore = accountA.getBalance();
                 accountService.withdraw(ACC_A, 100, "Padel match");
-                
+
                 assertThat(accountA.getBalance()).isEqualTo(balanceBefore - 100);
                 verify(emailService).sendNotification(any(), any(), any(), any());
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
@@ -106,17 +111,22 @@ class AccountServiceTest {
 
         @Test
         @DisplayName("withdraw a valid amount in an account with SMS notification triggers an SMS notification")
-        public void withdrawValidAmountDecreasesBalanceAndTriggersSmsNotification(){
+        public void withdrawValidAmountDecreasesBalanceAndTriggersSmsNotification() {
                 when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
                 when(accountRepository.save(accountB)).thenReturn(accountB);
-                
+
                 double balanceBefore = accountB.getBalance();
                 accountService.withdraw(ACC_B, 100, "Padel match");
-                
+
                 assertThat(accountB.getBalance()).isEqualTo(balanceBefore - 100);
                 verify(smsService).sendNotification(any(), any(), any(), any());
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
         }
 
-        
+        @Test
+        @DisplayName("getUserAccounts returns the accounts associated to a user")
+        public void getUserAccountsReturnsUserAccounts() {
+                when(accountRepository.findByUser(emailUser)).thenReturn(List.of(accountA));
+                assertThat(accountService.getUserAccounts(emailUser)).isEqualTo(List.of(accountA));
+        }
 }

@@ -95,10 +95,9 @@ class AccountServiceTest {
         public void withdrawValidAmountDecreasesBalanceAndTriggersEmailNotification(){
                 when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
                 when(accountRepository.save(accountA)).thenReturn(accountA);
-                
+
                 double balanceBefore = accountA.getBalance();
                 accountService.withdraw(ACC_A, 100, "Padel match");
-                
                 assertThat(accountA.getBalance()).isEqualTo(balanceBefore - 100);
                 verify(emailService).sendNotification(any(), any(), any(), any());
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
@@ -109,15 +108,17 @@ class AccountServiceTest {
         public void withdrawValidAmountDecreasesBalanceAndTriggersSmsNotification(){
                 when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
                 when(accountRepository.save(accountB)).thenReturn(accountB);
-                
+
                 double balanceBefore = accountB.getBalance();
                 accountService.withdraw(ACC_B, 100, "Padel match");
-                
+
                 assertThat(accountB.getBalance()).isEqualTo(balanceBefore - 100);
                 verify(smsService).sendNotification(any(), any(), any(), any());
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
         }
 
+        @Test
+        @DisplayName("create account")
         void testCreateAccount() {
                 // Given
                 User user = this.emailUser;
@@ -140,6 +141,23 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("deposit zero or negative amount should throw IllegalArgumentException")
+        public void depositZeroOrNegativeAmountShouldThrowIllegalArgumentException() {
+                assertThatThrownBy(() -> accountService.deposit(ACC_A, -200, "Deposit negative amount"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Amount must be positive");
+        }
+
+        @Test
+        @DisplayName("deposit an amount that exceeds limit should throw IllegalArgumentException")
+        public void depositExceedLimitAmountShouldThrowIllegalArgumentException() {
+                assertThatThrownBy(() -> accountService.deposit(ACC_A, 10001, "deposit a lot of money"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Amount exceeds maximum deposit limit");
+        }
+
+        @Test
+        @DisplayName("deposit a valid amount in an account with email notification with description")
         void testDepositWithDescriptionEmail() {
                 // Given
                 mockAccountFound(ACC_A, accountA);
@@ -155,6 +173,7 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("deposit a valid amount in an account with SMS notification with description")
         void testDepositWithDescriptionSms() {
                 // Given
                 mockAccountFound(ACC_B, accountB);
@@ -170,6 +189,7 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("deposit a valid amount in an account with Email notification without description")
         void testNoDescriptionDepositSuccessEmail() {
                 // Given
                 mockAccountFound(ACC_A, accountA);
@@ -185,6 +205,7 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("deposit a valid amount in an account with SMS notification without description")
         void testNoDescriptionDepositSuccessSms() {
                 // Given
                 mockAccountFound(ACC_B, accountB);
@@ -210,7 +231,6 @@ class AccountServiceTest {
                 // Then
                 checkCommonDepositVerifications();
         }
-
 
         private void mockAccountFound(String accNumber, Account account) {
                 when(accountRepository.findByAccountNumber(accNumber)).thenReturn(Optional.of(account));

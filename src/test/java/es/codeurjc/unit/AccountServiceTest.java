@@ -119,18 +119,17 @@ class AccountServiceTest {
         }
 
         void testCreateAccount() {
-                //Given
+                // Given
                 User user = this.emailUser;
-
                 Account testAccount = new Account("1", Account.AccountType.CHECKING, 0);
                 testAccount.setUser(user);
 
                 when(accountRepository.save(any(Account.class))).thenReturn(testAccount);
-                
-                //When
+
+                // When
                 Account result = accountService.createAccount(user, Account.AccountType.CHECKING);
-                
-                //Then
+
+                // Then
                 verify(accountRepository).save(any(Account.class));
                 assertThat(result).isNotNull();
                 assertThat(result.getUser()).isEqualTo(user);
@@ -139,5 +138,87 @@ class AccountServiceTest {
                 assertThat(result.getAccountNumber()).isEqualTo("1");
                 assertThat(result).isEqualTo(testAccount);
         }
-        
+
+        @Test
+        void testDepositWithDescriptionEmail() {
+                // Given
+                mockAccountFound(ACC_A, accountA);
+
+                // When
+                Account result = accountService.deposit(ACC_A, 100.0, "Transaction Test");
+
+                // Then
+                assertThat(result.getBalance()).isEqualTo(600.0);
+                checkCommonDepositVerifications();
+                verify(emailService).sendNotification(eq(emailUser), any(), any(), contains("100.00"));
+                verify(smsService, never()).sendNotification(any(), any(), any(), any());
+        }
+
+        @Test
+        void testDepositWithDescriptionSms() {
+                // Given
+                mockAccountFound(ACC_B, accountB);
+
+                // When
+                Account result = accountService.deposit(ACC_B, 50.0, "Transaction Test");
+
+                // Then
+                assertThat(result.getBalance()).isEqualTo(250.0);
+                checkCommonDepositVerifications();
+                verify(smsService).sendNotification(eq(smsUser), any(), any(), contains("50.00"));
+                verify(emailService, never()).sendNotification(any(), any(), any(), any());
+        }
+
+        @Test
+        void testNoDescriptionDepositSuccessEmail() {
+                // Given
+                mockAccountFound(ACC_A, accountA);
+
+                // When
+                Account result = accountService.deposit(ACC_A, 100.0);
+
+                // Then
+                assertThat(result.getBalance()).isEqualTo(600.0);
+                checkCommonDepositVerifications();
+                verify(emailService).sendNotification(eq(emailUser), any(), any(), contains("100.00"));
+                verify(smsService, never()).sendNotification(any(), any(), any(), any());
+        }
+
+        @Test
+        void testNoDescriptionDepositSuccessSms() {
+                // Given
+                mockAccountFound(ACC_B, accountB);
+
+                // When
+                Account result = accountService.deposit(ACC_B, 50.0);
+
+                // Then
+                assertThat(result.getBalance()).isEqualTo(250.0);
+                checkCommonDepositVerifications();
+                verify(smsService).sendNotification(eq(smsUser), any(), any(), contains("50.00"));
+                verify(emailService, never()).sendNotification(any(), any(), any(), any());
+        }
+
+        @Test
+        void testTransactionEntityCreation() {
+                // Given
+                mockAccountFound(ACC_A, accountA);
+
+                // When
+                accountService.deposit(ACC_A, 200.0, "Test");
+
+                // Then
+                checkCommonDepositVerifications();
+        }
+
+
+        private void mockAccountFound(String accNumber, Account account) {
+                when(accountRepository.findByAccountNumber(accNumber)).thenReturn(Optional.of(account));
+                when(accountRepository.save(any(Account.class))).thenReturn(account);
+        }
+
+        private void checkCommonDepositVerifications() {
+                verify(transactionRepository).save(any(Transaction.class));
+                verify(accountRepository).save(any(Account.class));
+        }
 }

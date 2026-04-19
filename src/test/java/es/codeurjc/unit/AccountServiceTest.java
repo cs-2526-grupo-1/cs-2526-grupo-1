@@ -131,5 +131,15 @@ class AccountServiceTest {
                 verify(accountRepository).findByAccountNumber(ACC_A); //verificamos llamada método por parte del mock
         }
 
+        @Test
+        @DisplayName("getAccount - throws IllegalArgumentException when account does not exist")
+        void getAccount_nonExistingAccount_throwsException() {
+                when(accountRepository.findByAccountNumber(ACC_MISSING)).thenReturn(Optional.empty());
+
+                assertThatThrownBy(() -> accountService.getAccount(ACC_MISSING))
+                                .isInstanceOf(IllegalArgumentException.class) //tipo excecpcion
+                                .hasMessage("Account not found"); //mensaje error
+        }
+
         
 }

@@ -1,7 +1,22 @@
 package es.codeurjc.unit;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import es.codeurjc.model.Account;
-import es.codeurjc.model.Transaction;
 import es.codeurjc.model.User;
 import es.codeurjc.repository.AccountRepository;
 import es.codeurjc.repository.TransactionRepository;
@@ -9,23 +24,6 @@ import es.codeurjc.service.AccountService;
 import es.codeurjc.service.RandomService;
 import es.codeurjc.service.notifications.EmailNotificationService;
 import es.codeurjc.service.notifications.SmsNotificationService;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("When running AccountService ")
@@ -116,6 +114,21 @@ class AccountServiceTest {
                 assertThat(accountB.getBalance()).isEqualTo(balanceBefore - 100);
                 verify(smsService).sendNotification(any(), any(), any(), any());
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
+        }
+
+        
+        @Test
+        @DisplayName("getAccount - returns the account when it exists")
+        void getAccount_ExistingAccount_returnsAccount() {
+                //Se establece devoluc de cuenta asociada a numero de cuenta
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+
+                Account result = accountService.getAccount(ACC_A); //internamente llama a accountRepository.findByAccountNumber(ACC_A) 
+
+                assertThat(result).isNotNull();
+                assertThat(result.getAccountNumber()).isEqualTo(ACC_A); //mismo numero de cuenta
+                assertThat(result).isEqualTo(accountA); //misma cuenta
+                verify(accountRepository).findByAccountNumber(ACC_A); //verificamos llamada método por parte del mock
         }
 
         

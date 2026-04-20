@@ -134,4 +134,32 @@ public class TransferE2ETest {
         driver.findElement(By.id("password")).sendKeys(password);
         driver.findElement(By.id("loginButton")).click();
     }
+
+    private void simulateTransfer(String fromAccount, String toAccount, int amount) {
+        driver.get("http://localhost:" + this.port + "/transfer");
+        Select fromAccountSelect = new Select(driver.findElement(By.id("fromAccount")));
+        fromAccountSelect.selectByValue(fromAccount);
+        driver.findElement(By.id("toAccount")).sendKeys(toAccount);
+        driver.findElement(By.id("amount")).sendKeys(String.valueOf(amount));
+        driver.findElement(By.id("transferButton")).click();
+    }
+
+    private void checkBalanceHasNotChanged(String accountNumber, Double initialBalance) {
+        driver.get("http://localhost:" + this.port + "/dashboard");
+        String balance = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("balance-" + accountNumber))).getText();
+        assertThat(Double.parseDouble(balance)).isCloseTo(initialBalance, within(0.000001));
+    }
+
+    @Test
+    public void test5_makeTransferWithNegativeAmount() {
+        String fromAccount = "ES1111111111";
+        String toAccount = "ES3333333333";
+        int amount = -50;
+        simulateTransfer(fromAccount, toAccount, amount);
+        String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("errorMessage"))).getText();
+        assertThat(errorMessage).isEqualTo("Amount must be positive");
+
+        // We can also check that the balance of the source account has not changed
+        checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
+    }
 }

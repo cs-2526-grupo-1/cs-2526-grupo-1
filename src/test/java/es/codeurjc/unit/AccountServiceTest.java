@@ -134,7 +134,7 @@ class AccountServiceTest {
                 assertThat(accountA.getBalance()).isEqualTo(balanceBefore - AccountServiceTestConstants.SMALL_AMOUNT);
                 checkCommonDepositVerifications(accountA);
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.WITHDRAWAL,
-                                AccountServiceTestConstants.TITLE_WITHDRAWAL,
+                                AccountServiceTestConstants.TITLE_WITHDRAWAL_CONFIRMATION,
                                 String.format(AccountServiceTestConstants.WITHDRAW_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT,
                                                 accountA.getBalance()));
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
@@ -246,7 +246,7 @@ class AccountServiceTest {
                 checkCommonDepositVerifications(accountA);
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.DEPOSIT,
                                 AccountServiceTestConstants.TITLE_DEPOSIT,
-                                String.format(AccountServiceTestConstants.DEPOSIT_FORMAT,
+                                String.format(AccountServiceTestConstants.DEPOSIT_EMAIL_FORMAT,
                                                 (double)AccountServiceTestConstants.SMALL_AMOUNT, accountA.getBalance()));
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
@@ -262,12 +262,12 @@ class AccountServiceTest {
                 Account result = accountService.deposit(AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.MICRO_AMOUNT, AccountServiceTestConstants.TEST_DESC);
 
                 // Then
-                assertThat(result.getBalance()).isEqualTo(50 + currentBalance);
+                assertThat(result.getBalance()).isEqualTo(AccountServiceTestConstants.MICRO_AMOUNT + currentBalance);
                 checkCommonDepositVerifications(accountB);
                 verify(smsService).sendNotification(smsUser, Notification.NotificationType.DEPOSIT,
                                 AccountServiceTestConstants.TITLE_DEPOSIT,
-                                String.format(AccountServiceTestConstants.DEPOSIT_FORMAT,
-                                                50.0, accountB.getBalance()));
+                                String.format(AccountServiceTestConstants.DEPOSIT_SMS_FORMAT,
+                                                AccountServiceTestConstants.MICRO_AMOUNT_D, accountB.getBalance()));
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
         }
 
@@ -286,7 +286,7 @@ class AccountServiceTest {
                 checkCommonDepositVerifications(accountA);
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.DEPOSIT,
                                 AccountServiceTestConstants.TITLE_DEPOSIT,
-                                String.format(AccountServiceTestConstants.DEPOSIT_FORMAT,
+                                String.format(AccountServiceTestConstants.DEPOSIT_EMAIL_FORMAT,
                                                 (double)AccountServiceTestConstants.SMALL_AMOUNT, accountA.getBalance()));
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
@@ -306,7 +306,7 @@ class AccountServiceTest {
                 checkCommonDepositVerifications(accountB);
                 verify(smsService).sendNotification(smsUser, Notification.NotificationType.DEPOSIT,
                                 AccountServiceTestConstants.TITLE_DEPOSIT,
-                                String.format(AccountServiceTestConstants.DEPOSIT_FORMAT,
+                                String.format(AccountServiceTestConstants.DEPOSIT_SMS_FORMAT,
                                                 50.0, accountB.getBalance()));
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
         }
@@ -521,11 +521,11 @@ class AccountServiceTest {
                 accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_AMOUNT);
 
                 verify(smsService).sendNotification(smsUser, Notification.NotificationType.TRANSFER, AccountServiceTestConstants.TITLE_TRANSFER_SENT,
-                                String.format(AccountServiceTestConstants.TRANSFER_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_B,
+                                String.format(AccountServiceTestConstants.TRANSFER_TO_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_B,
                                                 accountA.getBalance()));
                 verify(smsService).sendNotification(smsUser2, Notification.NotificationType.TRANSFER,
                                 AccountServiceTestConstants.TITLE_TRANSFER_RECEIVED,
-                                String.format(AccountServiceTestConstants.TRANSFER_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_A,
+                                String.format(AccountServiceTestConstants.TRANSFER_FROM_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_A,
                                                 accountB.getBalance()));
                 verifyNoInteractions(emailService);
         }
@@ -544,11 +544,11 @@ class AccountServiceTest {
 
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.TRANSFER,
                                 AccountServiceTestConstants.TITLE_TRANSFER_SENT,
-                                String.format(AccountServiceTestConstants.TRANSFER_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_B,
+                                String.format(AccountServiceTestConstants.TRANSFER_TO_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_B,
                                                 accountA.getBalance()));
                 verify(emailService).sendNotification(emailUser2, Notification.NotificationType.TRANSFER,
                                 AccountServiceTestConstants.TITLE_TRANSFER_RECEIVED,
-                                String.format(AccountServiceTestConstants.TRANSFER_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_A,
+                                String.format(AccountServiceTestConstants.TRANSFER_FROM_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_A,
                                                 accountB.getBalance()));
                 verifyNoInteractions(smsService);
         }
@@ -562,11 +562,11 @@ class AccountServiceTest {
 
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.TRANSFER,
                                 AccountServiceTestConstants.TITLE_TRANSFER_SENT,
-                                String.format(AccountServiceTestConstants.TRANSFER_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_B,
+                                String.format(AccountServiceTestConstants.TRANSFER_TO_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_B,
                                                 accountA.getBalance()));
                 verify(smsService).sendNotification(smsUser, Notification.NotificationType.TRANSFER,
                                 AccountServiceTestConstants.TITLE_TRANSFER_RECEIVED,
-                                String.format(AccountServiceTestConstants.TRANSFER_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_A,
+                                String.format(AccountServiceTestConstants.TRANSFER_FROM_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_A,
                                                 accountB.getBalance()));
         }
 
@@ -580,11 +580,11 @@ class AccountServiceTest {
                 accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_AMOUNT);
 
                 verify(smsService).sendNotification(smsUser, Notification.NotificationType.TRANSFER, AccountServiceTestConstants.TITLE_TRANSFER_SENT,
-                                String.format(AccountServiceTestConstants.TRANSFER_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_B,
+                                String.format(AccountServiceTestConstants.TRANSFER_TO_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_B,
                                                 accountA.getBalance()));
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.TRANSFER,
                                 AccountServiceTestConstants.TITLE_TRANSFER_RECEIVED,
-                                String.format(AccountServiceTestConstants.TRANSFER_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_A,
+                                String.format(AccountServiceTestConstants.TRANSFER_FROM_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_A,
                                                 accountB.getBalance()));
         }
 
@@ -657,7 +657,7 @@ class AccountServiceTest {
         @Test
         @DisplayName("transfer - throws when amount exceeds limit")
         void transfer_amountExceedsLimit_throwsException() {
-                assertThatThrownBy(() -> accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.OVER_LIMIT))
+                assertThatThrownBy(() -> accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.OVER_LIMIT_D))
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessage(AccountServiceTestConstants.MSG_LIMIT_TRANSFER);
         }

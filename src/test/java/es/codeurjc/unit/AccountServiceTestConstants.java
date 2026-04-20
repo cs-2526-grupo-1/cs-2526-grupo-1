@@ -31,12 +31,13 @@ public class AccountServiceTestConstants {
 
     public static final int NEGATIVE_AMOUNT = -200;
     public static final int ZERO_AMOUNT = 0;
-    public static final int MICRO_AMOUNT = 100;
+    public static final int MICRO_AMOUNT = 50;
     public static final int SMALL_AMOUNT = 100;
     public static final int OVER_AMOUNT = 20000;
     public static final int EXTRA_OVER_AMOUNT = 60000;
-    public static final double STANDARD_AMOUNT = 600.0;
-    public static final double OVER_LIMIT = 20001.0;
+     public static final double MICRO_AMOUNT_D = 50.0;
+    public static final double STANDARD_AMOUNT_D = 600.0;
+    public static final double OVER_LIMIT_D = 20001.0;
 
     public static final String MSG_AMOUNT_POSITIVE = "Amount must be positive";
     public static final String MSG_LIMIT_WITHDRAW = "Amount exceeds maximum withdrawal limit";
@@ -46,7 +47,8 @@ public class AccountServiceTestConstants {
     public static final String MSG_ACCOUNT_NOT_FOUND = "Account not found";
     public static final String MSG_CANNOT_DELETE = "Cannot delete account with non-zero balance";
 
-    public static final String TITLE_WITHDRAWAL = "Withdrawal Confirmation";
+    public static final String TITLE_WITHDRAWAL_CONFIRMATION = "Withdrawal Confirmation";
+    public static final String TITLE_WITHDRAWAL = "Withdrawal";
     public static final String TITLE_DEPOSIT = "Deposit Confirmation";
     public static final String TITLE_TRANSFER_SENT = "Transfer Sent";
     public static final String TITLE_TRANSFER_RECEIVED = "Transfer Received";
@@ -63,6 +65,8 @@ public class AccountServiceTestConstants {
 
 
     public static final String WITHDRAW_FORMAT="Withdrawal of %.2f EUR. New balance: %.2f EUR";
-    public static final String DEPOSIT_FORMAT="Deposit of %.2f EUR. New balance: %.2f EUR";
-    public static final String TRANSFER_FORMAT="Transfer of %.2f EUR from %s. New balance: %.2f EUR";
+    public static final String DEPOSIT_EMAIL_FORMAT="Deposit of %.2f EUR. New balance: %.2f EUR";
+    public static final String DEPOSIT_SMS_FORMAT="Deposit: %.2f EUR. Balance: %.2f EUR";
+    public static final String TRANSFER_TO_FORMAT="Transfer of %.2f EUR to %s. New balance: %.2f EUR";
+    public static final String TRANSFER_FROM_FORMAT="Transfer of %.2f EUR from %s. New balance: %.2f EUR";
 }

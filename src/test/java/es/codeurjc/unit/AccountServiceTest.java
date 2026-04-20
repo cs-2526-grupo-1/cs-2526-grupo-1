@@ -597,15 +597,14 @@ class AccountServiceTest {
         @Test
         @DisplayName("getAccount - returns the account when it exists")
         void getAccount_ExistingAccount_returnsAccount() {
-                //Se establece devoluc de cuenta asociada a numero de cuenta
                 when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
 
-                Account result = accountService.getAccount(ACC_A); //internamente llama a accountRepository.findByAccountNumber(ACC_A) 
+                Account result = accountService.getAccount(ACC_A);
 
                 assertThat(result).isNotNull();
-                assertThat(result.getAccountNumber()).isEqualTo(ACC_A); //mismo numero de cuenta
-                assertThat(result).isEqualTo(accountA); //misma cuenta
-                verify(accountRepository).findByAccountNumber(ACC_A); //verificamos llamada método por parte del mock
+                assertThat(result.getAccountNumber()).isEqualTo(ACC_A);
+                assertThat(result).isEqualTo(accountA);
+                verify(accountRepository).findByAccountNumber(ACC_A);
         }
 
         @Test

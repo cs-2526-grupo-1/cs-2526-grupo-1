@@ -162,4 +162,17 @@ public class TransferE2ETest {
         // We can also check that the balance of the source account has not changed
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
     }
+
+    @Test
+    public void test6_makeTransferWithExceedingAmount() {
+        String fromAccount = "ES1111111111";
+        String toAccount = "ES3333333333";
+        int amount = 30000;
+        simulateTransfer(fromAccount, toAccount, amount);
+        String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("errorMessage"))).getText();
+        assertThat(errorMessage).isEqualTo("Amount exceeds maximum transfer limit");
+
+        // We can also check that the balance of the source account has not changed
+        checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
+    }
 }

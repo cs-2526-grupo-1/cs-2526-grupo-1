@@ -82,6 +82,28 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("generateAccountNumber uses RandomService and returns ES + 10 digits")
+        public void generateAccountNumberFormatUsingMock() {
+                // Given
+                when(randomService.nextInt(1000000000)).thenReturn(12345);
+                when(accountRepository.save(any(Account.class)))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
+
+                // When
+                Account account = accountService.createAccount(emailUser, Account.AccountType.CHECKING);
+                String accNumber = account.getAccountNumber();
+
+                // Then
+                verify(randomService).nextInt(1000000000);
+
+                assertThat(accNumber).startsWith("ES");
+                assertThat(accNumber).hasSize(12);
+                assertThat(accNumber.substring(2)).matches("\\d{10}");
+
+                assertThat(accNumber).isEqualTo("ES0000012345");
+        }
+
+        @Test
         @DisplayName("withdraw zero or negative amount should throw IllegalArgumentException")
         public void withdrawZeroOrNegativeAmountShouldThrowIllegalArgumentException() {
                 assertThatThrownBy(() -> accountService.withdraw(ACC_A, -200, "Withdraw negative amount"))

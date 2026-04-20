@@ -51,6 +51,7 @@ public class TransferE2ETest {
     @LocalServerPort
     private int port;
 
+    private static final String BASE_URL = "http://localhost:";
     private WebDriver driver;
     private WebDriverWait wait;
     private Double initialBalanceAccount1Checking;
@@ -59,7 +60,7 @@ public class TransferE2ETest {
     public void setUp() {
         driver = new ChromeDriver();
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-        driver.get("http://localhost:" + this.port);
+        driver.get(BASE_URL + this.port);
         createTestData();
         login("testuser1", "testuser1");
     }
@@ -129,14 +130,14 @@ public class TransferE2ETest {
     }
 
     private void login(String username, String password) {
-        driver.get("http://localhost:" + this.port + "/login");
+        driver.get(BASE_URL + this.port + "/login");
         driver.findElement(By.id("username")).sendKeys(username);
         driver.findElement(By.id("password")).sendKeys(password);
         driver.findElement(By.id("loginButton")).click();
     }
 
     private void simulateTransfer(String fromAccount, String toAccount, int amount) {
-        driver.get("http://localhost:" + this.port + "/transfer");
+        driver.get(BASE_URL + this.port + "/transfer");
         Select fromAccountSelect = new Select(driver.findElement(By.id("fromAccount")));
         fromAccountSelect.selectByValue(fromAccount);
         driver.findElement(By.id("toAccount")).sendKeys(toAccount);
@@ -145,7 +146,7 @@ public class TransferE2ETest {
     }
 
     private void checkBalanceHasNotChanged(String accountNumber, Double initialBalance) {
-        driver.get("http://localhost:" + this.port + "/dashboard");
+        driver.get(BASE_URL + this.port + "/dashboard");
         String balance = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("balance-" + accountNumber))).getText();
         assertThat(Double.parseDouble(balance)).isCloseTo(initialBalance, within(0.000001));
     }

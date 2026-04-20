@@ -5,10 +5,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.codeurjc.model.Account;
 import es.codeurjc.model.Transaction;
 import es.codeurjc.model.User;
-import es.codeurjc.model.Transaction;
 import es.codeurjc.repository.AccountRepository;
 import es.codeurjc.repository.TransactionRepository;
 import es.codeurjc.service.AccountService;
@@ -35,47 +31,15 @@ import es.codeurjc.service.notifications.EmailNotificationService;
 import es.codeurjc.service.notifications.SmsNotificationService;
 
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import es.codeurjc.model.Account;
-import es.codeurjc.model.User;
 import static org.mockito.ArgumentMatchers.eq;
 
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+
 
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import es.codeurjc.model.Account;
-import es.codeurjc.model.Transaction;
-import es.codeurjc.model.User;
-import es.codeurjc.model.Transaction;
-import es.codeurjc.repository.AccountRepository;
-import es.codeurjc.repository.TransactionRepository;
-import es.codeurjc.service.AccountService;
-import es.codeurjc.service.RandomService;
-
-import es.codeurjc.model.Notification;
-import es.codeurjc.service.notifications.EmailNotificationService;
-import es.codeurjc.service.notifications.SmsNotificationService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("When running AccountService ")

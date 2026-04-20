@@ -180,4 +180,33 @@ class AccountServiceTest {
                 when(accountRepository.findByUser(emailUser)).thenReturn(List.of(accountA, accountB));
                 assertThat(accountService.getUserAccounts(emailUser)).isEqualTo(List.of(accountA, accountB));
         }
+
+        @Test
+        @DisplayName("getBalance returns balance for an existing account")
+        public void getBalanceExistingAccountReturnsBalance() {
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+
+                assertThat(accountService.getBalance(ACC_A)).isEqualTo(500.0);
+                verify(accountRepository).findByAccountNumber(ACC_A);
+        }
+
+        @Test
+        @DisplayName("getBalance returns zero when balance is zero")
+        public void getBalanceZeroBalanceReturnsZero() {
+                Account empty = new Account("ES0000000010", Account.AccountType.SAVINGS, 0.0);
+                empty.setUser(emailUser);
+                when(accountRepository.findByAccountNumber("ES0000000010")).thenReturn(Optional.of(empty));
+
+                assertThat(accountService.getBalance("ES0000000010")).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("getBalance for an unknown account should throw IllegalArgumentException")
+        public void getBalanceUnknownAccountShouldThrowIllegalArgumentException() {
+                when(accountRepository.findByAccountNumber(ACC_MISSING)).thenReturn(Optional.empty());
+
+                assertThatThrownBy(() -> accountService.getBalance(ACC_MISSING))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Account not found");
+        }
 }

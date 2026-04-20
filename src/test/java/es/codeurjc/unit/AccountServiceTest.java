@@ -40,6 +40,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
@@ -115,6 +116,7 @@ class AccountServiceTest {
 
                 accountA = new Account(ACC_A, Account.AccountType.CHECKING, 500.0);
                 accountA.setUser(emailUser);
+                
 
                 accountB = new Account(ACC_B, Account.AccountType.CHECKING, 200.0);
                 accountB.setUser(smsUser);
@@ -616,5 +618,59 @@ class AccountServiceTest {
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessage("Account not found");
         }
+
+        //transfer 1st part
+
+        @Test
+        @DisplayName("transfer - throws when amount zero or negative")
+        void transfer_invalidAmount_throwsException() {
+                assertThatThrownBy(() -> accountService.transfer(ACC_A, ACC_B, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Amount must be positive");
+
+                assertThatThrownBy(() -> accountService.transfer(ACC_A, ACC_B, -67))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Amount must be positive");
+        }
+
+        @Test
+        @DisplayName("transfer - throws when amount exceeds limit")
+        void transfer_amountExceedsLimit_throwsException() {
+                assertThatThrownBy(() -> accountService.transfer(ACC_A, ACC_B, 20001.0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Amount exceeds maximum transfer limit");
+        }
+/** TEMPORARY COMMENT
+        @Test
+        @DisplayName("transfer - throws when source and destination are the same account")
+        void transfer_sameAccount_throwsException() {
+
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+
+                assertThatThrownBy(() -> accountService.transfer(ACC_A, ACC_A, 100.0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Cannot transfer to same account");
+
+                String ACC_A2 = new String(ACC_A);
+                Account accountA2 = new Account(ACC_A2, Account.AccountType.CHECKING, 500.0);
+
+                when(accountRepository.findByAccountNumber(anyString())).thenReturn(Optional.of(accountA), Optional.of(accountA2));
+
+                assertThatThrownBy(() -> accountService.transfer(ACC_A, ACC_A2, 100.0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Cannot transfer to same account");
+        }
+*/
+        @Test
+        @DisplayName("transfer - throws when source account has insufficient funds")
+        void transfer_insufficientFunds_throwsException() {
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
+
+                assertThatThrownBy(() -> accountService.transfer(ACC_A, ACC_B, 600.0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Insufficient funds");
+        }
+
 }
 

@@ -489,7 +489,7 @@ class AccountServiceTest {
         public void transferPersistsBothAccounts() {
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(accountA.getAccountNumber(), accountB.getAccountNumber(), 100.0);
 
                 verify(accountRepository).save(accountA);
                 verify(accountRepository).save(accountB);

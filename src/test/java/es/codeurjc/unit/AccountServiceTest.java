@@ -155,9 +155,8 @@ class AccountServiceTest {
                 Account testAccount = new Account("1", Account.AccountType.CHECKING, 0);
                 testAccount.setUser(user);
 
-                when(accountRepository.save(any(Account.class))).thenReturn(testAccount);
-
                 // When
+                when(accountRepository.save(any(Account.class))).thenReturn(testAccount);
                 Account result = accountService.createAccount(user, Account.AccountType.CHECKING);
 
                 // Then
@@ -189,16 +188,23 @@ class AccountServiceTest {
         @Test
         @DisplayName("deposit a valid amount in an account with email notification with description")
         void testDepositWithDescriptionEmail() {
+                
                 // Given
+                double currentBalance= accountA.getBalance();
                 mockAccountFound(ACC_A, accountA);
 
                 // When
-                Account result = accountService.deposit(ACC_A, 100.0, "Transaction Test");
+                Account result = accountService.deposit(ACC_A, 100.00, "Transaction Test");
 
                 // Then
-                assertThat(result.getBalance()).isEqualTo(600.0);
+                assertThat(result.getBalance()).isEqualTo(100.00+currentBalance);
                 checkCommonDepositVerifications();
-                verify(emailService).sendNotification(eq(emailUser), any(), any(), contains("100.00"));
+                verify(transactionRepository).save(any(Transaction.class));
+                verify(accountRepository).save(accountA);
+                verify(emailService).sendNotification(emailUser, Notification.NotificationType.DEPOSIT,
+                                "Deposit Confirmation",
+                                String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
+                                100.0, accountA.getBalance()));
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
 
@@ -206,15 +212,20 @@ class AccountServiceTest {
         @DisplayName("deposit a valid amount in an account with SMS notification with description")
         void testDepositWithDescriptionSms() {
                 // Given
+                double currentBalance = accountB.getBalance();
                 mockAccountFound(ACC_B, accountB);
 
                 // When
                 Account result = accountService.deposit(ACC_B, 50.0, "Transaction Test");
 
                 // Then
-                assertThat(result.getBalance()).isEqualTo(250.0);
+                assertThat(result.getBalance()).isEqualTo(50 + currentBalance);
                 checkCommonDepositVerifications();
-                verify(smsService).sendNotification(eq(smsUser), any(), any(), contains("50.00"));
+                verify(transactionRepository).save(any(Transaction.class));
+                verify(accountRepository).save(accountB);
+                verify(smsService).sendNotification(smsUser, Notification.NotificationType.DEPOSIT, "Deposit Confirmation",
+                                String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
+                                50.0, accountB.getBalance()));
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
         }
 
@@ -222,15 +233,21 @@ class AccountServiceTest {
         @DisplayName("deposit a valid amount in an account with Email notification without description")
         void testNoDescriptionDepositSuccessEmail() {
                 // Given
+                double currentBalance = accountA.getBalance();
                 mockAccountFound(ACC_A, accountA);
 
                 // When
                 Account result = accountService.deposit(ACC_A, 100.0);
 
                 // Then
-                assertThat(result.getBalance()).isEqualTo(600.0);
+                assertThat(result.getBalance()).isEqualTo(currentBalance+100.0);
                 checkCommonDepositVerifications();
-                verify(emailService).sendNotification(eq(emailUser), any(), any(), contains("100.00"));
+                verify(transactionRepository).save(any(Transaction.class));
+                verify(accountRepository).save(accountA);
+                verify(emailService).sendNotification(emailUser, Notification.NotificationType.DEPOSIT,
+                                "Deposit Confirmation",
+                                String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
+                                100.0, accountA.getBalance()));
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
 
@@ -238,15 +255,20 @@ class AccountServiceTest {
         @DisplayName("deposit a valid amount in an account with SMS notification without description")
         void testNoDescriptionDepositSuccessSms() {
                 // Given
+                double currentBalance = accountB.getBalance();
                 mockAccountFound(ACC_B, accountB);
 
                 // When
                 Account result = accountService.deposit(ACC_B, 50.0);
 
                 // Then
-                assertThat(result.getBalance()).isEqualTo(250.0);
+                assertThat(result.getBalance()).isEqualTo(currentBalance + 50.0);
                 checkCommonDepositVerifications();
-                verify(smsService).sendNotification(eq(smsUser), any(), any(), contains("50.00"));
+                verify(transactionRepository).save(any(Transaction.class));
+                verify(accountRepository).save(accountB);
+                verify(smsService).sendNotification(smsUser, Notification.NotificationType.DEPOSIT, "Deposit Confirmation",
+                                String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
+                                50.0, accountB.getBalance()));
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
         }
 

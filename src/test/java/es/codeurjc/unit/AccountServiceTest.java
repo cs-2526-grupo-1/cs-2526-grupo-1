@@ -60,24 +60,21 @@ class AccountServiceTest {
         private Account accountA;
         private Account accountB;
 
-        private static final String ACC_A = "ES0000000001";
-        private static final String ACC_B = "ES0000000002";
-        private static final String ACC_MISSING = "ES9999999999";
 
         @BeforeEach
         void setUp() {
-                emailUser = new User("user1", "pass", "ROLE_USER");
-                emailUser.setEmail("user1@test.com");
+                emailUser = new User(AccountServiceTestConstants.USER1_NAME, AccountServiceTestConstants.PASSWORD, AccountServiceTestConstants.ROLE_USER);
+                emailUser.setEmail(AccountServiceTestConstants.EMAIL_1);
                 emailUser.setNotificationType(User.NotificationType.EMAIL);
 
-                smsUser = new User("user2", "pass", "ROLE_USER");
-                smsUser.setPhone("600000000");
+                smsUser = new User(AccountServiceTestConstants.USER2_NAME, AccountServiceTestConstants.PASSWORD, AccountServiceTestConstants.ROLE_USER);
+                smsUser.setPhone(AccountServiceTestConstants.PHONE_1);
                 smsUser.setNotificationType(User.NotificationType.SMS);
 
-                accountA = new Account(ACC_A, Account.AccountType.CHECKING, 500.0);
+                accountA = new Account(AccountServiceTestConstants.ACC_A, Account.AccountType.CHECKING, AccountServiceTestConstants.INITIAL_BALANCE_A);
                 accountA.setUser(emailUser);
 
-                accountB = new Account(ACC_B, Account.AccountType.CHECKING, 200.0);
+                accountB = new Account(AccountServiceTestConstants.ACC_B, Account.AccountType.CHECKING, AccountServiceTestConstants.INITIAL_BALANCE_B);
                 accountB.setUser(smsUser);
         }
 
@@ -106,41 +103,41 @@ class AccountServiceTest {
         @Test
         @DisplayName("withdraw zero or negative amount should throw IllegalArgumentException")
         public void withdrawZeroOrNegativeAmountShouldThrowIllegalArgumentException() {
-                assertThatThrownBy(() -> accountService.withdraw(ACC_A, -200, "Withdraw negative amount"))
+                assertThatThrownBy(() -> accountService.withdraw(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.NEGATIVE_AMOUNT, "Withdraw negative amount"))
                                 .isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Amount must be positive");
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_AMOUNT_POSITIVE);
         }
 
         @Test
         @DisplayName("withdraw an amount that exceeds limit should throw IllegalArgumentException")
         public void withdrawExceedLimitAmountShouldThrowIllegalArgumentException() {
-                assertThatThrownBy(() -> accountService.withdraw(ACC_A, 6000, "Withdraw a lot of money"))
+                assertThatThrownBy(() -> accountService.withdraw(AccountServiceTestConstants.ACC_A, 6000, "Withdraw a lot of money"))
                                 .isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Amount exceeds maximum withdrawal limit");
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_LIMIT_WITHDRAW);
         }
 
         @Test
         @DisplayName("withdraw an amount that exceeds balance should throw IllegalArgumentException")
         public void withdrawAmountThatExceedsBalanceShouldThrowIllegalArgumentException() {
-                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
-                assertThatThrownBy(() -> accountService.withdraw(ACC_B, 300, "Padel match was a bit expensive"))
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_B)).thenReturn(Optional.of(accountB));
+                assertThatThrownBy(() -> accountService.withdraw(AccountServiceTestConstants.ACC_B, 300, AccountServiceTestConstants.PADDEL_DESC))
                                 .isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Insufficient funds");
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_INSUFFICIENT_FUNDS);
         }
 
         @Test
         @DisplayName("withdraw a valid amount in an account with email notification triggers an email notification")
         public void withdrawValidAmountDecreasesBalanceAndTriggersEmailNotification() {
-                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
                 when(accountRepository.save(accountA)).thenReturn(accountA);
 
                 double balanceBefore = accountA.getBalance();
-                accountService.withdraw(ACC_A, 100, "Padel match");
-                assertThat(accountA.getBalance()).isEqualTo(balanceBefore - 100);
+                accountService.withdraw(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.SMALL_TRANSFER, AccountServiceTestConstants.PADDEL_DESC);
+                assertThat(accountA.getBalance()).isEqualTo(balanceBefore - AccountServiceTestConstants.SMALL_TRANSFER);
                 checkCommonDepositVerifications(accountA);
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.WITHDRAWAL,
-                                "Withdrawal Confirmation",
-                                String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", 100.0,
+                                AccountServiceTestConstants.TITLE_WITHDRAWAL,
+                                String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", (double)AccountServiceTestConstants.SMALL_TRANSFER,
                                                 accountA.getBalance()));
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
@@ -148,16 +145,16 @@ class AccountServiceTest {
         @Test
         @DisplayName("withdraw a valid amount in an account with SMS notification triggers an SMS notification")
         public void withdrawValidAmountDecreasesBalanceAndTriggersSmsNotification() {
-                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_B)).thenReturn(Optional.of(accountB));
                 when(accountRepository.save(accountB)).thenReturn(accountB);
 
                 double balanceBefore = accountB.getBalance();
-                accountService.withdraw(ACC_B, 100, "Padel match");
+                accountService.withdraw(AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER, AccountServiceTestConstants.PADDEL_DESC);
 
-                assertThat(accountB.getBalance()).isEqualTo(balanceBefore - 100);
+                assertThat(accountB.getBalance()).isEqualTo(balanceBefore - AccountServiceTestConstants.SMALL_TRANSFER);
                 checkCommonDepositVerifications(accountB);
                 verify(smsService).sendNotification(smsUser, Notification.NotificationType.WITHDRAWAL, "Withdrawal",
-                                String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", 100.0,
+                                String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", (double)AccountServiceTestConstants.SMALL_TRANSFER,
                                                 accountB.getBalance()));
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
         }
@@ -167,18 +164,16 @@ class AccountServiceTest {
         public void withdrawWithUserWithoutNotificationTypeShouldNotSendNotifications() {
                 User noNotifUser = new User("user3", "pass", "ROLE_USER");
                 noNotifUser.setNotificationType(null);
-                String ACC_C = "ES0000000003";
-                double originalBalance = 500.0;
-                Account accountC = new Account(ACC_C, Account.AccountType.CHECKING, originalBalance);
-                accountC.setUser(noNotifUser);
+                Account zeroBalanceAccount = new Account(AccountServiceTestConstants.ACC_C, Account.AccountType.CHECKING, AccountServiceTestConstants.INITIAL_BALANCE_A);
+                zeroBalanceAccount.setUser(noNotifUser);
 
-                when(accountRepository.findByAccountNumber(ACC_C)).thenReturn(Optional.of(accountC));
-                when(accountRepository.save(accountC)).thenReturn(accountC);
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_C)).thenReturn(Optional.of(zeroBalanceAccount));
+                when(accountRepository.save(zeroBalanceAccount)).thenReturn(zeroBalanceAccount);
 
-                accountService.withdraw(ACC_C, 100, "Test");
+                accountService.withdraw(AccountServiceTestConstants.ACC_C, AccountServiceTestConstants.SMALL_TRANSFER, "Test");
 
-                assertThat(accountC.getBalance()).isEqualTo(originalBalance - 100);
-                checkCommonDepositVerifications(accountC);
+                assertThat(zeroBalanceAccount.getBalance()).isEqualTo(AccountServiceTestConstants.INITIAL_BALANCE_A - AccountServiceTestConstants.SMALL_TRANSFER);
+                checkCommonDepositVerifications(zeroBalanceAccount);
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
@@ -208,33 +203,33 @@ class AccountServiceTest {
         @Test
         @DisplayName("deposit zero amount should throw IllegalArgumentException")
         public void depositZeroAmountShouldThrowIllegalArgumentException() {
-                assertThatThrownBy(() -> accountService.deposit(ACC_A, 0, "Deposit zero amount"))
+                assertThatThrownBy(() -> accountService.deposit(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ZERO_AMOUNT, "Deposit zero amount"))
                                 .isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Amount must be positive");
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_AMOUNT_POSITIVE);
         }
 
         @Test
         @DisplayName("deposit negative amount should throw IllegalArgumentException")
         public void depositZeroOrNegativeAmountShouldThrowIllegalArgumentException() {
-                assertThatThrownBy(() -> accountService.deposit(ACC_A, -200, "Deposit negative amount"))
+                assertThatThrownBy(() -> accountService.deposit(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.NEGATIVE_AMOUNT, "Deposit negative amount"))
                                 .isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Amount must be positive");
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_AMOUNT_POSITIVE);
         }
 
         @Test
         @DisplayName("deposit an amount that exceeds 10000 limit should throw IllegalArgumentException")
         public void depositExceed10000LimitAmountShouldThrowIllegalArgumentException() {
-                assertThatThrownBy(() -> accountService.deposit(ACC_A, 10001, "deposit a lot of money"))
+                assertThatThrownBy(() -> accountService.deposit(AccountServiceTestConstants.ACC_A, 10001, "deposit a lot of money"))
                                 .isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Amount exceeds maximum deposit limit");
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_LIMIT_DEPOSIT);
         }
 
         @Test
         @DisplayName("deposit an amount that exceeds 50000 limit should throw IllegalArgumentException")
         public void depositExceed50000LimitAmountShouldThrowIllegalArgumentException() {
-                assertThatThrownBy(() -> accountService.deposit(ACC_A, 50001, "deposit a lot of money"))
+                assertThatThrownBy(() -> accountService.deposit(AccountServiceTestConstants.ACC_A, 50001, "deposit a lot of money"))
                                 .isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Amount exceeds maximum deposit limit");
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_LIMIT_DEPOSIT);
         }
 
         @Test
@@ -243,18 +238,18 @@ class AccountServiceTest {
 
                 // Given
                 double currentBalance = accountA.getBalance();
-                mockAccountFound(ACC_A, accountA);
+                mockAccountFound(AccountServiceTestConstants.ACC_A, accountA);
 
                 // When
-                Account result = accountService.deposit(ACC_A, 100.00, "Transaction Test");
+                Account result = accountService.deposit(AccountServiceTestConstants.ACC_A, (double)AccountServiceTestConstants.SMALL_TRANSFER, "Transaction Test");
 
                 // Then
-                assertThat(result.getBalance()).isEqualTo(100.00 + currentBalance);
+                assertThat(result.getBalance()).isEqualTo((double)AccountServiceTestConstants.SMALL_TRANSFER + currentBalance);
                 checkCommonDepositVerifications(accountA);
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.DEPOSIT,
-                                "Deposit Confirmation",
+                                AccountServiceTestConstants.TITLE_DEPOSIT,
                                 String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
-                                                100.0, accountA.getBalance()));
+                                                (double)AccountServiceTestConstants.SMALL_TRANSFER, accountA.getBalance()));
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
 
@@ -263,16 +258,16 @@ class AccountServiceTest {
         void testDepositWithDescriptionSms() {
                 // Given
                 double currentBalance = accountB.getBalance();
-                mockAccountFound(ACC_B, accountB);
+                mockAccountFound(AccountServiceTestConstants.ACC_B, accountB);
 
                 // When
-                Account result = accountService.deposit(ACC_B, 50.0, "Transaction Test");
+                Account result = accountService.deposit(AccountServiceTestConstants.ACC_B, 50.0, "Transaction Test");
 
                 // Then
                 assertThat(result.getBalance()).isEqualTo(50 + currentBalance);
                 checkCommonDepositVerifications(accountB);
                 verify(smsService).sendNotification(smsUser, Notification.NotificationType.DEPOSIT,
-                                "Deposit Confirmation",
+                                AccountServiceTestConstants.TITLE_DEPOSIT,
                                 String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
                                                 50.0, accountB.getBalance()));
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
@@ -283,18 +278,18 @@ class AccountServiceTest {
         void testNoDescriptionDepositSuccessEmail() {
                 // Given
                 double currentBalance = accountA.getBalance();
-                mockAccountFound(ACC_A, accountA);
+                mockAccountFound(AccountServiceTestConstants.ACC_A, accountA);
 
                 // When
-                Account result = accountService.deposit(ACC_A, 100.0);
+                Account result = accountService.deposit(AccountServiceTestConstants.ACC_A, (double)AccountServiceTestConstants.SMALL_TRANSFER);
 
                 // Then
-                assertThat(result.getBalance()).isEqualTo(currentBalance + 100.0);
+                assertThat(result.getBalance()).isEqualTo(currentBalance + (double)AccountServiceTestConstants.SMALL_TRANSFER);
                 checkCommonDepositVerifications(accountA);
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.DEPOSIT,
-                                "Deposit Confirmation",
+                                AccountServiceTestConstants.TITLE_DEPOSIT,
                                 String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
-                                                100.0, accountA.getBalance()));
+                                                (double)AccountServiceTestConstants.SMALL_TRANSFER, accountA.getBalance()));
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
 
@@ -303,16 +298,16 @@ class AccountServiceTest {
         void testNoDescriptionDepositSuccessSms() {
                 // Given
                 double currentBalance = accountB.getBalance();
-                mockAccountFound(ACC_B, accountB);
+                mockAccountFound(AccountServiceTestConstants.ACC_B, accountB);
 
                 // When
-                Account result = accountService.deposit(ACC_B, 50.0);
+                Account result = accountService.deposit(AccountServiceTestConstants.ACC_B, 50.0);
 
                 // Then
                 assertThat(result.getBalance()).isEqualTo(currentBalance + 50.0);
                 checkCommonDepositVerifications(accountB);
                 verify(smsService).sendNotification(smsUser, Notification.NotificationType.DEPOSIT,
-                                "Deposit Confirmation",
+                                AccountServiceTestConstants.TITLE_DEPOSIT,
                                 String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
                                                 50.0, accountB.getBalance()));
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
@@ -321,12 +316,10 @@ class AccountServiceTest {
         @Test
         void testTransactionEntityCreation() {
                 // Given
-                mockAccountFound(ACC_A, accountA);
-
                 // When
-                accountService.deposit(ACC_A, 200.0, "Test");
-
                 // Then
+                mockAccountFound(AccountServiceTestConstants.ACC_A, accountA);
+                accountService.deposit(AccountServiceTestConstants.ACC_A, 200.0, "Test");
                 checkCommonDepositVerifications(accountA);
         }
 
@@ -343,11 +336,11 @@ class AccountServiceTest {
         @Test
         @DisplayName("withdraw from non-existent account should throw IllegalArgumentException")
         public void withdrawFromNonExistentAccountShouldThrowException() {
-                when(accountRepository.findByAccountNumber(ACC_MISSING)).thenReturn(Optional.empty());
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_MISSING)).thenReturn(Optional.empty());
 
-                assertThatThrownBy(() -> accountService.withdraw(ACC_MISSING, 100, "Test"))
+                assertThatThrownBy(() -> accountService.withdraw(AccountServiceTestConstants.ACC_MISSING, AccountServiceTestConstants.SMALL_TRANSFER, "Test"))
                                 .isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Account not found");
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_ACCOUNT_NOT_FOUND);
         }
 
         @Test
@@ -367,30 +360,30 @@ class AccountServiceTest {
         @Test
         @DisplayName("getBalance returns balance for an existing account")
         public void getBalanceExistingAccountReturnsBalance() {
-                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
 
-                assertThat(accountService.getBalance(ACC_A)).isEqualTo(500.0);
-                verify(accountRepository).findByAccountNumber(ACC_A);
+                assertThat(accountService.getBalance(AccountServiceTestConstants.ACC_A)).isEqualTo(AccountServiceTestConstants.INITIAL_BALANCE_A);
+                verify(accountRepository).findByAccountNumber(AccountServiceTestConstants.ACC_A);
         }
 
         @Test
         @DisplayName("getBalance returns zero when balance is zero")
         public void getBalanceZeroBalanceReturnsZero() {
-                Account empty = new Account("ES0000000010", Account.AccountType.SAVINGS, 0.0);
+                Account empty = new Account(AccountServiceTestConstants.ACC_ZERO_BALANCE, Account.AccountType.SAVINGS, AccountServiceTestConstants.ZERO_AMOUNT);
                 empty.setUser(emailUser);
-                when(accountRepository.findByAccountNumber("ES0000000010")).thenReturn(Optional.of(empty));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_ZERO_BALANCE)).thenReturn(Optional.of(empty));
 
-                assertThat(accountService.getBalance("ES0000000010")).isEqualTo(0.0);
+                assertThat(accountService.getBalance(AccountServiceTestConstants.ACC_ZERO_BALANCE)).isEqualTo(AccountServiceTestConstants.ZERO_AMOUNT);
         }
 
         @Test
         @DisplayName("getBalance for an unknown account should throw IllegalArgumentException")
         public void getBalanceUnknownAccountShouldThrowIllegalArgumentException() {
-                when(accountRepository.findByAccountNumber(ACC_MISSING)).thenReturn(Optional.empty());
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_MISSING)).thenReturn(Optional.empty());
 
-                assertThatThrownBy(() -> accountService.getBalance(ACC_MISSING))
+                assertThatThrownBy(() -> accountService.getBalance(AccountServiceTestConstants.ACC_MISSING))
                                 .isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Account not found");
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_ACCOUNT_NOT_FOUND);
         }
 
         @Test
@@ -399,11 +392,11 @@ class AccountServiceTest {
                 Transaction deposit = new Transaction(accountA, Transaction.TransactionType.DEPOSIT, 100.0, "dep");
                 Transaction withdrawal = new Transaction(accountA, Transaction.TransactionType.WITHDRAWAL, 50.0, "wd");
 
-                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
                 when(transactionRepository.findByAccountOrderByTimestampDesc(accountA))
                                 .thenReturn(List.of(withdrawal, deposit));
 
-                List<Transaction> result = accountService.getTransactions(ACC_A);
+                List<Transaction> result = accountService.getTransactions(AccountServiceTestConstants.ACC_A);
 
                 assertThat(result).hasSize(2);
                 assertThat(result.get(0).getType()).isEqualTo(Transaction.TransactionType.WITHDRAWAL);
@@ -414,27 +407,27 @@ class AccountServiceTest {
         @Test
         @DisplayName("getTransactions returns empty list when account has no transactions")
         public void getTransactionsReturnsEmptyListWhenNoTransactions() {
-                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
                 when(transactionRepository.findByAccountOrderByTimestampDesc(accountA)).thenReturn(List.of());
 
-                assertThat(accountService.getTransactions(ACC_A)).isEmpty();
+                assertThat(accountService.getTransactions(AccountServiceTestConstants.ACC_A)).isEmpty();
         }
 
         @Test
         @DisplayName("getTransactions for an unknown account should throw IllegalArgumentException")
         public void getTransactionsUnknownAccountShouldThrowIllegalArgumentException() {
-                when(accountRepository.findByAccountNumber(ACC_MISSING)).thenReturn(Optional.empty());
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_MISSING)).thenReturn(Optional.empty());
 
-                assertThatThrownBy(() -> accountService.getTransactions(ACC_MISSING))
+                assertThatThrownBy(() -> accountService.getTransactions(AccountServiceTestConstants.ACC_MISSING))
                                 .isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Account not found");
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_ACCOUNT_NOT_FOUND);
 
                 verifyNoInteractions(transactionRepository);
         }
 
         private void givenValidTransferSetup() {
-                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
-                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_B)).thenReturn(Optional.of(accountB));
                 when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
         }
 
@@ -443,9 +436,9 @@ class AccountServiceTest {
         public void transferSourceBalanceDecreasedByAmount() {
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER);
 
-                assertThat(accountA.getBalance()).isEqualTo(400.0);
+                assertThat(accountA.getBalance()).isEqualTo(AccountServiceTestConstants.INITIAL_BALANCE_A - AccountServiceTestConstants.SMALL_TRANSFER);
         }
 
         @Test
@@ -453,9 +446,9 @@ class AccountServiceTest {
         public void transferDestinationBalanceIncreasedByAmount() {
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER);
 
-                assertThat(accountB.getBalance()).isEqualTo(300.0);
+                assertThat(accountB.getBalance()).isEqualTo(AccountServiceTestConstants.INITIAL_BALANCE_B + AccountServiceTestConstants.SMALL_TRANSFER);
         }
 
         @Test
@@ -463,7 +456,7 @@ class AccountServiceTest {
         public void transferSavesTwoTransactions() {
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER);
 
                 verify(transactionRepository, times(2)).save(any(Transaction.class));
         }
@@ -473,7 +466,7 @@ class AccountServiceTest {
         public void transferSentTransactionHasCorrectDestinationAndAmount() {
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER);
 
                 ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
                 verify(transactionRepository, times(2)).save(captor.capture());
@@ -483,8 +476,8 @@ class AccountServiceTest {
                                 .findFirst()
                                 .orElseThrow();
 
-                assertThat(sent.getDestinationAccountNumber()).isEqualTo(ACC_B);
-                assertThat(sent.getAmount()).isEqualTo(100.0);
+                assertThat(sent.getDestinationAccountNumber()).isEqualTo(AccountServiceTestConstants.ACC_B);
+                assertThat(sent.getAmount()).isEqualTo((double)AccountServiceTestConstants.SMALL_TRANSFER);
         }
 
         @Test
@@ -492,7 +485,7 @@ class AccountServiceTest {
         public void transferReceivedTransactionHasCorrectSourceAndAmount() {
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER);
 
                 ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
                 verify(transactionRepository, times(2)).save(captor.capture());
@@ -502,8 +495,8 @@ class AccountServiceTest {
                                 .findFirst()
                                 .orElseThrow();
 
-                assertThat(received.getDestinationAccountNumber()).isEqualTo(ACC_A);
-                assertThat(received.getAmount()).isEqualTo(100.0);
+                assertThat(received.getDestinationAccountNumber()).isEqualTo(AccountServiceTestConstants.ACC_A);
+                assertThat(received.getAmount()).isEqualTo((double)AccountServiceTestConstants.SMALL_TRANSFER);
         }
 
         @Test
@@ -511,7 +504,7 @@ class AccountServiceTest {
         public void transferPersistsBothAccounts() {
                 givenValidTransferSetup();
 
-                accountService.transfer(accountA.getAccountNumber(), accountB.getAccountNumber(), 100.0);
+                accountService.transfer(accountA.getAccountNumber(), accountB.getAccountNumber(), AccountServiceTestConstants.SMALL_TRANSFER);
 
                 verify(accountRepository).save(accountA);
                 verify(accountRepository).save(accountB);
@@ -527,14 +520,14 @@ class AccountServiceTest {
                 accountB.setUser(smsUser2);
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER);
 
-                verify(smsService).sendNotification(smsUser, Notification.NotificationType.TRANSFER, "Transfer Sent",
-                                String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", 100.0, ACC_B,
+                verify(smsService).sendNotification(smsUser, Notification.NotificationType.TRANSFER, AccountServiceTestConstants.TITLE_TRANSFER_SENT,
+                                String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", (double)AccountServiceTestConstants.SMALL_TRANSFER, AccountServiceTestConstants.ACC_B,
                                                 accountA.getBalance()));
                 verify(smsService).sendNotification(smsUser2, Notification.NotificationType.TRANSFER,
-                                "Transfer Received",
-                                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", 100.0, ACC_A,
+                                AccountServiceTestConstants.TITLE_TRANSFER_RECEIVED,
+                                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", (double)AccountServiceTestConstants.SMALL_TRANSFER, AccountServiceTestConstants.ACC_A,
                                                 accountB.getBalance()));
                 verifyNoInteractions(emailService);
         }
@@ -549,15 +542,15 @@ class AccountServiceTest {
                 accountB.setUser(emailUser2);
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER);
 
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.TRANSFER,
-                                "Transfer Sent",
-                                String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", 100.0, ACC_B,
+                                AccountServiceTestConstants.TITLE_TRANSFER_SENT,
+                                String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", (double)AccountServiceTestConstants.SMALL_TRANSFER, AccountServiceTestConstants.ACC_B,
                                                 accountA.getBalance()));
                 verify(emailService).sendNotification(emailUser2, Notification.NotificationType.TRANSFER,
-                                "Transfer Received",
-                                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", 100.0, ACC_A,
+                                AccountServiceTestConstants.TITLE_TRANSFER_RECEIVED,
+                                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", (double)AccountServiceTestConstants.SMALL_TRANSFER, AccountServiceTestConstants.ACC_A,
                                                 accountB.getBalance()));
                 verifyNoInteractions(smsService);
         }
@@ -567,15 +560,15 @@ class AccountServiceTest {
         public void transferEmailSenderSmsReceiver() {
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER);
 
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.TRANSFER,
-                                "Transfer Sent",
-                                String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", 100.0, ACC_B,
+                                AccountServiceTestConstants.TITLE_TRANSFER_SENT,
+                                String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", (double)AccountServiceTestConstants.SMALL_TRANSFER, AccountServiceTestConstants.ACC_B,
                                                 accountA.getBalance()));
                 verify(smsService).sendNotification(smsUser, Notification.NotificationType.TRANSFER,
-                                "Transfer Received",
-                                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", 100.0, ACC_A,
+                                AccountServiceTestConstants.TITLE_TRANSFER_RECEIVED,
+                                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", (double)AccountServiceTestConstants.SMALL_TRANSFER, AccountServiceTestConstants.ACC_A,
                                                 accountB.getBalance()));
         }
 
@@ -586,14 +579,14 @@ class AccountServiceTest {
                 accountB.setUser(emailUser);
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER);
 
-                verify(smsService).sendNotification(smsUser, Notification.NotificationType.TRANSFER, "Transfer Sent",
-                                String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", 100.0, ACC_B,
+                verify(smsService).sendNotification(smsUser, Notification.NotificationType.TRANSFER, AccountServiceTestConstants.TITLE_TRANSFER_SENT,
+                                String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", (double)AccountServiceTestConstants.SMALL_TRANSFER, AccountServiceTestConstants.ACC_B,
                                                 accountA.getBalance()));
                 verify(emailService).sendNotification(emailUser, Notification.NotificationType.TRANSFER,
-                                "Transfer Received",
-                                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", 100.0, ACC_A,
+                                AccountServiceTestConstants.TITLE_TRANSFER_RECEIVED,
+                                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", (double)AccountServiceTestConstants.SMALL_TRANSFER, AccountServiceTestConstants.ACC_A,
                                                 accountB.getBalance()));
         }
 
@@ -604,7 +597,7 @@ class AccountServiceTest {
                 accountB.setUser(emailUser);
                 givenValidTransferSetup();
 
-                accountService.transfer(ACC_A, ACC_B, 100.0);
+                accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_TRANSFER);
 
                 verifyNoInteractions(smsService);
         }
@@ -612,54 +605,53 @@ class AccountServiceTest {
         @Test
         @DisplayName("remove an account with a balance greater than zero should throw IllegalArgumentException")
         public void removeAccountWithBalanceGreaterThanZeroShouldThrowIllegalArgumentException() {
-                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
 
-                assertThatThrownBy(() -> accountService.rm(ACC_A)).isInstanceOf(IllegalArgumentException.class)
-                                .hasMessageContaining("Cannot delete account with non-zero balance");
+                assertThatThrownBy(() -> accountService.rm(AccountServiceTestConstants.ACC_A)).isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining(AccountServiceTestConstants.MSG_CANNOT_DELETE);
         }
 
         @Test
         @DisplayName("remove an account with a balance of zero shoud delete account")
         public void removeAccountWithBalanceZeroShouldDeleteAccount() {
-                Account zeroBalanceAccount = new Account(ACC_A, Account.AccountType.CHECKING, 0.0);
+                Account zeroBalanceAccount = new Account(AccountServiceTestConstants.ACC_A, Account.AccountType.CHECKING, AccountServiceTestConstants.ZERO_AMOUNT);
                 when(accountRepository.findByAccountNumber(any())).thenReturn(Optional.of(zeroBalanceAccount));
-                accountService.rm(ACC_A);
+                accountService.rm(AccountServiceTestConstants.ACC_A);
                 verify(accountRepository).delete(zeroBalanceAccount);
         }
 
         @Test
         @DisplayName("getAccount - returns the account when it exists")
         void getAccount_ExistingAccount_returnsAccount() {
-                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
 
-                Account result = accountService.getAccount(ACC_A);
+                Account result = accountService.getAccount(AccountServiceTestConstants.ACC_A);
 
                 assertThat(result).isNotNull();
-                assertThat(result.getAccountNumber()).isEqualTo(ACC_A);
+                assertThat(result.getAccountNumber()).isEqualTo(AccountServiceTestConstants.ACC_A);
                 assertThat(result).isEqualTo(accountA);
-                verify(accountRepository).findByAccountNumber(ACC_A);
+                verify(accountRepository).findByAccountNumber(AccountServiceTestConstants.ACC_A);
         }
 
         @Test
         @DisplayName("getAccount - throws IllegalArgumentException when account does not exist")
         void getAccount_nonExistingAccount_throwsException() {
-                when(accountRepository.findByAccountNumber(ACC_MISSING)).thenReturn(Optional.empty());
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_MISSING)).thenReturn(Optional.empty());
 
-                assertThatThrownBy(() -> accountService.getAccount(ACC_MISSING))
+                assertThatThrownBy(() -> accountService.getAccount(AccountServiceTestConstants.ACC_MISSING))
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessage("Account not found");
         }
 
         // transfer 1st part
-
         @Test
         @DisplayName("transfer - throws when amount zero or negative")
         void transfer_invalidAmount_throwsException() {
-                assertThatThrownBy(() -> accountService.transfer(ACC_A, ACC_B, 0))
+                assertThatThrownBy(() -> accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.ZERO_AMOUNT))
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessage("Amount must be positive");
 
-                assertThatThrownBy(() -> accountService.transfer(ACC_A, ACC_B, -67))
+                assertThatThrownBy(() -> accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.NEGATIVE_AMOUNT))
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessage("Amount must be positive");
         }
@@ -667,7 +659,7 @@ class AccountServiceTest {
         @Test
         @DisplayName("transfer - throws when amount exceeds limit")
         void transfer_amountExceedsLimit_throwsException() {
-                assertThatThrownBy(() -> accountService.transfer(ACC_A, ACC_B, 20001.0))
+                assertThatThrownBy(() -> accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.OVER_LIMIT))
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessage("Amount exceeds maximum transfer limit");
         }
@@ -698,13 +690,14 @@ class AccountServiceTest {
          *       .hasMessage("Cannot transfer to same account");
          *       }
          */
+        
         @Test
         @DisplayName("transfer - throws when source account has insufficient funds")
         void transfer_insufficientFunds_throwsException() {
-                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
-                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_B)).thenReturn(Optional.of(accountB));
 
-                assertThatThrownBy(() -> accountService.transfer(ACC_A, ACC_B, 600.0))
+                assertThatThrownBy(() -> accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, 600.0))
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessage("Insufficient funds");
         }

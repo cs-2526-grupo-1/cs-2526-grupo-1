@@ -168,6 +168,13 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("getUserAccounts returns empty list when user has no accounts")
+        public void getUserAccountsReturnsEmptyListWhenNoAccounts() {
+                when(accountRepository.findByUser(emailUser)).thenReturn(List.of());
+                assertThat(accountService.getUserAccounts(emailUser)).isEmpty();
+        }
+
+        @Test
         @DisplayName("getUserAccounts returns the accounts associated to a user")
         public void getUserAccountsReturnsUserAccounts() {
                 when(accountRepository.findByUser(emailUser)).thenReturn(List.of(accountA, accountB));

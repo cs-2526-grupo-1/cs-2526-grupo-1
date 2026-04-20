@@ -141,6 +141,27 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("withdraw with user without notification type should not send notifications")
+        public void withdrawWithUserWithoutNotificationTypeShouldNotSendNotifications() {
+                User noNotifUser = new User("user3", "pass", "ROLE_USER");
+                noNotifUser.setNotificationType(null);
+                String ACC_C = "ES0000000003";
+                double originalBalance = 500.0;
+                Account accountC = new Account(ACC_C, Account.AccountType.CHECKING, originalBalance);
+                accountC.setUser(noNotifUser);
+
+                when(accountRepository.findByAccountNumber(ACC_C)).thenReturn(Optional.of(accountC));
+                when(accountRepository.save(accountC)).thenReturn(accountC);
+
+                accountService.withdraw(ACC_C, 100, "Test");
+
+                assertThat(accountC.getBalance()).isEqualTo(originalBalance - 100);
+                checkCommonDepositVerifications(accountC);
+                verify(emailService, never()).sendNotification(any(), any(), any(), any());
+                verify(smsService, never()).sendNotification(any(), any(), any(), any());
+        }
+
+        @Test
         @DisplayName("create account")
         void testCreateAccount() {
                 // Given
@@ -295,27 +316,6 @@ class AccountServiceTest {
         private void checkCommonDepositVerifications(Account account) {
                 verify(transactionRepository).save(any(Transaction.class));
                 verify(accountRepository).save(account);
-        }
-
-        @Test
-        @DisplayName("withdraw with user without notification type should not send notifications")
-        public void withdrawWithUserWithoutNotificationTypeShouldNotSendNotifications() {
-                User noNotifUser = new User("user3", "pass", "ROLE_USER");
-                noNotifUser.setNotificationType(null);
-                String ACC_C = "ES0000000003";
-                double originalBalance = 500.0;
-                Account accountC = new Account(ACC_C, Account.AccountType.CHECKING, originalBalance);
-                accountC.setUser(noNotifUser);
-
-                when(accountRepository.findByAccountNumber(ACC_C)).thenReturn(Optional.of(accountC));
-                when(accountRepository.save(accountC)).thenReturn(accountC);
-
-                accountService.withdraw(ACC_C, 100, "Test");
-
-                assertThat(accountC.getBalance()).isEqualTo(originalBalance - 100);
-                checkCommonDepositVerifications(accountC);
-                verify(emailService, never()).sendNotification(any(), any(), any(), any());
-                verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
 
         @Test

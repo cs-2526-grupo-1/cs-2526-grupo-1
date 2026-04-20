@@ -98,12 +98,14 @@ public class TransferE2ETest {
         testUser1 = userRepository.save(testUser1);
 
         initialBalanceAccount1Checking = E2ETestConstants.INITIAL_BALANCE_ACCOUNT1_CHECKING;
-        Account checkingAccount = new Account(E2ETestConstants.ACCOUNT_1_CHECKING, Account.AccountType.CHECKING, initialBalanceAccount1Checking);
+        Account checkingAccount = new Account(E2ETestConstants.ACCOUNT_1_CHECKING, Account.AccountType.CHECKING,
+                initialBalanceAccount1Checking);
         checkingAccount.setUser(testUser1);
         checkingAccount = accountRepository.save(checkingAccount);
 
         initialBalanceAccount1Savings = E2ETestConstants.INITIAL_BALANCE_ACCOUNT1_SAVINGS;
-        Account savingsAccount = new Account(E2ETestConstants.ACCOUNT_1_SAVINGS, Account.AccountType.SAVINGS, initialBalanceAccount1Savings);
+        Account savingsAccount = new Account(E2ETestConstants.ACCOUNT_1_SAVINGS, Account.AccountType.SAVINGS,
+                initialBalanceAccount1Savings);
         savingsAccount.setUser(testUser1);
         savingsAccount = accountRepository.save(savingsAccount);
 
@@ -122,7 +124,8 @@ public class TransferE2ETest {
         testUser2 = userRepository.save(testUser2);
 
         Double initialBalanceAccount2 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT2;
-        Account user2Account = new Account(E2ETestConstants.ACCOUNT_2_CHECKING, Account.AccountType.CHECKING, initialBalanceAccount2);
+        Account user2Account = new Account(E2ETestConstants.ACCOUNT_2_CHECKING, Account.AccountType.CHECKING,
+                initialBalanceAccount2);
         user2Account.setUser(testUser2);
         user2Account = accountRepository.save(user2Account);
     }
@@ -287,5 +290,22 @@ public class TransferE2ETest {
         driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
         login(username, password);
+    @Test
+    public void test7_makeTransferToUnexistingAccount() {
+
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount =  E2ETestConstants.ACCOUNT_NOT_EXISTING;
+        int amount = E2ETestConstants.STANDARD_AMOUNT;
+
+        simulateTransfer(fromAccount, toAccount, amount);
+
+        String errorMessage = wait.until(
+                ExpectedConditions.presenceOfElementLocated(
+                        By.id(E2ETestConstants.ID_ERROR_MESSAGE)))
+                .getText();
+
+        assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_ACCOUNT_NOT_FOUND);
+
+        checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
     }
 }

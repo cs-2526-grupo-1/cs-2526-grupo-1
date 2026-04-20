@@ -3,6 +3,14 @@ Daniel-> createAccount, de deposit la segunda parte (x2*)
 Alex-> generateAccountNumber, amount de deposit (x4*)
 Gonzalo-> getAccount, método transfer hasta //Perform transfer (el comentario)
 Samu y Sara-> getUserAccounts, rm y withdraw
-Marcelo-> getBalance, getTransactions, método transfer //Desde perform transferm  
+Marcelo-> getBalance, getTransactions, método transfer //Desde perform transferm
 
+
+Daniel----> *Extraer método para validaciones* de montos
+Alex------> *Corregir comparación* de Strings (usar .equals()) + *Crear constantes* para magic numbers +
+|---------> *Eliminar variable no usada* (seccondAccount) + *Renombrar variables*
+Gonzalo---> *Extraer método* para registro de transacciones
+Samu------> *Eliminar ramas inalcanzables* (> 50000) + *Unificación de deposit*
+Sara------> *Extraer método para envío de notificaciones*
+Marcelo---> *Consolidar validaciones* redundantes
 

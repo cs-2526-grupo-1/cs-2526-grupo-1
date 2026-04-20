@@ -11,9 +11,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -249,5 +255,139 @@ class AccountServiceTest {
                                 .hasMessageContaining("Account not found");
 
                 verifyNoInteractions(transactionRepository);
+        }
+
+        private void givenValidTransferSetup() {
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
+                when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+        }
+
+        @Test
+        @DisplayName("transfer debits source account by transferred amount")
+        public void transferSourceBalanceDecreasedByAmount() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                assertThat(accountA.getBalance()).isEqualTo(400.0);
+        }
+
+        @Test
+        @DisplayName("transfer credits destination account by transferred amount")
+        public void transferDestinationBalanceIncreasedByAmount() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                assertThat(accountB.getBalance()).isEqualTo(300.0);
+        }
+
+        @Test
+        @DisplayName("transfer saves exactly two transactions (SENT + RECEIVED)")
+        public void transferSavesTwoTransactions() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verify(transactionRepository, times(2)).save(any(Transaction.class));
+        }
+
+        @Test
+        @DisplayName("transfer sent transaction carries destination account number and amount")
+        public void transferSentTransactionHasCorrectDestinationAndAmount() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
+                verify(transactionRepository, times(2)).save(captor.capture());
+
+                Transaction sent = captor.getAllValues().stream()
+                                .filter(t -> t.getType() == Transaction.TransactionType.TRANSFER_SENT)
+                                .findFirst()
+                                .orElseThrow();
+
+                assertThat(sent.getDestinationAccountNumber()).isEqualTo(ACC_B);
+                assertThat(sent.getAmount()).isEqualTo(100.0);
+        }
+
+        @Test
+        @DisplayName("transfer received transaction carries source account number and amount")
+        public void transferReceivedTransactionHasCorrectSourceAndAmount() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
+                verify(transactionRepository, times(2)).save(captor.capture());
+
+                Transaction received = captor.getAllValues().stream()
+                                .filter(t -> t.getType() == Transaction.TransactionType.TRANSFER_RECEIVED)
+                                .findFirst()
+                                .orElseThrow();
+
+                assertThat(received.getDestinationAccountNumber()).isEqualTo(ACC_A);
+                assertThat(received.getAmount()).isEqualTo(100.0);
+        }
+
+        @Test
+        @DisplayName("transfer persists both accounts after transfer")
+        public void transferPersistsBothAccounts() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verify(accountRepository, times(2)).save(any(Account.class));
+        }
+
+        @Test
+        @DisplayName("transfer sends email notification to sender when notification type is EMAIL")
+        public void transferEmailNotificationSentToSender() {
+                accountA.setUser(emailUser);
+                accountB.setUser(emailUser);
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verify(emailService, atLeastOnce()).sendNotification(eq(emailUser), any(), any(), any());
+                verifyNoInteractions(smsService);
+        }
+
+        @Test
+        @DisplayName("transfer sends email notification to both parties when both use EMAIL")
+        public void transferEmailNotificationSentToSenderAndRecipient() {
+                accountA.setUser(emailUser);
+                accountB.setUser(emailUser);
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verify(emailService, times(2)).sendNotification(eq(emailUser), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("transfer sends SMS notification when notification type is SMS")
+        public void transferSmsNotificationSentWhenSmsType() {
+                accountA.setUser(smsUser);
+                accountB.setUser(smsUser);
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verify(smsService, atLeastOnce()).sendNotification(eq(smsUser), any(), any(), any());
+                verifyNoInteractions(emailService);
+        }
+
+        @Test
+        @DisplayName("transfer does not send SMS when notification type is EMAIL")
+        public void transferNoSmsNotificationWhenEmailType() {
+                accountA.setUser(emailUser);
+                accountB.setUser(emailUser);
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verifyNoInteractions(smsService);
         }
 }

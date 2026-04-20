@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,10 +20,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.codeurjc.model.Account;
 import es.codeurjc.model.User;
+import es.codeurjc.model.Transaction;
 import es.codeurjc.repository.AccountRepository;
 import es.codeurjc.repository.TransactionRepository;
 import es.codeurjc.service.AccountService;
 import es.codeurjc.service.RandomService;
+import es.codeurjc.model.Notification;
 import es.codeurjc.service.notifications.EmailNotificationService;
 import es.codeurjc.service.notifications.SmsNotificationService;
 
@@ -105,7 +108,12 @@ class AccountServiceTest {
                 accountService.withdraw(ACC_A, 100, "Padel match");
 
                 assertThat(accountA.getBalance()).isEqualTo(balanceBefore - 100);
-                verify(emailService).sendNotification(any(), any(), any(), any());
+                verify(transactionRepository).save(any(Transaction.class));
+                verify(accountRepository).save(accountA);
+                verify(emailService).sendNotification(emailUser, Notification.NotificationType.WITHDRAWAL,
+                                "Withdrawal Confirmation",
+                                String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", 100.0,
+                                                accountA.getBalance()));
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
 
@@ -119,14 +127,50 @@ class AccountServiceTest {
                 accountService.withdraw(ACC_B, 100, "Padel match");
 
                 assertThat(accountB.getBalance()).isEqualTo(balanceBefore - 100);
-                verify(smsService).sendNotification(any(), any(), any(), any());
+                verify(transactionRepository).save(any(Transaction.class));
+                verify(accountRepository).save(accountB);
+                verify(smsService).sendNotification(smsUser, Notification.NotificationType.WITHDRAWAL, "Withdrawal",
+                                String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", 100.0,
+                                                accountB.getBalance()));
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("withdraw with user without notification type should not send notifications")
+        public void withdrawWithUserWithoutNotificationTypeShouldNotSendNotifications() {
+                User noNotifUser = new User("user3", "pass", "ROLE_USER");
+                noNotifUser.setNotificationType(null);
+                String ACC_C = "ES0000000003";
+                double originalBalance = 500.0;
+                Account accountC = new Account(ACC_C, Account.AccountType.CHECKING, originalBalance);
+                accountC.setUser(noNotifUser);
+
+                when(accountRepository.findByAccountNumber(ACC_C)).thenReturn(Optional.of(accountC));
+                when(accountRepository.save(accountC)).thenReturn(accountC);
+
+                accountService.withdraw(ACC_C, 100, "Test");
+
+                assertThat(accountC.getBalance()).isEqualTo(originalBalance - 100);
+                verify(transactionRepository).save(any(Transaction.class));
+                verify(accountRepository).save(accountC);
+                verify(emailService, never()).sendNotification(any(), any(), any(), any());
+                verify(smsService, never()).sendNotification(any(), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("withdraw from non-existent account should throw IllegalArgumentException")
+        public void withdrawFromNonExistentAccountShouldThrowException() {
+                when(accountRepository.findByAccountNumber(ACC_MISSING)).thenReturn(Optional.empty());
+
+                assertThatThrownBy(() -> accountService.withdraw(ACC_MISSING, 100, "Test"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Account not found");
         }
 
         @Test
         @DisplayName("getUserAccounts returns the accounts associated to a user")
         public void getUserAccountsReturnsUserAccounts() {
-                when(accountRepository.findByUser(emailUser)).thenReturn(List.of(accountA));
-                assertThat(accountService.getUserAccounts(emailUser)).isEqualTo(List.of(accountA));
+                when(accountRepository.findByUser(emailUser)).thenReturn(List.of(accountA, accountB));
+                assertThat(accountService.getUserAccounts(emailUser)).isEqualTo(List.of(accountA, accountB));
         }
 }

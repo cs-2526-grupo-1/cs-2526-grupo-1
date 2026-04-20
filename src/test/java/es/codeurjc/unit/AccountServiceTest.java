@@ -1,6 +1,5 @@
 package es.codeurjc.unit;
 
-
 import java.util.List;
 import java.util.Optional;
 
@@ -31,22 +30,37 @@ import es.codeurjc.model.Notification;
 import es.codeurjc.service.notifications.EmailNotificationService;
 import es.codeurjc.service.notifications.SmsNotificationService;
 
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import es.codeurjc.model.Account;
+import es.codeurjc.model.Transaction;
+import es.codeurjc.model.User;
+import es.codeurjc.model.Transaction;
+import es.codeurjc.repository.AccountRepository;
+import es.codeurjc.repository.TransactionRepository;
+import es.codeurjc.service.AccountService;
+import es.codeurjc.service.RandomService;
+import es.codeurjc.model.Notification;
+import es.codeurjc.service.notifications.EmailNotificationService;
+import es.codeurjc.service.notifications.SmsNotificationService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("When running AccountService ")
@@ -95,25 +109,31 @@ class AccountServiceTest {
         @Test
         @DisplayName("withdraw zero or negative amount should throw IllegalArgumentException")
         public void withdrawZeroOrNegativeAmountShouldThrowIllegalArgumentException() {
-                assertThatThrownBy(() -> accountService.withdraw(ACC_A, -200, "Withdraw negative amount")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Amount must be positive");
+                assertThatThrownBy(() -> accountService.withdraw(ACC_A, -200, "Withdraw negative amount"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Amount must be positive");
         }
 
         @Test
         @DisplayName("withdraw an amount that exceeds limit should throw IllegalArgumentException")
         public void withdrawExceedLimitAmountShouldThrowIllegalArgumentException() {
-                assertThatThrownBy(() -> accountService.withdraw(ACC_A, 6000, "Withdraw a lot of money")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Amount exceeds maximum withdrawal limit");
+                assertThatThrownBy(() -> accountService.withdraw(ACC_A, 6000, "Withdraw a lot of money"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Amount exceeds maximum withdrawal limit");
         }
 
         @Test
         @DisplayName("withdraw an amount that exceeds balance should throw IllegalArgumentException")
         public void withdrawAmountThatExceedsBalanceShouldThrowIllegalArgumentException() {
                 when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
-                assertThatThrownBy(() -> accountService.withdraw(ACC_B, 300, "Padel match was a bit expensive")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Insufficient funds");
+                assertThatThrownBy(() -> accountService.withdraw(ACC_B, 300, "Padel match was a bit expensive"))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Insufficient funds");
         }
 
         @Test
         @DisplayName("withdraw a valid amount in an account with email notification triggers an email notification")
-        public void withdrawValidAmountDecreasesBalanceAndTriggersEmailNotification(){
+        public void withdrawValidAmountDecreasesBalanceAndTriggersEmailNotification() {
                 when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
                 when(accountRepository.save(accountA)).thenReturn(accountA);
 
@@ -131,7 +151,7 @@ class AccountServiceTest {
 
         @Test
         @DisplayName("withdraw a valid amount in an account with SMS notification triggers an SMS notification")
-        public void withdrawValidAmountDecreasesBalanceAndTriggersSmsNotification(){
+        public void withdrawValidAmountDecreasesBalanceAndTriggersSmsNotification() {
                 when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
                 when(accountRepository.save(accountB)).thenReturn(accountB);
 
@@ -294,6 +314,7 @@ class AccountServiceTest {
                 verify(accountRepository).save(any(Account.class));
         }
 
+
         @DisplayName("withdraw with user without notification type should not send notifications")
         public void withdrawWithUserWithoutNotificationTypeShouldNotSendNotifications() {
                 User noNotifUser = new User("user3", "pass", "ROLE_USER");
@@ -326,10 +347,219 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("getUserAccounts returns empty list when user has no accounts")
+        public void getUserAccountsReturnsEmptyListWhenNoAccounts() {
+                when(accountRepository.findByUser(emailUser)).thenReturn(List.of());
+                assertThat(accountService.getUserAccounts(emailUser)).isEmpty();
+        }
+
+        @Test
         @DisplayName("getUserAccounts returns the accounts associated to a user")
         public void getUserAccountsReturnsUserAccounts() {
                 when(accountRepository.findByUser(emailUser)).thenReturn(List.of(accountA, accountB));
                 assertThat(accountService.getUserAccounts(emailUser)).isEqualTo(List.of(accountA, accountB));
         }
-        
+
+        @Test
+        @DisplayName("getBalance returns balance for an existing account")
+        public void getBalanceExistingAccountReturnsBalance() {
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+
+                assertThat(accountService.getBalance(ACC_A)).isEqualTo(500.0);
+                verify(accountRepository).findByAccountNumber(ACC_A);
+        }
+
+        @Test
+        @DisplayName("getBalance returns zero when balance is zero")
+        public void getBalanceZeroBalanceReturnsZero() {
+                Account empty = new Account("ES0000000010", Account.AccountType.SAVINGS, 0.0);
+                empty.setUser(emailUser);
+                when(accountRepository.findByAccountNumber("ES0000000010")).thenReturn(Optional.of(empty));
+
+                assertThat(accountService.getBalance("ES0000000010")).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("getBalance for an unknown account should throw IllegalArgumentException")
+        public void getBalanceUnknownAccountShouldThrowIllegalArgumentException() {
+                when(accountRepository.findByAccountNumber(ACC_MISSING)).thenReturn(Optional.empty());
+
+                assertThatThrownBy(() -> accountService.getBalance(ACC_MISSING))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Account not found");
+        }
+
+        @Test
+        @DisplayName("getTransactions returns transactions ordered by timestamp descending")
+        public void getTransactionsReturnsOrderedList() {
+                Transaction deposit = new Transaction(accountA, Transaction.TransactionType.DEPOSIT, 100.0, "dep");
+                Transaction withdrawal = new Transaction(accountA, Transaction.TransactionType.WITHDRAWAL, 50.0, "wd");
+
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(transactionRepository.findByAccountOrderByTimestampDesc(accountA))
+                                .thenReturn(List.of(withdrawal, deposit));
+
+                List<Transaction> result = accountService.getTransactions(ACC_A);
+
+                assertThat(result).hasSize(2);
+                assertThat(result.get(0).getType()).isEqualTo(Transaction.TransactionType.WITHDRAWAL);
+                assertThat(result.get(1).getType()).isEqualTo(Transaction.TransactionType.DEPOSIT);
+                verify(transactionRepository).findByAccountOrderByTimestampDesc(accountA);
+        }
+
+        @Test
+        @DisplayName("getTransactions returns empty list when account has no transactions")
+        public void getTransactionsReturnsEmptyListWhenNoTransactions() {
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(transactionRepository.findByAccountOrderByTimestampDesc(accountA)).thenReturn(List.of());
+
+                assertThat(accountService.getTransactions(ACC_A)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("getTransactions for an unknown account should throw IllegalArgumentException")
+        public void getTransactionsUnknownAccountShouldThrowIllegalArgumentException() {
+                when(accountRepository.findByAccountNumber(ACC_MISSING)).thenReturn(Optional.empty());
+
+                assertThatThrownBy(() -> accountService.getTransactions(ACC_MISSING))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("Account not found");
+
+                verifyNoInteractions(transactionRepository);
+        }
+
+        private void givenValidTransferSetup() {
+                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
+                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
+                when(accountRepository.save(any(Account.class))).thenAnswer(inv -> inv.getArgument(0));
+        }
+
+        @Test
+        @DisplayName("transfer debits source account by transferred amount")
+        public void transferSourceBalanceDecreasedByAmount() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                assertThat(accountA.getBalance()).isEqualTo(400.0);
+        }
+
+        @Test
+        @DisplayName("transfer credits destination account by transferred amount")
+        public void transferDestinationBalanceIncreasedByAmount() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                assertThat(accountB.getBalance()).isEqualTo(300.0);
+        }
+
+        @Test
+        @DisplayName("transfer saves exactly two transactions (SENT + RECEIVED)")
+        public void transferSavesTwoTransactions() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verify(transactionRepository, times(2)).save(any(Transaction.class));
+        }
+
+        @Test
+        @DisplayName("transfer sent transaction carries destination account number and amount")
+        public void transferSentTransactionHasCorrectDestinationAndAmount() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
+                verify(transactionRepository, times(2)).save(captor.capture());
+
+                Transaction sent = captor.getAllValues().stream()
+                                .filter(t -> t.getType() == Transaction.TransactionType.TRANSFER_SENT)
+                                .findFirst()
+                                .orElseThrow();
+
+                assertThat(sent.getDestinationAccountNumber()).isEqualTo(ACC_B);
+                assertThat(sent.getAmount()).isEqualTo(100.0);
+        }
+
+        @Test
+        @DisplayName("transfer received transaction carries source account number and amount")
+        public void transferReceivedTransactionHasCorrectSourceAndAmount() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
+                verify(transactionRepository, times(2)).save(captor.capture());
+
+                Transaction received = captor.getAllValues().stream()
+                                .filter(t -> t.getType() == Transaction.TransactionType.TRANSFER_RECEIVED)
+                                .findFirst()
+                                .orElseThrow();
+
+                assertThat(received.getDestinationAccountNumber()).isEqualTo(ACC_A);
+                assertThat(received.getAmount()).isEqualTo(100.0);
+        }
+
+        @Test
+        @DisplayName("transfer persists both accounts after transfer")
+        public void transferPersistsBothAccounts() {
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verify(accountRepository, times(2)).save(any(Account.class));
+        }
+
+        @Test
+        @DisplayName("transfer sends email notification to sender when notification type is EMAIL")
+        public void transferEmailNotificationSentToSender() {
+                accountA.setUser(emailUser);
+                accountB.setUser(emailUser);
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verify(emailService, atLeastOnce()).sendNotification(eq(emailUser), any(), any(), any());
+                verifyNoInteractions(smsService);
+        }
+
+        @Test
+        @DisplayName("transfer sends email notification to both parties when both use EMAIL")
+        public void transferEmailNotificationSentToSenderAndRecipient() {
+                accountA.setUser(emailUser);
+                accountB.setUser(emailUser);
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verify(emailService, times(2)).sendNotification(eq(emailUser), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("transfer sends SMS notification when notification type is SMS")
+        public void transferSmsNotificationSentWhenSmsType() {
+                accountA.setUser(smsUser);
+                accountB.setUser(smsUser);
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verify(smsService, atLeastOnce()).sendNotification(eq(smsUser), any(), any(), any());
+                verifyNoInteractions(emailService);
+        }
+
+        @Test
+        @DisplayName("transfer does not send SMS when notification type is EMAIL")
+        public void transferNoSmsNotificationWhenEmailType() {
+                accountA.setUser(emailUser);
+                accountB.setUser(emailUser);
+                givenValidTransferSetup();
+
+                accountService.transfer(ACC_A, ACC_B, 100.0);
+
+                verifyNoInteractions(smsService);
+        }
 }
+

@@ -52,7 +52,13 @@ public class AccountService {
      * Generate account number
      */
     private String generateAccountNumber() {
-        return String.format("ES%010d", randomService.nextInt(1000000000));
+        String accountNumber;
+
+        do {
+            accountNumber = String.format("ES%010d", randomService.nextInt(1000000000));
+        } while (accountRepository.existsByAccountNumber(accountNumber));
+
+        return accountNumber;
     }
 
     /**

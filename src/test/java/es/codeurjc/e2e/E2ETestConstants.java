@@ -22,6 +22,7 @@ public class E2ETestConstants {
 
     public static final String ERROR_NEGATIVE_AMOUNT = "Amount must be positive";
     public static final String ERROR_EXCEEDS_LIMIT = "Amount exceeds maximum transfer limit";
+    public static final String ERROR_INSUFFICIENT_FUNDS = "Insufficient funds";
 
     public static final int NEGATIVE_AMOUNT = -50;
     public static final int EXCEEDING_AMOUNT = 30000;

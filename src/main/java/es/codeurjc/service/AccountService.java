@@ -52,7 +52,13 @@ public class AccountService {
      * Generate account number
      */
     private String generateAccountNumber() {
-        return String.format("ES%010d", randomService.nextInt(1000000000));
+        String accountNumber;
+
+        do {
+            accountNumber = String.format("ES%010d", randomService.nextInt(1000000000));
+        } while (accountRepository.existsByAccountNumber(accountNumber));
+
+        return accountNumber;
     }
 
     /**
@@ -124,48 +130,7 @@ public class AccountService {
      */
     @Transactional
     public Account deposit(String accountNumber, double amount) {
-        if (amount == 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (amount < 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (amount > 10000) {
-            throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
-        }
-        if (amount > 50000) {
-            throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
-        }
-
-        Account account = getAccount(accountNumber);
-        account.deposit(amount);
-
-        // Record transaction
-        Transaction transaction = new Transaction(account, Transaction.TransactionType.DEPOSIT,
-                amount, "Quick deposit");
-        transactionRepository.save(transaction);
-
-        Account savedAccount = accountRepository.save(account);
-
-        // Send notification
-        User.NotificationType notifType = account.getUser().getNotificationType();
-        if (notifType == User.NotificationType.EMAIL) {
-            emailService.sendNotification(
-                    account.getUser(),
-                    Notification.NotificationType.DEPOSIT,
-                    "Deposit Confirmation",
-                    String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
-                            amount, account.getBalance()));
-        } else if (notifType == User.NotificationType.SMS) {
-            smsService.sendNotification(
-                    account.getUser(),
-                    Notification.NotificationType.DEPOSIT,
-                    "Deposit Confirmation",
-                    String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
-                            amount, account.getBalance()));
-        }
-
-        return savedAccount;
+        return this.deposit(accountNumber, amount, "Quick deposit");
     }
 
     /**
@@ -232,7 +197,7 @@ public class AccountService {
         Account o = getAccount(toAccountNumber);
 
         // Validate same account
-        if (m.getAccountNumber() == o.getAccountNumber()) {
+        if (m.getAccountNumber().equals(o.getAccountNumber())) {
             throw new IllegalArgumentException("Cannot transfer to same account");
         }
 

@@ -141,9 +141,9 @@ public class TransferE2ETest {
 
     private void simulateTransfer(String fromAccount, String toAccount, double amount) {
         driver.get(BASE_URL + this.port + E2ETestConstants.PATH_TRANSFER);
-
+        
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
-
+        
         Select fromAccountSelect = new Select(driver.findElement(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
         fromAccountSelect.selectByValue(fromAccount);
         driver.findElement(By.id(E2ETestConstants.ID_TO_ACCOUNT)).sendKeys(toAccount);
@@ -217,7 +217,7 @@ public class TransferE2ETest {
         // as getBalance is tested in unit tests)
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
-        // Logout to check that the other user keeps the same balance as well
+        //Logout to check that the other user keeps the same balance as well
         driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
 
         // Wait until we are logged out and login page is shown again
@@ -248,7 +248,7 @@ public class TransferE2ETest {
         // as getBalance is tested in unit tests)
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
-        // Logout to check that the other user keeps the same balance as well
+        //Logout to check that the other user keeps the same balance as well
         driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
 
         // Wait until we are logged out and login page is shown again

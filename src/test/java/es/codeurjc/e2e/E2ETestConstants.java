@@ -5,11 +5,11 @@ public class E2ETestConstants {
     public static final String BASE_URL = "http://localhost:";
 
     public static final String USER1_USERNAME = "testuser1";
-    public static final String USER1_PASSWORD = "testuser1";
+    public static final String USER1_PASSWORD = "testuser1123@45";
     public static final String USER1_EMAIL = "testuser1@test.com";
 
     public static final String USER2_USERNAME = "testuser2";
-    public static final String USER2_PASSWORD = "testuser2";
+    public static final String USER2_PASSWORD = "testuser2123@45";
     public static final String USER2_EMAIL = "testuser2@test.com";
 
     public static final String ACCOUNT_1_CHECKING = "ES1111111111";
@@ -24,12 +24,13 @@ public class E2ETestConstants {
     public static final String ERROR_EXCEEDS_LIMIT = "Amount exceeds maximum transfer limit";
     public static final String ERROR_INSUFFICIENT_FUNDS = "Insufficient funds";
 
-    public static final int NEGATIVE_AMOUNT = -50;
-    public static final int EXCEEDING_AMOUNT = 30000;
+    public static final double NEGATIVE_AMOUNT = -50.0;
+    public static final double EXCEEDING_AMOUNT = 30000.0;
 
     public static final String ID_USERNAME = "username";
     public static final String ID_PASSWORD = "password";
     public static final String ID_LOGIN_BUTTON = "loginButton";
+    public static final String ID_LOGOUT_BUTTON = "logoutButton";
 
     public static final String ID_FROM_ACCOUNT = "fromAccount";
     public static final String ID_TO_ACCOUNT = "toAccount";

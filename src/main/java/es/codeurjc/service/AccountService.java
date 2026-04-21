@@ -20,6 +20,12 @@ import java.util.List;
 @Service
 public class AccountService {
 
+    private static final String DEPOSIT_CONFIRMATION_MESSAGE = "Deposit Confirmation";
+    private static final String WITHDRAWAL_CONFIRMATION_MESSAGE = "Withdrawal Confirmation";
+    private static final String WITHDRAWAL_MESSAGE = "Withdrawal";
+    private static final String TRANSFER_SENT_MESSAGE = "Transfer Sent";
+    private static final String TRANSFER_RECEIVED_MESSAGE = "Transfer Received";
+
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final EmailNotificationService emailService;
@@ -110,14 +116,14 @@ public class AccountService {
             emailService.sendNotification(
                     account.getUser(),
                     Notification.NotificationType.DEPOSIT,
-                    "Deposit Confirmation",
+                    DEPOSIT_CONFIRMATION_MESSAGE,
                     String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
                             amount, account.getBalance()));
         } else if (notifType == User.NotificationType.SMS) {
             smsService.sendNotification(
                     account.getUser(),
                     Notification.NotificationType.DEPOSIT,
-                    "Deposit Confirmation",
+                    DEPOSIT_CONFIRMATION_MESSAGE,
                     String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
                             amount, account.getBalance()));
         }
@@ -168,13 +174,13 @@ public class AccountService {
             emailService.sendNotification(
                     account.getUser(),
                     Notification.NotificationType.WITHDRAWAL,
-                    "Withdrawal Confirmation",
+                    WITHDRAWAL_CONFIRMATION_MESSAGE,
                     String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", amount, account.getBalance()));
         } else if (notifType == User.NotificationType.SMS) {
             smsService.sendNotification(
                     account.getUser(),
                     Notification.NotificationType.WITHDRAWAL,
-                    "Withdrawal",
+                    WITHDRAWAL_MESSAGE,
                     String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", amount, account.getBalance()));
         }
 
@@ -233,13 +239,13 @@ public class AccountService {
             emailService.sendNotification(
                     m.getUser(),
                     Notification.NotificationType.TRANSFER,
-                    "Transfer Sent",
+                    TRANSFER_SENT_MESSAGE,
                     String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", amount, toAccountNumber, m.getBalance()));
         } else if (notifType == User.NotificationType.SMS) {
             smsService.sendNotification(
                     m.getUser(), 
                     Notification.NotificationType.TRANSFER, 
-                    "Transfer Sent",
+                    TRANSFER_SENT_MESSAGE,
                     String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", amount, toAccountNumber, m.getBalance()));
         }
 
@@ -248,14 +254,14 @@ public class AccountService {
             emailService.sendNotification(
                     o.getUser(),
                     Notification.NotificationType.TRANSFER,
-                    "Transfer Received",
+                    TRANSFER_RECEIVED_MESSAGE,
                     String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR",
                         amount, fromAccountNumber, o.getBalance()));
         } else if (notifTypeTo == User.NotificationType.SMS) {
             smsService.sendNotification(
                 o.getUser(), 
                 Notification.NotificationType.TRANSFER, 
-                "Transfer Received",
+                TRANSFER_RECEIVED_MESSAGE,
                 String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", amount, fromAccountNumber, o.getBalance()));
         }
     }

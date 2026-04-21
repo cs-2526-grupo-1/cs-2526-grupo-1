@@ -199,77 +199,77 @@ public class AccountService {
             throw new IllegalArgumentException("Amount exceeds maximum transfer limit");
         }
 
-        Account m = getAccount(fromAccountNumber);
-        Account o = getAccount(toAccountNumber);
+        Account sourceAccount = getAccount(fromAccountNumber);
+        Account destinationAccount = getAccount(toAccountNumber);
 
         // Validate same account
-        if (m.getAccountNumber().equals(o.getAccountNumber())) {
+        if (sourceAccount.getAccountNumber().equals(destinationAccount.getAccountNumber())) {
             throw new IllegalArgumentException("Cannot transfer to same account");
         }
 
         // Check balance
-        if (m.getBalance() < amount) {
+        if (sourceAccount.getBalance() < amount) {
             throw new IllegalArgumentException("Insufficient funds");
         }
 
         // Perform transfer
-        m.withdraw(amount);
-        o.deposit(amount);
+        sourceAccount.withdraw(amount);
+        destinationAccount.deposit(amount);
 
         // Record transactions
-        Transaction sentTransaction = new Transaction(m,
+        Transaction sentTransaction = new Transaction(sourceAccount,
                 Transaction.TransactionType.TRANSFER_SENT,
                 amount,
                 "Transfer to " + toAccountNumber);
         sentTransaction.setDestinationAccountNumber(toAccountNumber);
         transactionRepository.save(sentTransaction);
 
-        Transaction receivedTransaction = new Transaction(o,
+        Transaction receivedTransaction = new Transaction(destinationAccount,
                 Transaction.TransactionType.TRANSFER_RECEIVED,
                 amount,
                 "Transfer from " + fromAccountNumber);
         receivedTransaction.setDestinationAccountNumber(fromAccountNumber);
         transactionRepository.save(receivedTransaction);
 
-        accountRepository.save(m);
-        accountRepository.save(o);
+        accountRepository.save(sourceAccount);
+        accountRepository.save(destinationAccount);
 
-        User.NotificationType notifType = m.getUser().getNotificationType();
+        User.NotificationType notifType = sourceAccount.getUser().getNotificationType();
         if (notifType == User.NotificationType.EMAIL) {
             emailService.sendNotification(
-                    m.getUser(),
+                    sourceAccount.getUser(),
                     Notification.NotificationType.TRANSFER,
                     TRANSFER_SENT_MESSAGE,
-                    String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", amount, toAccountNumber, m.getBalance()));
+                    String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", amount, toAccountNumber, sourceAccount.getBalance()));
         } else if (notifType == User.NotificationType.SMS) {
             smsService.sendNotification(
-                    m.getUser(), 
+                    sourceAccount.getUser(), 
                     Notification.NotificationType.TRANSFER, 
                     TRANSFER_SENT_MESSAGE,
-                    String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", amount, toAccountNumber, m.getBalance()));
+                    String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", amount, toAccountNumber, sourceAccount.getBalance()));
         }
 
-        User.NotificationType notifTypeTo = o.getUser().getNotificationType();
+        User.NotificationType notifTypeTo = destinationAccount.getUser().getNotificationType();
         if (notifTypeTo == User.NotificationType.EMAIL) {
             emailService.sendNotification(
-                    o.getUser(),
+                    destinationAccount.getUser(),
                     Notification.NotificationType.TRANSFER,
                     TRANSFER_RECEIVED_MESSAGE,
                     String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR",
-                        amount, fromAccountNumber, o.getBalance()));
+                        amount, fromAccountNumber, destinationAccount.getBalance()));
         } else if (notifTypeTo == User.NotificationType.SMS) {
             smsService.sendNotification(
-                o.getUser(), 
+                destinationAccount.getUser(), 
                 Notification.NotificationType.TRANSFER, 
                 TRANSFER_RECEIVED_MESSAGE,
-                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", amount, fromAccountNumber, o.getBalance()));
+                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", amount, fromAccountNumber, destinationAccount.getBalance()));
         }
     }
 
     /**
      * Delete account
      */
-    public void rm(String accountNumber) {
+    public void removeAccount(String accountNumber) {
         Account account = getAccount(accountNumber);
 
         if (account.getBalance() != 0) {

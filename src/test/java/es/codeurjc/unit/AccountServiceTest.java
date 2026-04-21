@@ -606,7 +606,7 @@ class AccountServiceTest {
         public void removeAccountWithBalanceGreaterThanZeroShouldThrowIllegalArgumentException() {
                 when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
 
-                assertThatThrownBy(() -> accountService.rm(AccountServiceTestConstants.ACC_A)).isInstanceOf(IllegalArgumentException.class)
+                assertThatThrownBy(() -> accountService.removeAccount(AccountServiceTestConstants.ACC_A)).isInstanceOf(IllegalArgumentException.class)
                                 .hasMessageContaining(AccountServiceTestConstants.MSG_CANNOT_DELETE);
         }
 
@@ -615,7 +615,7 @@ class AccountServiceTest {
         public void removeAccountWithBalanceZeroShouldDeleteAccount() {
                 Account zeroBalanceAccount = new Account(AccountServiceTestConstants.ACC_A, Account.AccountType.CHECKING, AccountServiceTestConstants.ZERO_AMOUNT);
                 when(accountRepository.findByAccountNumber(any())).thenReturn(Optional.of(zeroBalanceAccount));
-                accountService.rm(AccountServiceTestConstants.ACC_A);
+                accountService.removeAccount(AccountServiceTestConstants.ACC_A);
                 verify(accountRepository).delete(zeroBalanceAccount);
         }
 

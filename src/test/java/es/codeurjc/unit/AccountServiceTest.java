@@ -9,6 +9,10 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
@@ -28,12 +32,10 @@ import es.codeurjc.service.RandomService;
 import es.codeurjc.model.Notification;
 import es.codeurjc.service.notifications.EmailNotificationService;
 import es.codeurjc.service.notifications.SmsNotificationService;
-
-import static org.mockito.ArgumentMatchers.eq;
+import es.codeurjc.service.notifications.NotificationService;
 
 import org.mockito.ArgumentCaptor;
 
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -128,59 +130,74 @@ class AccountServiceTest {
                                 .hasMessageContaining("Insufficient funds");
         }
 
-        @Test
-        @DisplayName("withdraw a valid amount in an account with email notification triggers an email notification")
-        public void withdrawValidAmountDecreasesBalanceAndTriggersEmailNotification() {
-                when(accountRepository.findByAccountNumber(ACC_A)).thenReturn(Optional.of(accountA));
-                when(accountRepository.save(accountA)).thenReturn(accountA);
+        @ParameterizedTest(name = "Withdrawal with notification type: {0}")
+        @MethodSource("withdrawNotificationArguments")
+        @DisplayName("withdraw a valid amount triggers the appropriate notification based on user preference")
+        public void withdrawValidAmountTriggersCorrectNotification(
+                        User.NotificationType notificationType,
+                        Account account) {
 
-                double balanceBefore = accountA.getBalance();
-                accountService.withdraw(ACC_A, 100, "Padel match");
-                assertThat(accountA.getBalance()).isEqualTo(balanceBefore - 100);
-                checkCommonDepositVerifications(accountA);
-                verify(emailService).sendNotification(emailUser, Notification.NotificationType.WITHDRAWAL,
-                                "Withdrawal Confirmation",
-                                String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", 100.0,
-                                                accountA.getBalance()));
-                verify(smsService, never()).sendNotification(any(), any(), any(), any());
+                mockAccountFound(account.getAccountNumber(), account);
+                double balanceBefore = account.getBalance();
+                double amount = 100.0;
+
+                accountService.withdraw(account.getAccountNumber(), amount, "Withdrawal test");
+
+                assertThat(account.getBalance()).isEqualTo(balanceBefore - amount);
+                checkCommonDepositVerifications(account);
+
+                verifyWithdrawalNotification(notificationType, account.getUser(), amount, account.getBalance());
         }
 
-        @Test
-        @DisplayName("withdraw a valid amount in an account with SMS notification triggers an SMS notification")
-        public void withdrawValidAmountDecreasesBalanceAndTriggersSmsNotification() {
-                when(accountRepository.findByAccountNumber(ACC_B)).thenReturn(Optional.of(accountB));
-                when(accountRepository.save(accountB)).thenReturn(accountB);
+        private void verifyWithdrawalNotification(User.NotificationType type, User user, double amount,
+                        double balance) {
+                String expectedMessage = String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", amount,
+                                balance);
 
-                double balanceBefore = accountB.getBalance();
-                accountService.withdraw(ACC_B, 100, "Padel match");
+                NotificationService expectedService = switch (type) {
+                        case EMAIL -> emailService;
+                        case SMS -> smsService;
+                        case null -> null;
+                };
 
-                assertThat(accountB.getBalance()).isEqualTo(balanceBefore - 100);
-                checkCommonDepositVerifications(accountB);
-                verify(smsService).sendNotification(smsUser, Notification.NotificationType.WITHDRAWAL, "Withdrawal",
-                                String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", 100.0,
-                                                accountB.getBalance()));
-                verify(emailService, never()).sendNotification(any(), any(), any(), any());
+                String expectedTitle = switch (type) {
+                        case EMAIL -> "Withdrawal Confirmation";
+                        case SMS -> "Withdrawal";
+                        case null -> null;
+                };
+
+                if (expectedService != null) {
+                        verify(expectedService).sendNotification(user, Notification.NotificationType.WITHDRAWAL,
+                                        expectedTitle, expectedMessage);
+                }
+
+                List.of(emailService, smsService).stream()
+                                .filter(service -> service != expectedService)
+                                .forEach(org.mockito.Mockito::verifyNoInteractions);
         }
 
-        @Test
-        @DisplayName("withdraw with user without notification type should not send notifications")
-        public void withdrawWithUserWithoutNotificationTypeShouldNotSendNotifications() {
+        private static Stream<Arguments> withdrawNotificationArguments() {
+                User emailUser = new User("user1", "pass", "ROLE_USER");
+                emailUser.setEmail("user1@test.com");
+                emailUser.setNotificationType(User.NotificationType.EMAIL);
+                Account accountA = new Account(ACC_A, Account.AccountType.CHECKING, 500.0);
+                accountA.setUser(emailUser);
+
+                User smsUser = new User("user2", "pass", "ROLE_USER");
+                smsUser.setPhone("600000000");
+                smsUser.setNotificationType(User.NotificationType.SMS);
+                Account accountB = new Account(ACC_B, Account.AccountType.CHECKING, 200.0);
+                accountB.setUser(smsUser);
+
                 User noNotifUser = new User("user3", "pass", "ROLE_USER");
                 noNotifUser.setNotificationType(null);
-                String ACC_C = "ES0000000003";
-                double originalBalance = 500.0;
-                Account accountC = new Account(ACC_C, Account.AccountType.CHECKING, originalBalance);
+                Account accountC = new Account("ES0000000003", Account.AccountType.CHECKING, 500.0);
                 accountC.setUser(noNotifUser);
 
-                when(accountRepository.findByAccountNumber(ACC_C)).thenReturn(Optional.of(accountC));
-                when(accountRepository.save(accountC)).thenReturn(accountC);
-
-                accountService.withdraw(ACC_C, 100, "Test");
-
-                assertThat(accountC.getBalance()).isEqualTo(originalBalance - 100);
-                checkCommonDepositVerifications(accountC);
-                verify(emailService, never()).sendNotification(any(), any(), any(), any());
-                verify(smsService, never()).sendNotification(any(), any(), any(), any());
+                return Stream.of(
+                                Arguments.of(User.NotificationType.EMAIL, accountA),
+                                Arguments.of(User.NotificationType.SMS, accountB),
+                                Arguments.of(null, accountC));
         }
 
         @Test

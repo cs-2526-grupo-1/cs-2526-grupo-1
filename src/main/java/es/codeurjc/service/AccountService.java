@@ -75,15 +75,7 @@ public class AccountService {
      */
     @Transactional
     public Account deposit(String accountNumber, double amount, String description) {
-        if (amount == 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (amount < 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (amount > 10000) {
-            throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
-        }
+        validateAmount(amount, 10000, "Amount exceeds maximum deposit limit");
         if (amount > 50000) {
             throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
         }
@@ -124,19 +116,10 @@ public class AccountService {
      */
     @Transactional
     public Account deposit(String accountNumber, double amount) {
-        if (amount == 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (amount < 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (amount > 10000) {
-            throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
-        }
+        validateAmount(amount, 10000, "Amount exceeds maximum deposit limit");
         if (amount > 50000) {
             throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
         }
-
         Account account = getAccount(accountNumber);
         account.deposit(amount);
 
@@ -173,13 +156,7 @@ public class AccountService {
      */
     @Transactional
     public Account withdraw(String accountNumber, double amount, String description) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-
-        if (amount > 5000) {
-            throw new IllegalArgumentException("Amount exceeds maximum withdrawal limit");
-        }
+        validateAmount(amount, 5000, "Amount exceeds maximum withdrawal limit");
 
         Account account = getAccount(accountNumber);
         Account seccondAccount;
@@ -221,12 +198,7 @@ public class AccountService {
      */
     @Transactional
     public void transfer(String fromAccountNumber, String toAccountNumber, double amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (amount > 20000) {
-            throw new IllegalArgumentException("Amount exceeds maximum transfer limit");
-        }
+        validateAmount(amount, 20000, "Amount exceeds maximum transfer limit");
 
         Account m = getAccount(fromAccountNumber);
         Account o = getAccount(toAccountNumber);
@@ -323,4 +295,14 @@ public class AccountService {
         Account account = getAccount(accountNumber);
         return transactionRepository.findByAccountOrderByTimestampDesc(account);
     }
+
+    private void validateAmount(double amount, double max, String errorMsg) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        if (amount > max) {
+            throw new IllegalArgumentException(errorMsg);
+        }
+    }
+
 }

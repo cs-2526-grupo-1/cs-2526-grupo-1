@@ -157,6 +157,36 @@ public class TransferE2ETest {
         assertThat(account.getBalance()).isEqualTo(initialBalance);
     }
 
+    @Test
+    public void test4_makeTransferWithExceedingAmount() {
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount = E2ETestConstants.ACCOUNT_2_CHECKING;
+
+        // Value exceeding the balance of the source account
+        int amount = E2ETestConstants.INITIAL_BALANCE_ACCOUNT1_CHECKING.intValue() + 1;
+
+        simulateTransfer(fromAccount, toAccount, amount);
+        // We can also check that the balance of the source account has not changed
+
+        String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
+
+        
+        // Check that the error message shown is the expected one
+        assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_INSUFFICIENT_FUNDS);
+
+        // Check that the balance of the source account has not changed (in the dashboard, 
+        // as getBalance is tested in unit tests)
+        checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
+
+        //Logout to check that the other user keeps the same balance as well
+        driver.findElement(By.id("logoutButton")).click();
+
+        // Check that the balance shown in the dashboard is the same as the initial balance
+        login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+        checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
+    }
+
 
     @Test
     public void test5_makeTransferWithNegativeAmount() {

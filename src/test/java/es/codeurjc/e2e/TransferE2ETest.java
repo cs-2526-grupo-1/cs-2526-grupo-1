@@ -147,9 +147,9 @@ public class TransferE2ETest {
 
     private void simulateTransfer(String fromAccount, String toAccount, double amount) {
         driver.get(BASE_URL + this.port + E2ETestConstants.PATH_TRANSFER);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
-        
+
         Select fromAccountSelect = new Select(driver.findElement(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
         fromAccountSelect.selectByValue(fromAccount);
         driver.findElement(By.id(E2ETestConstants.ID_TO_ACCOUNT)).sendKeys(toAccount);
@@ -170,6 +170,29 @@ public class TransferE2ETest {
         assertThat(account.getBalance()).isEqualTo(initialBalance);
     }
 
+    @Test
+    public void test1_makeTransferBetweenOwnAccounts() {
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount = E2ETestConstants.ACCOUNT_1_SAVINGS;
+        int amount = 500;
+
+        simulateTransfer(fromAccount, toAccount, amount);
+
+        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
+
+        String balanceFrom = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_BALANCE_PREFIX + fromAccount))).getText();
+        String balanceTo = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_BALANCE_PREFIX + toAccount))).getText();
+
+        assertThat(Double.parseDouble(balanceFrom)).isCloseTo(initialBalanceAccount1Checking - amount,
+                within(0.000001));
+        assertThat(Double.parseDouble(balanceTo)).isCloseTo(initialBalanceAccount1Savings + amount, within(0.000001));
+
+        String successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.className("alert-success"))).getText();
+        assertThat(successMessage).contains("Transfer completed successfully");
+    }
 
     @Test
     public void test5_makeTransferWithNegativeAmount() {

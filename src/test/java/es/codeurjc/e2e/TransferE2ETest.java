@@ -149,7 +149,14 @@ public class TransferE2ETest {
         String balance = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.id(E2ETestConstants.ID_BALANCE_PREFIX + accountNumber))).getText();
         assertThat(Double.parseDouble(balance)).isCloseTo(initialBalance, within(0.000001));
+
+        // Despite balance is tested in unit tests, we can also check 
+        // it here to ensure it has not changed
+
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
+        assertThat(account.getBalance()).isEqualTo(initialBalance);
     }
+
 
     @Test
     public void test5_makeTransferWithNegativeAmount() {
@@ -158,13 +165,23 @@ public class TransferE2ETest {
         int amount = E2ETestConstants.NEGATIVE_AMOUNT;
 
         simulateTransfer(fromAccount, toAccount, amount);
-        // We can also check that the balance of the source account has not changed
+
         String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
-
+        
+        // Check that the error message shown is the expected one
         assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_NEGATIVE_AMOUNT);
 
+        // Check that the balance of the source account has not changed (in the dashboard, 
+        // as getBalance is tested in unit tests)
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
+
+        //Logout to check that the other user keeps the same balance as well
+        driver.findElement(By.id("logoutButton")).click();
+
+        // Check that the balance shown in the dashboard is the same as the initial balance
+        login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+        checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
     }
 
     @Test
@@ -178,8 +195,18 @@ public class TransferE2ETest {
         String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
 
+        // Check that the error message shown is the expected one
         assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_EXCEEDS_LIMIT);
 
+        // Check that the balance of the source account has not changed (in the dashboard, 
+        // as getBalance is tested in unit tests)
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
+
+        //Logout to check that the other user keeps the same balance as well
+        driver.findElement(By.id("logoutButton")).click();
+
+        // Check that the balance shown in the dashboard is the same as the initial balance
+        login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+        checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
     }
 }

@@ -59,9 +59,10 @@ public class TransferE2ETest {
     public void setUp() {
         driver = new ChromeDriver();
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-        driver.get(BASE_URL + this.port);
+        driver.get(BASE_URL + this.port + E2ETestConstants.PATH_DASHBOARD);
         createTestData();
         login(E2ETestConstants.USER1_USERNAME, E2ETestConstants.USER1_PASSWORD);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
     }
 
     @AfterEach
@@ -135,8 +136,11 @@ public class TransferE2ETest {
         driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
     }
 
-    private void simulateTransfer(String fromAccount, String toAccount, int amount) {
+    private void simulateTransfer(String fromAccount, String toAccount, double amount) {
         driver.get(BASE_URL + this.port + E2ETestConstants.PATH_TRANSFER);
+        
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
+        
         Select fromAccountSelect = new Select(driver.findElement(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
         fromAccountSelect.selectByValue(fromAccount);
         driver.findElement(By.id(E2ETestConstants.ID_TO_ACCOUNT)).sendKeys(toAccount);
@@ -162,7 +166,7 @@ public class TransferE2ETest {
     public void test5_makeTransferWithNegativeAmount() {
         String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
         String toAccount = E2ETestConstants.ACCOUNT_2_CHECKING;
-        int amount = E2ETestConstants.NEGATIVE_AMOUNT;
+        double amount = E2ETestConstants.NEGATIVE_AMOUNT;
 
         simulateTransfer(fromAccount, toAccount, amount);
 
@@ -177,7 +181,10 @@ public class TransferE2ETest {
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
         //Logout to check that the other user keeps the same balance as well
-        driver.findElement(By.id("logoutButton")).click();
+        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
+
+        // Wait until we are logged out and login page is shown again
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
 
         // Check that the balance shown in the dashboard is the same as the initial balance
         login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
@@ -188,7 +195,7 @@ public class TransferE2ETest {
     public void test6_makeTransferWithExceedingAmount() {
         String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
         String toAccount = E2ETestConstants.ACCOUNT_2_CHECKING;
-        int amount = E2ETestConstants.EXCEEDING_AMOUNT;
+        double amount = E2ETestConstants.EXCEEDING_AMOUNT;
 
         simulateTransfer(fromAccount, toAccount, amount);
         // We can also check that the balance of the source account has not changed
@@ -203,7 +210,10 @@ public class TransferE2ETest {
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
         //Logout to check that the other user keeps the same balance as well
-        driver.findElement(By.id("logoutButton")).click();
+        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
+
+        // Wait until we are logged out and login page is shown again
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
 
         // Check that the balance shown in the dashboard is the same as the initial balance
         login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);

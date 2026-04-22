@@ -50,7 +50,7 @@ Clase `AccountService.java`, líneas 231, 232, 301
 - Hay dos variables de tipo `Account` llamadas `m` y `o`, y en el código no se aporta ningún contexto sobre qué representan (parecen ser cuenta de origen y cuenta de destino, pero lo desconocemos). Obligan a quien lee el código a deducir su propósito leyendo el resto de la función `transfer`. De igual manera, se nombra como `rm` al método para eliminar una cuenta en lugar de darle otro nombre más adecuado como deleteAccount o removeAccount. Estos nombres tan poco descriptivos obligan a estar constantemente "traduciendo" e interpretando el código, lo que dificulta detectar errores lógicos e impacta de forma negativa en la mantenibilidad.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Las variables `m` y `o` del método `transfer` han sido renombradas a `sourceAccount` y `destination`, reflejando claramente su propósito dentro del método y dejando claro su significado. Además, el método `rm` ha sido renombrado a `removeAccount`, haciendo que su intención quede clara sin que haga falta leer la implementación. Esto hace mucho más legible y mantenible el código.
 
 ### Issue 3: Variables locales no utilizadas - Detectado por SonarQube
 

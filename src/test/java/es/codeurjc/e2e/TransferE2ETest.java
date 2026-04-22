@@ -146,6 +146,7 @@ public class TransferE2ETest {
         driver.findElement(By.id(E2ETestConstants.ID_USERNAME)).sendKeys(username);
         driver.findElement(By.id(E2ETestConstants.ID_PASSWORD)).sendKeys(password);
         driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
     }
 
     private void simulateTransfer(String fromAccount, String toAccount, double amount) {
@@ -178,7 +179,7 @@ public class TransferE2ETest {
     }
 
     private double getAccountBalance(String accountSuffix) {
-        String balanceText = wait.until(ExpectedConditions.presenceOfElementLocated(
+        String balanceText = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.id(E2ETestConstants.ID_BALANCE_PREFIX + accountSuffix))).getText();
         return Double.parseDouble(balanceText);
     }
@@ -191,7 +192,7 @@ public class TransferE2ETest {
 
     private void reloginAs(String username, String password) {
         driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
         login(username, password);
     }
   
@@ -241,7 +242,7 @@ public class TransferE2ETest {
 
         simulateTransfer(fromAccount, toAccount, E2ETestConstants.STANDARD_AMOUNT);
 
-        String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(
+        String errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
 
         // Check that the error message shown is the expected one
@@ -253,7 +254,7 @@ public class TransferE2ETest {
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
         driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
 
 
         login(E2ETestConstants.USER1_USERNAME, E2ETestConstants.USER1_PASSWORD);
@@ -272,7 +273,7 @@ public class TransferE2ETest {
         simulateTransfer(fromAccount, toAccount, amount);
         // We can also check that the balance of the source account has not changed
 
-        String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(
+        String errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
 
         // Check that the error message shown is the expected one
@@ -295,7 +296,7 @@ public class TransferE2ETest {
 
         simulateTransfer(fromAccount, toAccount, amount);
 
-        String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(
+        String errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
 
         // Check that the error message shown is the expected one
@@ -318,7 +319,7 @@ public class TransferE2ETest {
 
         simulateTransfer(fromAccount, toAccount, amount);
         // We can also check that the balance of the source account has not changed
-        String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(
+        String errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
 
         // Check that the error message shown is the expected one
@@ -345,7 +346,7 @@ public class TransferE2ETest {
         // Wait until we remian on the transfer page after submitting the form
         wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_TRANSFER));
 
-        // Wait until the error message is visible (better than presenceOfElementLocated)
+        // Wait until the error message is visible
         String errorMessage = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(
                         By.id(E2ETestConstants.ID_ERROR_MESSAGE)))
@@ -354,7 +355,7 @@ public class TransferE2ETest {
         assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_ACCOUNT_NOT_FOUND);
 
         // Wait until the dashbord elements are fully loaded before checking the balance
-        wait.until(ExpectedConditions.presenceOfElementLocated(
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
 
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);

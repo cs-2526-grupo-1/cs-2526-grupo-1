@@ -233,7 +233,33 @@ public class TransferE2ETest {
         assertThat(getAccountBalance(toAccount))
                 .isCloseTo(expectedBalanceUser2, within(0.01));
     }
-  
+    @Test
+    public void test3_makeTransferToSameAccount() {
+        //We assign the same account 
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+
+        simulateTransfer(fromAccount, toAccount, E2ETestConstants.STANDARD_AMOUNT);
+
+        String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
+
+        // Check that the error message shown is the expected one
+        assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_SAME_ACCOUNT);
+
+        // Check that the balance of the source account has not changed (in the
+        // dashboard,
+        // as getBalance is tested in unit tests)
+        checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
+
+        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
+
+
+        login(E2ETestConstants.USER1_USERNAME, E2ETestConstants.USER1_PASSWORD);
+
+        checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
+    }
   
     @Test
     public void test4_makeTransferWithExceedingAmount() {
@@ -257,7 +283,7 @@ public class TransferE2ETest {
         // as getBalance is tested in unit tests)
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
-            reloginAs(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+        reloginAs(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
         checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
     }
 
@@ -312,7 +338,7 @@ public class TransferE2ETest {
 
         String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
         String toAccount =  E2ETestConstants.ACCOUNT_NOT_EXISTING;
-        int amount = E2ETestConstants.STANDARD_AMOUNT;
+        int amount = E2ETestConstants.STANDARD_AMOUNT_INT;
 
         simulateTransfer(fromAccount, toAccount, amount);
 

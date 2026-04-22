@@ -48,8 +48,10 @@ public class AccountService {
     }
 
     /**
-     * Generate account number. This method is an infinite loop with 1000000000 ACCOUNTS, we assume the app scope is not that big.
-     * In case of needing to fix this we could change with ids for example. But this changes the business logic, so it's not asked
+     * Generate account number. This method is an infinite loop with 1000000000
+     * ACCOUNTS, we assume the app scope is not that big.
+     * In case of needing to fix this we could change with ids for example. But this
+     * changes the business logic, so it's not asked
      * for the purpose of this task.
      */
     private String generateAccountNumber() {
@@ -86,21 +88,12 @@ public class AccountService {
         validationService.validateAmount(roundedAmount, 10000.0, "Amount exceeds maximum deposit limit");
 
         Account account = getAccount(accountNumber);
-
         account.deposit(roundedAmount);
+        account.setBalance(round(account.getBalance()));
 
-        account.setBalance(round(account.getBalance())); //as it is still a double the result still has the same problem->we have to fix it as above
-
-        // Record transaction
-        Transaction transaction = new Transaction(account, Transaction.TransactionType.DEPOSIT,
-                roundedAmount, description);
-        transactionRepository.save(transaction);
-
+        recordTransaction(account, Transaction.TransactionType.DEPOSIT, roundedAmount, description);
         Account savedAccount = accountRepository.save(account);
-
-        // Send notification
         notificationService.notifyDeposit(account, roundedAmount);
-
         return savedAccount;
     }
 
@@ -121,22 +114,14 @@ public class AccountService {
         validationService.validateAmount(roundedAmount, 5000.0, "Amount exceeds maximum withdrawal limit");
 
         Account account = getAccount(accountNumber);
-
-        // Check balance
         validationService.checkSufficientFunds(roundedAmount, account.getBalance());
 
         account.withdraw(roundedAmount);
-        account.setBalance(round(account.getBalance())); // the same as above
+        account.setBalance(round(account.getBalance()));
 
-        // Record transaction
-        Transaction transaction = new Transaction(account, Transaction.TransactionType.WITHDRAWAL,
-                roundedAmount, description);
-        transactionRepository.save(transaction);
-
+        recordTransaction(account, Transaction.TransactionType.WITHDRAWAL, roundedAmount, description);
         Account savedAccount = accountRepository.save(account);
-
         notificationService.notifyWithdrawal(account, roundedAmount);
-
         return savedAccount;
     }
 
@@ -151,39 +136,18 @@ public class AccountService {
         Account sourceAccount = getAccount(fromAccountNumber);
         Account destinationAccount = getAccount(toAccountNumber);
 
-        // Validate same account
         if (sourceAccount.getAccountNumber().equals(destinationAccount.getAccountNumber())) {
             throw new IllegalArgumentException("Cannot transfer to same account");
         }
 
-        // Check balance
+        // Check balance in source account
         validationService.checkSufficientFunds(roundedAmount, sourceAccount.getBalance());
 
-        // Perform transfer
-        sourceAccount.withdraw(roundedAmount);
-        sourceAccount.setBalance(round(sourceAccount.getBalance()));
+        // Withdraw from source and deposit to destination
+        withdrawForTransferAndSave(sourceAccount, roundedAmount, toAccountNumber);
+        depositFromTransferAndSave(destinationAccount, roundedAmount, fromAccountNumber);
 
-        destinationAccount.deposit(roundedAmount);
-        destinationAccount.setBalance(round(destinationAccount.getBalance()));
-
-        // Record transactions
-        Transaction sentTransaction = new Transaction(sourceAccount,
-                Transaction.TransactionType.TRANSFER_SENT,
-                roundedAmount,
-                "Transfer to " + toAccountNumber);
-        sentTransaction.setDestinationAccountNumber(toAccountNumber);
-        transactionRepository.save(sentTransaction);
-
-        Transaction receivedTransaction = new Transaction(destinationAccount,
-                Transaction.TransactionType.TRANSFER_RECEIVED,
-                roundedAmount,
-                "Transfer from " + fromAccountNumber);
-        receivedTransaction.setDestinationAccountNumber(fromAccountNumber);
-        transactionRepository.save(receivedTransaction);
-
-        accountRepository.save(sourceAccount);
-        accountRepository.save(destinationAccount);
-
+        // Send notifications to both users
         notificationService.notifyTransferSent(sourceAccount, roundedAmount, toAccountNumber);
         notificationService.notifyTransferReceived(destinationAccount, roundedAmount, fromAccountNumber);
     }
@@ -216,5 +180,35 @@ public class AccountService {
 
     private double round(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+    }
+
+    private void recordTransaction(Account account, Transaction.TransactionType type,
+            double amount, String description) {
+        recordTransaction(account, type, amount, description, null);
+    }
+
+    private void recordTransaction(Account account, Transaction.TransactionType type,
+            double amount, String description, String relatedAccountNumber) {
+        Transaction transaction = new Transaction(account, type, amount, description);
+        if (relatedAccountNumber != null) {
+            transaction.setDestinationAccountNumber(relatedAccountNumber);
+        }
+        transactionRepository.save(transaction);
+    }
+
+    private void withdrawForTransferAndSave(Account account, double amount, String toAccountNumber) {
+        account.withdraw(amount);
+        account.setBalance(round(account.getBalance()));
+        recordTransaction(account, Transaction.TransactionType.TRANSFER_SENT,
+                amount, "Transfer to " + toAccountNumber, toAccountNumber);
+        accountRepository.save(account);
+    }
+
+    private void depositFromTransferAndSave(Account account, double amount, String fromAccountNumber) {
+        account.deposit(amount);
+        account.setBalance(round(account.getBalance()));
+        recordTransaction(account, Transaction.TransactionType.TRANSFER_RECEIVED,
+                amount, "Transfer from " + fromAccountNumber, fromAccountNumber);
+        accountRepository.save(account);
     }
 }

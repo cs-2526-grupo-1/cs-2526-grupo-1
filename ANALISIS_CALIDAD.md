@@ -102,7 +102,9 @@ Clase `AccountService.java`, línea 185
 - Por qué **NO es un falso positivo (Issue real)**: Creemos que es un issue real porque este tipo de variables hacen que el código sea más difícil de entender. Cuando estás leyendo la función pierdes tiempo buscando dónde se usa esa variable para luego darte cuenta de que no se utiliza. Esto es una mala práctica de limpieza de código, por lo que si una variable no aporta nada al funcionamiento lo mejor es borrarla para que el método sea más sencillo de leer y mantener.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Se ha eliminado la variable `seccondAccount` del método `withdraw`.
+
+![Refactorización de la gestión de precisión](img/refactor-3.png)
 
 ### Issue 4: Uso de tipos primitivos para amount - Detectado por análisis manual
 
@@ -317,21 +319,13 @@ Clase `AccountService.java`, métodos `deposit` (línea 102), `deposit` (línea 
 - En los 4 métodos se comprueba el tipo de notificación mediante bloques `if-else` encadenados. Esto se corresponde al bad smell de **Switch Statements**, ya que imposibilita la adición de tipos adicionales sin modificar el código existente (viola el **Open/Closed principle**). Esto resulta en un mayor acoplamiento del código, entorpeciendo tanto su mantenibilidad como su extensibilidad.
 
 **Refactorización**
-Para solucionar de raíz este problema (y mantener la compatibilidad con los tests ya creados), se ha aplicado un **Patrón Strategy en su variante de Estrategias Internas**. Se optó por encapsular toda la lógica de formato de mensajes e inyección según canal en dos clases envoltorio privadas `EmailNotificationStrategy` y `SmsNotificationStrategy` que se encuentran anidadas dentro del propio `AccountNotificationService`. 
+Para solucionar este bad smell  se ha aplicado el patrón **Strategy** mediante la creación de una clase `BaseNotificationstrategy`que define la estrategia de notificación y las clases `SmsNotificationStrategy` y `EmailNotificationStrategy` que implementan las estrategia *concretas* de notificación.
 
-A su vez, estas se inicializan en un `EnumMap` interno en el constructor. De esta forma, cualquier método público localiza y ejecuta su estrategia de forma directa aplicando polimorfismo, por lo que desaparecen todos los `if-else` referidos al `NotificationType`, acatando un modelo puro y respetando íntegramente el _Open/Closed Principle_.
+En la clase principal `AccountService` se han eliminado los bloques `if-else`. En su lugar, se emplea un `EnumMap` inicializado a través del constructor que asocia automaticamente el canal de notificación que preferido por el usuario con la estrategia de notificación correspondiente. De esta manera, se elimina el acoplamiento del código y se cumple con el **Open/Closed principle**.
 
-```java
-// Ejemplo de la resolución limpia mediante polimorfismo en AccountNotificationService
-private final Map<User.NotificationType, BaseNotificationStrategy> strategies = new EnumMap<>(User.NotificationType.class);
+![bloques if-else eliminados](img/refactor-10.png)
 
-public void notifyDeposit(Account account, double amount) {
-    BaseNotificationStrategy strategy = getStrategy(account.getUser());
-    if (strategy != null) {
-        strategy.notifyDeposit(account, amount); // Desaparecen los if-else de contenido y canal
-    }
-}
-```
+
 
 ### Issue 11: Código duplicado en el método `deposit` - Detectado por análisis manual
 

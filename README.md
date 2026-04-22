@@ -155,3 +155,15 @@ He implementado test unitarios para los métodos `removeAccount` y también de `
 |1| [Issue 3 y 4 detectado](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/26017d3e0b849b587689e6fc6c0298ca15173fa5)  |
 
 ---
+
+#### **Alumno 6 - Gonzalo Fernández de Córdoba García**
+
+He implementado test unitarios para el métodos `getAccount` y la primera mitad de `transfer`. He llevado a cabo las refactorizaciones de los Issues 3 y 10.
+
+| Nº    | Commits      |
+|:------------: |:------------:|
+|1| ['getAccount_ExistingAccount_returnsAccount test'](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/2bf79311aa7388ae994f4f75c0b2ae2b7ee3dc0c)  |
+|2| [getAccount_nonExistingAccount_throwsExceptiontest](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/6b8fd2c6586ddbe3177cfeaf23b51b9331402600)  |
+|3| [test de primera parte de transfer](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/0a238f38a51b79b9050f5f4de523d0d9f611f7a2)  |
+|4| [variable seccondAccount removed](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/f741fe5f4d6035f13add9e3c75d950491569d054)  |
+|5| [Issue10-refactored](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/43289c1a33bf5738835c05622e2f1cda0d12a2da)  |

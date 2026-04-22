@@ -80,6 +80,18 @@ He cooperado con el equipo en encontrar los bad smells del código. Me he encarg
 
 ### **Participación de Miembros en la Práctica 3**
 
+#### **Alumno 2 - Daniel Bonachela Martínez**
+
+He implementado test unitarios para los métodos `createAccount` así como la segunda parte del método `deposit`. Por otro lado, he gestionado las implementaciones relacionadas con la Issue 4 y 12. Por último he implementado el segundo test E2E para comprobar "Se puede realizar una transferencia entre cuentas de distintos usuarios". Además, de ahí saqué una lógica común con el primer test.
+
+| Nº    | Commits      |
+|:------------: |:------------:|
+|1| [Unificación de lógica de test](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/242d1a5fdf7e198d2ecbddf4e636077f399b81c6)  |
+|2| [Test E2E](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/6bb918f6e57664f5a5d49e7d00117120de651080)  |
+|3| [Issue 12 y 4](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/91280579061dc0b3282f5d809445717b41385368)  |
+
+---
+
 #### **Alumno 4 - Marcelo Atanasio Domínguez Mateo**
 
 He implementado test unitarios para los métodos `getBalance`, `getTransactions` y la segunda mitad de `transfer`. He llevado a cabo las refactorizaciones correspondientes al Issue 7 y al Issue 11. He implementado el test E2E para comprobar que: "Se puede realizar una transferencia entre cuentas propias (de una cuenta corriente a una

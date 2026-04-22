@@ -78,3 +78,18 @@ He cooperado con el equipo en encontrar los bad smells del código. Me he encarg
 |:------------: |:------------:|
 |1| [Issue 9 y 10 detectado](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/1f0ea1ce3c2cc159935f9562d1dbe9389ba45e4f)  |
 
+### **Participación de Miembros en la Práctica 3**
+
+#### **Alumno 4 - Marcelo Atanasio Domínguez Mateo**
+
+He implementado test unitarios para los métodos `getBalance`, `getTransactions` y la segunda mitad de `transfer`. He llevado a cabo las refactorizaciones correspondientes al Issue 7 y al Issue 11. He implementado el test E2E para comprobar que: "Se puede realizar una transferencia entre cuentas propias (de una cuenta corriente a una
+de ahorros)"
+
+| Nº    | Commits      |
+|:------------: |:------------:|
+|1| [Add `getBalance` unit tests](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/a1b7095f9e7c2bca7cce93f96b123261cb44cbfa)  |
+|2| [Add `getTransactions` unit tests](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/c1af9c9dddfbe68f22e74e924f0c200f0e2dd66d)  |
+|3| [Add `transfer` (2nd part) unit tests](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/02b3e600ef479098d4bfe6ac32867a722eab8186)  |
+|4| [Remove code duplication on `deposit`](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/278e4430b71a75b511a66607baef5f1b750da58f)  |
+|5| [Extract notification and validation logic from AccountService into dedicated service classes](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/7d7d27217bd89f108a2267fcfac92429f822a9da)  |
+|6| [Add E2E test for internal transfers](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/461a43e61bb429fc874dcd45ad3a939b6edd89f0)  |

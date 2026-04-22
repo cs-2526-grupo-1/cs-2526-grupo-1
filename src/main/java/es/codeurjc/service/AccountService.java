@@ -13,9 +13,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-/**
- * Service for managing bank accounts.
- */
+// This service contains the business logic related to accounts, such as creating accounts, performing transactions, etc
 @Service
 public class AccountService {
 
@@ -37,9 +35,7 @@ public class AccountService {
         this.randomService = randomService;
     }
 
-    /**
-     * Create a new account
-     */
+    // Method to create a new account for a user. It generates a unique account number, assigns the user to the account, and saves the account in the repository
     public Account createAccount(User user, Account.AccountType accountType) {
         String accountNumber = generateAccountNumber();
         Account account = new Account(accountNumber, accountType, 0);
@@ -47,11 +43,7 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    /**
-     * Generate account number. This method is an infinite loop with 1000000000 ACCOUNTS, we assume the app scope is not that big.
-     * In case of needing to fix this we could change with ids for example. But this changes the business logic, so it's not asked
-     * for the purpose of this task.
-     */
+    // Method to create a random account number, ensuring it is not duplicated
     private String generateAccountNumber() {
         String accountNumber;
 
@@ -62,24 +54,21 @@ public class AccountService {
         return accountNumber;
     }
 
-    /**
-     * Get account by account number
-     */
+    
+    // Method to get an account by its account number. If the account does not exist, it throws an exception
     public Account getAccount(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
     }
 
-    /**
-     * Get all accounts for a user
-     */
+    // Method to get all accounts of a user
     public List<Account> getUserAccounts(User user) {
         return accountRepository.findByUser(user);
     }
 
-    /**
-     * Deposit money into account
-     */
+    // Method to perform a deposit into an account. 
+    // It validates the amount, updates the account balance, records the transaction, 
+    // and sends a notification using the notification service. The method is transactional to ensure data consistency.
     @Transactional
     public Account deposit(String accountNumber, double amount, String description) {
         double roundedAmount = round(amount);
@@ -104,17 +93,17 @@ public class AccountService {
         return savedAccount;
     }
 
-    /**
-     * Quick deposit without description
-     */
+   // Method to perform a deposit with a default description
+   // It calls the previous method with a default description of "Quick deposit" 
+   // The method is transactional to ensure data consistency
     @Transactional
     public Account deposit(String accountNumber, double amount) {
         return this.deposit(accountNumber, amount, "Quick deposit");
     }
 
-    /**
-     * Withdraw money from account
-     */
+    // Method to withdraw money from an account    
+    // It validates the amount, checks for sufficient funds, updates the account balance, records the transaction, 
+    // and sends a notification using the notification service. The method is transactional to ensure data consistency
     @Transactional
     public Account withdraw(String accountNumber, double amount, String description) {
         double roundedAmount = round(amount);
@@ -140,9 +129,11 @@ public class AccountService {
         return savedAccount;
     }
 
-    /**
-     * Transfer money between accounts
-     */
+    // Method to transfer money from one account to another. 
+    // It validates the amount, checks for sufficient funds in source account, 
+    // updates the balances of both accounts, records the transactions for both accounts, 
+    // and sends notifications to both account holders using the notification service. 
+    // The method is transactional to ensure data consistency
     @Transactional
     public void transfer(String fromAccountNumber, String toAccountNumber, double amount) {
         double roundedAmount = round(amount);
@@ -188,9 +179,8 @@ public class AccountService {
         notificationService.notifyTransferReceived(destinationAccount, roundedAmount, fromAccountNumber);
     }
 
-    /**
-     * Delete account
-     */
+    // Delete an account by its account number 
+    // It validates that the account can be deleted and then deletes it from the repository
     public void removeAccount(String accountNumber) {
         Account account = getAccount(accountNumber);
 
@@ -199,21 +189,19 @@ public class AccountService {
         accountRepository.delete(account);
     }
 
-    /**
-     * Get account balance
-     */
+    // Method to get the balance of an account by its account number
+    // It retrieves the account and returns its balance rounded to 2 decimals
     public double getBalance(String accountNumber) {
         return round(getAccount(accountNumber).getBalance());
     }
 
-    /**
-     * Get account transactions
-     */
+    // Method to get the transaction history of an account by its account number
     public List<Transaction> getTransactions(String accountNumber) {
         Account account = getAccount(accountNumber);
         return transactionRepository.findByAccountOrderByTimestampDesc(account);
     }
 
+    // Helper method to round a double value to 2 decimal places using BigDecimal for accurate rounding
     private double round(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
     }

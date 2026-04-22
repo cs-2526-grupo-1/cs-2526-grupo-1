@@ -87,10 +87,31 @@ He implementado test unitarios para los métodos `createAccount` así como la se
 | Nº    | Commits      |
 |:------------: |:------------:|
 |1| [Unificación de lógica de test](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/242d1a5fdf7e198d2ecbddf4e636077f399b81c6)  |
-|2| [Test E2E](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/6bb918f6e57664f5a5d49e7d00117120de651080)  |
-|3| [Issue 12 y 4](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/91280579061dc0b3282f5d809445717b41385368)  |
+|2| [Implementación test 2 E2E](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/6bb918f6e57664f5a5d49e7d00117120de651080)  |
+|3| [Issue 12 y 4 refactor](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/91280579061dc0b3282f5d809445717b41385368)  |
+|4| [Test Deposit Segunda Parte](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/040fb2f1349cc35e966ebf78c4c2430122c66bc7)  |
+|5| [Test Deposit Primera Parte](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/c094ab9948b7f22bfd4384ff9e99db23e3318cb1)  |
+
 
 ---
+
+#### **Alumno 3 - Alejandro García Prada**
+
+He implementado test unitarios para los métodos `generateAccountNumber` y también la primera de las partes de `deposit`. Seguídamente he realizado las implementaciones vinculadas a la Issues 5 y 6. Para acabar realicé el séptimo test E2E para comprobrar "No se puede realizar una transferencia a una cuenta inválida/que no existe". Como añadido, realicé el refactor para centralizar la gestión de constantes en los diferentes tests.
+
+| Nº    | Commits      |
+|:------------: |:------------:|
+|1| [Implementación test 7 E2E](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/54f57dc402369e05f267fe7c305e442974a9336f)  |
+|2| [Issue 5 refactor](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/787b69459fdc18332fe83f414b67d9b3abd65798)   |
+|3| [Issue 6 refactor](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/e4abe77e6c34791a036f245f9b0cd88ee62c0e10)   |
+|4| [Refactor de constantes](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/1efd2c29674f37ddb9982d4e438a33160453a696)   |
+|5| [Test generador de cuenta](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/976e7b7486d31d92272b3ca4213648ddaeb0a89e)   |
+|6| [Ifs del test de deposit](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/8e8b77ef639c1801db95b4eb0b33a23b9a33362e)   |
+
+
+
+---
+
 
 #### **Alumno 4 - Marcelo Atanasio Domínguez Mateo**
 

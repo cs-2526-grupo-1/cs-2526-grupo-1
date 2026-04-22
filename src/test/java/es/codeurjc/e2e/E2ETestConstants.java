@@ -27,11 +27,14 @@ public class E2ETestConstants {
     public static final String ERROR_EXCEEDS_LIMIT = "Amount exceeds maximum transfer limit";
     public static final String ERROR_INSUFFICIENT_FUNDS = "Insufficient funds";
     public static final String ERROR_ACCOUNT_NOT_FOUND = "Account not found";
+    public static final String ERROR_SAME_ACCOUNT = "Cannot transfer to same account";
+    
 
+    public static final double STANDARD_AMOUNT = 100.0;
     public static final double NEGATIVE_AMOUNT = -50.0;
     public static final double EXCEEDING_AMOUNT = 30000.0;
 
-    public static final int STANDARD_AMOUNT = 100;
+    public static final int STANDARD_AMOUNT_INT = 100;
 
     public static final String ID_USERNAME = "username";
     public static final String ID_PASSWORD = "password";

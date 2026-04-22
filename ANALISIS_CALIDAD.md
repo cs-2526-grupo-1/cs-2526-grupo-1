@@ -199,7 +199,7 @@ Clase `AccountService.java`, en la cabecera métodos
 - Los comentarios superficiales no aportan valor al código y pueden inducir a error. Si el código cambia y los comentarios no se actualizan, la información que contienen deja de ser fiable. Esto afecta a la mantenibilidad y dificulta que otros desarrolladores comprendan el código.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Se han eliminado los comentarios que simplemente repetían el nombre del método y se reemplazaron por comentarios que explican el porqué y el contexto no evidente del código. Todos siguen ahora el mismo estilo, evitando que queden desactualizados y aportando información real a quien lee el código.
 
 ### Issue 9: Métodos excesivamente largos - Detectado por análisis manual
 

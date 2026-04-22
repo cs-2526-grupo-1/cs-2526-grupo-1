@@ -82,12 +82,18 @@ He cooperado con el equipo en encontrar los bad smells del código. Me he encarg
 
 #### **Alumno 1 - Samuel Melián Benito**
 
-He implementado el test unitario para el método `withdraw`. Asímismo, he movido las implementaciones relacionadas con las Issues octava y novena. Por último, he creado los test E2E 5 y 6. Que corresponden con las cuestiones: "No se puede realizar una transferencia si la cantidad es negativa" y "No se puede realizar una transferencia si la cantidad supera los 20.000€".
+En primer lugar monté la estructura para los test de selenium. He implementado el test unitario para el método `withdraw`. Asímismo, he movido las implementaciones relacionadas con las Issues octava y novena. Por último, he creado los test E2E 5 y 6. Que corresponden con las cuestiones: "No se puede realizar una transferencia si la cantidad es negativa" y "No se puede realizar una transferencia si la cantidad supera los 20.000€". Luego, además, apoyé al equipo con refactors complementarios.
 
 | Nº    | Commits      |
 |:------------: |:------------:|
-|1| [Issue 1 detectado](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/60b804c95f69994c1adb6f953dcbb46996c49b2e)  |
-|2| [Issue 2 detectado](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/4b7e0dd59135f38871479b031b09129b6cdc3b82)  |
+|1| [Issue 8](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/2cfad2e24dd8ac5c7335e90a36770d9439c997c5)  |
+|2| [Issue 9](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/8693028a816f127fcf81be2eaa92a421a759606d)  |
+|3| [Refactor complementario en tests](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/5d4be2361ba9c2b8bfb64c181e0952d5c3b1bdb3)  |
+|4| [Test 6 E2E](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/0a659ed944f0e33572869171b1583d98ebc4d912)  |
+|5| [Estructura test selenium](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/73d366da4b38d25eb4648353b98cd90c78ca9ce3)  |
+|6| [Account Service test refactor](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/56dffb89e9b5e878028b7a55e4b1050b7aacdde4)  |
+
+
 
 
 ---

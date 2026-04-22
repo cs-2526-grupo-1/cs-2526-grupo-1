@@ -245,6 +245,7 @@ public class TransferE2ETest {
         // balance
         login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
         checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
+    }
 
     @Test
     public void test5_makeTransferWithNegativeAmount() {

@@ -87,7 +87,43 @@ Clase `AccountService.java`, líneas 77, 126, 175, 223, 314
 - Es un problema real y bastante grave porque pone en peligro la fiabilidad de los datos financieros. Si usásemos BigDecimal o una clase propia llamada Money podríamos controlar exactamente cuántos decimales queremos y cómo queremos que se haga el redondeo. Al tenerlo como un double habría que gestionar los redondeos y el formato en cada método donde se haga el cálculo. Esto implica que la responsabilidad de cómo tratar el dinero acabe dispersa por todo el `AccountService` en lugar de estar en un solo sitio centralizado. Si esto se quedase así a la larga habrá desajustes en las cuentas de los clientes y será casi imposible encontrar dónde empezó el error.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Para solucionar el problema de precisión sin alterar el contrato de las entidades existentes, se ha centralizado la gestión del dinero en el `AccountService` mediante dos mecanismos:
+
+1.  **Método de redondeo centralizado**: Se ha implementado el método privado `round(double value)`, que utiliza `BigDecimal` con una escala de 2 decimales y el modo de redondeo bancario `RoundingMode.HALF_EVEN`.
+2.  **Saneamiento de estado (Input/Output)**: El servicio ahora redondea la cantidad de entrada antes de procesarla y, de forma crucial, realiza un saneamiento del saldo de la cuenta inmediatamente después de cualquier operación aritmética (`setBalance(round(account.getBalance()))`). Esto garantiza que cualquier residuo de precisión generado por el tipo `double` en la entidad sea corregido antes de persistir los datos.
+
+![Refactorización de la gestión de precisión](img/refactor-4.png)
+
+```java
+// Ejemplo de aplicación en el método transfer
+public void transfer(String fromAccountNumber, String toAccountNumber, double amount) {
+    double roundedAmount = round(amount); // Saneamiento de entrada
+    
+    Account sourceAccount = getAccount(fromAccountNumber);
+    Account destinationAccount = getAccount(toAccountNumber);
+
+    // Validaciones y lógica de negocio
+    validationService.checkSufficientFunds(roundedAmount, sourceAccount.getBalance());
+
+    // Operación y saneamiento correctivo del estado de las entidades
+    sourceAccount.withdraw(roundedAmount);
+    sourceAccount.setBalance(round(sourceAccount.getBalance()));
+
+    destinationAccount.deposit(roundedAmount);
+    destinationAccount.setBalance(round(destinationAccount.getBalance()));
+
+    // Persistencia de transacciones y cuentas
+    accountRepository.save(sourceAccount);
+    accountRepository.save(destinationAccount);
+}
+
+/**
+ * Garantiza la precisión decimal necesaria para operaciones financieras
+ */
+private double round(double value) {
+    return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+}
+```
 
 ### Issue 5: Comparación de strings sin utilizar equals() - Detectado por SonarQube
 
@@ -237,6 +273,7 @@ Clase `AccountService.java`, método `deposit`.
 Se ha mantenido la interfaz externa de la clase, empleando el método que tomaba el argumento `description` para implementar el método `deposit` con un valor de `description` por defecto. De esta manera, la lógica solo está presente una vez en el código y es reutilizada, evitando el código duplicado.
 ![Versión actualizada del método `deposit`](img/refactor-11.png)
 
+
 ### Issue 12: Código inalcanzable (Dead Code) - Detectado por análisis manual
 
 **Reporte de la issue**:
@@ -252,9 +289,23 @@ Clase `AccountService.java`, método `deposit(String accountNumber, double amoun
 - Este tipo de código inalcanzable (*dead code*) introduce código innecesario y puede generar confusión en el mantenimiento, ya que sugiere la existencia de una lógica oculta adicional que en realidad nunca se aplica.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Se ha eliminado el bloque de código redundante. Además, siguiendo principios de responsabilidad única, la lógica de validación se ha delegado en un servicio especializado (`AccountValidationService`). Esto permite que el método `deposit` se centre en la orquestación de la operación bancaria, eliminando el código muerto y mejorando la legibilidad.
 
+![Versión actualizada del método deposit](img/refactor-12.png)
 
+```java
+public Account deposit(String accountNumber, double amount, String description) {
+    double roundedAmount = round(amount);
+    // Validación centralizada y sin redundancias
+    validationService.validateAmount(roundedAmount, 10000.0, "Amount exceeds maximum deposit limit");
+    
+    Account account = getAccount(accountNumber);
+    account.deposit(roundedAmount);
+    account.setBalance(round(account.getBalance()));
+    
+    // ... resto del flujo
+}
+```
 # Práctica 3: Control de calidad de una aplicación web - Grupo 1
 
 *Nota test `transfer_amountExceedsLimit_throwsException()`:* Este test **no** debería pasar, ya que la comprobación en el código que verifica que la cuenta de origen y destino no son las misma se realiza empleando "==", lo que erroneamente permite la transferencia cuando se pasan dos instancias diferentes de la misma cuenta. Sin embargo, como Jacoco no funciona cuando queda algún test sin pasar, se ha comentado esa sección del test temporalmente.

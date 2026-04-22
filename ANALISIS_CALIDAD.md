@@ -182,7 +182,8 @@ Clase `AccountService.java`, métodos `deposit` (línea 77), `deposit` (línea 1
 - En los 4 métodos (especialmente en `transfer`), encontramos secciones de código con propósitos diferenciados: comprobación de la cantidad introducida, validación del número de cuenta, comprobación del balance, realización de la operación, registro de la operación o envío de notificaciones. Esto empeora considerablemente la legibilidad del código y deriva en la presencia de comentarios que delimiten y agreguen contexto a las distintas secciones del método.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Se han extraído métodos privados para separar las responsabilidades que antes estaban mezcladas en un solo método largo. `recordTransaction` ahora centraliza la creación y guardado de transacciones, evitando repetir el mismo bloque en deposit, withdraw y transfer. Para la transferencia, se han añadido dos métodos `withdrawForTransferAndSave` y `depositFromTransferAndSave`, que se encargan la operación sobre el balance de la cuenta junto con su guardado. Las validaciones y notificaciones ya han sido delegadas en las dos clases creadas : `AccountValidationService` y `AccountNotificationService` Con esto, los tres métodos públicos quedan reducidos a cinco llamadas claras: validar, operar, registrar, persistir y notificar.
+
 
 ### Issue 10: Comprobación de tipo mediante ifs-else -  Detectado por análisis manual
 

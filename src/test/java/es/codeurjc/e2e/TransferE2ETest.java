@@ -172,6 +172,28 @@ public class TransferE2ETest {
         Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
         assertThat(account.getBalance()).isEqualTo(initialBalance);
     }
+
+    private void waitForDashboard() {
+        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
+    }
+
+    private double getAccountBalance(String accountSuffix) {
+        String balanceText = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_BALANCE_PREFIX + accountSuffix))).getText();
+        return Double.parseDouble(balanceText);
+    }
+
+    private void verifySuccessMessage(String expectedMessage) {
+        String successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.className("alert-success"))).getText();
+        assertThat(successMessage).contains(expectedMessage);
+    }
+
+    private void reloginAs(String username, String password) {
+        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
+        login(username, password);
+    }
   
     @Test
     public void test1_makeTransferBetweenOwnAccounts() {
@@ -235,15 +257,7 @@ public class TransferE2ETest {
         // as getBalance is tested in unit tests)
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
-        // Logout to check that the other user keeps the same balance as well
-        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
-
-        // Wait until we are logged out and login page is shown again
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
-
-        // Check that the balance shown in the dashboard is the same as the initial
-        // balance
-        login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+            reloginAs(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
         checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
     }
 
@@ -266,15 +280,7 @@ public class TransferE2ETest {
         // as getBalance is tested in unit tests)
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
-        //Logout to check that the other user keeps the same balance as well
-        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
-
-        // Wait until we are logged out and login page is shown again
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
-
-        // Check that the balance shown in the dashboard is the same as the initial
-        // balance
-        login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+        reloginAs(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
         checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
     }
 
@@ -297,38 +303,8 @@ public class TransferE2ETest {
         // as getBalance is tested in unit tests)
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
-        //Logout to check that the other user keeps the same balance as well
-        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
-
-        // Wait until we are logged out and login page is shown again
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
-
-        // Check that the balance shown in the dashboard is the same as the initial
-        // balance
-        login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+        reloginAs(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
         checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
-    }
-
-    private void waitForDashboard() {
-        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
-    }
-
-    private double getAccountBalance(String accountSuffix) {
-        String balanceText = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.id(E2ETestConstants.ID_BALANCE_PREFIX + accountSuffix))).getText();
-        return Double.parseDouble(balanceText);
-    }
-
-    private void verifySuccessMessage(String expectedMessage) {
-        String successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.className("alert-success"))).getText();
-        assertThat(successMessage).contains(expectedMessage);
-    }
-
-    private void reloginAs(String username, String password) {
-        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
-        login(username, password);
     }
     
     @Test

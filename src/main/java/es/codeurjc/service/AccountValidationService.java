@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 public class AccountValidationService {
 
     public void validateAccountDeletion(Account account) {
-        if (account.getBalance() != 0) {
+        if (BigDecimal.valueOf(account.getBalance()).compareTo(BigDecimal.ZERO) != 0) {
             throw new IllegalArgumentException("Cannot delete account with non-zero balance");
         }
     }

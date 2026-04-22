@@ -28,6 +28,7 @@ import es.codeurjc.service.AccountService;
 import es.codeurjc.service.RandomService;
 import es.codeurjc.model.Notification;
 import es.codeurjc.service.notifications.EmailNotificationService;
+import es.codeurjc.service.notifications.NotificationService;
 import es.codeurjc.service.notifications.SmsNotificationService;
 
 
@@ -51,7 +52,7 @@ class AccountServiceTest {
         @Mock
         private RandomService randomService;
 
-        @InjectMocks
+        //@InjectMocks
         private AccountService accountService;
 
         private User emailUser;
@@ -62,6 +63,15 @@ class AccountServiceTest {
 
         @BeforeEach
         void setUp() {
+
+                //We configure mock behaviour so they return their channel
+                when(emailService.getChannel()).thenReturn(Notification.NotificationChannel.EMAIL);
+                when(smsService.getChannel()).thenReturn(Notification.NotificationChannel.SMS);
+
+                List<NotificationService> notificationServices = List.of(emailService, smsService); //list filled with services
+
+                accountService = new AccountService(accountRepository, transactionRepository, notificationServices, randomService); //added so filled list is used
+
                 emailUser = new User(AccountServiceTestConstants.USER1_NAME, AccountServiceTestConstants.PASSWORD, AccountServiceTestConstants.ROLE_USER);
                 emailUser.setEmail(AccountServiceTestConstants.EMAIL_1);
                 emailUser.setNotificationType(User.NotificationType.EMAIL);
@@ -528,7 +538,7 @@ class AccountServiceTest {
                                 AccountServiceTestConstants.TITLE_TRANSFER_RECEIVED,
                                 String.format(AccountServiceTestConstants.TRANSFER_FROM_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_A,
                                                 accountB.getBalance()));
-                verifyNoInteractions(emailService);
+                verify(emailService, never()).sendNotification(any(), any(), any(), any());
         }
 
         @Test
@@ -551,7 +561,7 @@ class AccountServiceTest {
                                 AccountServiceTestConstants.TITLE_TRANSFER_RECEIVED,
                                 String.format(AccountServiceTestConstants.TRANSFER_FROM_FORMAT, (double)AccountServiceTestConstants.SMALL_AMOUNT, AccountServiceTestConstants.ACC_A,
                                                 accountB.getBalance()));
-                verifyNoInteractions(smsService);
+                verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
 
         @Test
@@ -598,7 +608,7 @@ class AccountServiceTest {
 
                 accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, AccountServiceTestConstants.SMALL_AMOUNT);
 
-                verifyNoInteractions(smsService);
+                verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
 
         @Test

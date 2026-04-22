@@ -1,22 +1,21 @@
 package es.codeurjc.service;
 
-import es.codeurjc.model.Account;
-import es.codeurjc.model.User;
-import es.codeurjc.model.Notification;
-import es.codeurjc.model.Transaction;
-import es.codeurjc.repository.AccountRepository;
-import es.codeurjc.repository.TransactionRepository;
-import es.codeurjc.service.notifications.EmailNotificationService;
-import es.codeurjc.service.notifications.NotificationService;
-import es.codeurjc.service.notifications.SmsNotificationService;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Arrays;
-import java.util.List;
+import es.codeurjc.model.Account;
+import es.codeurjc.model.Notification;
+import es.codeurjc.model.Transaction;
+import es.codeurjc.model.User;
+import es.codeurjc.repository.AccountRepository;
+import es.codeurjc.repository.TransactionRepository;
+import es.codeurjc.service.notifications.NotificationService;
 
 /**
  * Service for managing bank accounts.
@@ -29,24 +28,26 @@ public class AccountService {
     private static final String WITHDRAWAL_MESSAGE = "Withdrawal";
     private static final String TRANSFER_SENT_MESSAGE = "Transfer Sent";
     private static final String TRANSFER_RECEIVED_MESSAGE = "Transfer Received";
-    
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
-    private final List<NotificationService> notificationServices;
+    //private final List<NotificationService> notificationServices;
     private final RandomService randomService;
+
+    private final Map<String, NotificationService> notificationServices;
 
     public AccountService(AccountRepository accountRepository,
             TransactionRepository transactionRepository,
-            List<NotificationService> notificationServices,
+            List<NotificationService> services,
             RandomService randomService) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
-        this.notificationServices = notificationServices;
+        this.notificationServices = services.stream().collect(Collectors.toMap(s -> s.getChannel().name(), s -> s));
         this.randomService = randomService;
     }
 
     /**
+     *
      * Create a new account
      */
     public Account createAccount(User user, Account.AccountType accountType) {
@@ -87,16 +88,18 @@ public class AccountService {
     /**
      * Send notification to user
      */
+    private void sendNotification(User user, Notification.NotificationType type, String subject, String message) {
 
-    private void sendNotification(User user, Notification.NotificationType type, String subject, String message){
+        if (user.getNotificationType() == null) {
+            return;
+        }
 
         //user's preferred notification type is extracted. Notification is sent through the corresponding channel applying polymorphism
-        User.NotificationType preference = user.getNotificationType();
+        NotificationService service = notificationServices.get(user.getNotificationType().name());
 
-        notificationServices.stream()
-        .filter(service -> service.getChannel().name().equals(preference.name()))
-        .findFirst()
-        .ifPresent(service -> service.sendNotification(user, type, subject, message));
+        if (service != null) {
+            service.sendNotification(user, type, subject, message);
+        }
 
     }
 
@@ -109,9 +112,9 @@ public class AccountService {
         validateAmount(roundedAmount, 10000.0, "Amount exceeds maximum deposit limit");
 
         Account account = getAccount(accountNumber);
-        
+
         account.deposit(roundedAmount);
-        
+
         account.setBalance(round(account.getBalance())); //as it is still a double the result still has the same problem->we have to fix it as above
 
         // Record transaction
@@ -122,9 +125,8 @@ public class AccountService {
         Account savedAccount = accountRepository.save(account);
 
         // Send notification
-
         sendNotification(account.getUser(), Notification.NotificationType.DEPOSIT, DEPOSIT_CONFIRMATION_MESSAGE,
-                String.format("Deposit of %.2f EUR. New balance: %.2f EUR", roundedAmount, account.getBalance()));
+                String.format("Deposit of %.2f EUR. Balance: %.2f EUR", roundedAmount, account.getBalance()));
 
         return savedAccount;
     }
@@ -163,7 +165,7 @@ public class AccountService {
         Account savedAccount = accountRepository.save(account);
 
         sendNotification(account.getUser(), Notification.NotificationType.WITHDRAWAL, WITHDRAWAL_CONFIRMATION_MESSAGE,
-            String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", roundedAmount, account.getBalance()));
+                String.format("Withdrawal of %.2f EUR. Balance: %.2f EUR", roundedAmount, account.getBalance()));
 
         return savedAccount;
     }
@@ -215,12 +217,11 @@ public class AccountService {
         accountRepository.save(destinationAccount);
 
         sendNotification(sourceAccount.getUser(), Notification.NotificationType.TRANSFER, TRANSFER_SENT_MESSAGE,
-            String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", roundedAmount, toAccountNumber, sourceAccount.getBalance()));
+                String.format("Transfer of %.2f EUR to %s. Balance: %.2f EUR", roundedAmount, toAccountNumber, sourceAccount.getBalance()));
 
-        sendNotification(destinationAccount.getUser(), Notification.NotificationType.TRANSFER, TRANSFER_SENT_MESSAGE,
-            String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", roundedAmount, fromAccountNumber, destinationAccount.getBalance()));
+        sendNotification(destinationAccount.getUser(), Notification.NotificationType.TRANSFER, TRANSFER_RECEIVED_MESSAGE,
+                String.format("Transfer of %.2f EUR from %s. Balance: %.2f EUR", roundedAmount, fromAccountNumber, destinationAccount.getBalance()));
 
-        
     }
 
     /**
@@ -253,7 +254,7 @@ public class AccountService {
 
     private void validateAmount(double amount, double max, String errorMsg) {
         BigDecimal bdAmount = BigDecimal.valueOf(amount);
-        
+
         if (bdAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
@@ -261,7 +262,6 @@ public class AccountService {
             throw new IllegalArgumentException(errorMsg);
         }
     }
-
 
     private double round(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();

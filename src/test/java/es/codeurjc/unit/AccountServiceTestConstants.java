@@ -48,7 +48,7 @@ public class AccountServiceTestConstants {
     public static final String MSG_CANNOT_DELETE = "Cannot delete account with non-zero balance";
 
     public static final String TITLE_WITHDRAWAL_CONFIRMATION = "Withdrawal Confirmation";
-    public static final String TITLE_WITHDRAWAL = "Withdrawal";
+    public static final String TITLE_WITHDRAWAL = "Withdrawal Confirmation";
     public static final String TITLE_DEPOSIT = "Deposit Confirmation";
     public static final String TITLE_TRANSFER_SENT = "Transfer Sent";
     public static final String TITLE_TRANSFER_RECEIVED = "Transfer Received";
@@ -64,9 +64,9 @@ public class AccountServiceTestConstants {
 
 
 
-    public static final String WITHDRAW_FORMAT="Withdrawal of %.2f EUR. New balance: %.2f EUR";
-    public static final String DEPOSIT_EMAIL_FORMAT="Deposit of %.2f EUR. New balance: %.2f EUR";
-    public static final String DEPOSIT_SMS_FORMAT="Deposit: %.2f EUR. Balance: %.2f EUR";
-    public static final String TRANSFER_TO_FORMAT="Transfer of %.2f EUR to %s. New balance: %.2f EUR";
-    public static final String TRANSFER_FROM_FORMAT="Transfer of %.2f EUR from %s. New balance: %.2f EUR";
+    public static final String WITHDRAW_FORMAT="Withdrawal of %.2f EUR. Balance: %.2f EUR";
+    public static final String DEPOSIT_EMAIL_FORMAT="Deposit of %.2f EUR. Balance: %.2f EUR";
+    public static final String DEPOSIT_SMS_FORMAT="Deposit of %.2f EUR. Balance: %.2f EUR";
+    public static final String TRANSFER_TO_FORMAT="Transfer of %.2f EUR to %s. Balance: %.2f EUR";
+    public static final String TRANSFER_FROM_FORMAT="Transfer of %.2f EUR from %s. Balance: %.2f EUR";
 }

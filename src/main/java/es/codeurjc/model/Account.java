@@ -128,9 +128,11 @@ public class Account {
         if (!(amount.isPositive())) {
             throw new IllegalArgumentException("Amount must be positive");
         }
-        if (amount.isGreaterThan(new Amount(BigDecimal.valueOf(getBalance())))) {
+
+        if (balance.compareTo(amount.getValue()) < 0) {
             throw new IllegalArgumentException("Insufficient funds");
         }
+        
         setBalance(balance.subtract(amount.getValue()));
     }
     

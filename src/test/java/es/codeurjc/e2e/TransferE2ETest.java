@@ -191,7 +191,7 @@ public class TransferE2ETest {
 
         String successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.className("alert-success"))).getText();
-        assertThat(successMessage).contains("Transfer completed successfully");
+        assertThat(successMessage).contains(E2ETestConstants.TRANSFER_SUCCESS);
     }
 
     @Test

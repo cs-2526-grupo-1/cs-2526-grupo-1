@@ -80,9 +80,27 @@ He cooperado con el equipo en encontrar los bad smells del código. Me he encarg
 
 ### **Participación de Miembros en la Práctica 3**
 
+#### **Alumno 1 - Samuel Melián Benito**
+
+En primer lugar monté la estructura para los test de selenium. He implementado el test unitario para el método `withdraw`. Asímismo, he movido las implementaciones relacionadas con las Issues octava y novena. Por último, he creado los test E2E 5 y 6. Que corresponden con las cuestiones: "No se puede realizar una transferencia si la cantidad es negativa" y "No se puede realizar una transferencia si la cantidad supera los 20.000€". Luego, además, apoyé al equipo con refactors complementarios.
+
+| Nº    | Commits      |
+|:------------: |:------------:|
+|1| [Issue 8](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/2cfad2e24dd8ac5c7335e90a36770d9439c997c5)  |
+|2| [Issue 9](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/8693028a816f127fcf81be2eaa92a421a759606d)  |
+|3| [Refactor complementario en tests](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/5d4be2361ba9c2b8bfb64c181e0952d5c3b1bdb3)  |
+|4| [Test 6 E2E](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/0a659ed944f0e33572869171b1583d98ebc4d912)  |
+|5| [Estructura test selenium](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/73d366da4b38d25eb4648353b98cd90c78ca9ce3)  |
+|6| [Account Service test refactor](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/56dffb89e9b5e878028b7a55e4b1050b7aacdde4)  |
+
+
+
+
+---
+
 #### **Alumno 2 - Daniel Bonachela Martínez**
 
-He implementado test unitarios para los métodos `createAccount` así como la segunda parte del método `deposit`. Por otro lado, he gestionado las implementaciones relacionadas con la Issue 4 y 12. Por último he implementado el segundo test E2E para comprobar "Se puede realizar una transferencia entre cuentas de distintos usuarios". Además, de ahí saqué una lógica común con el primer test.
+He implementado test unitarios para los métodos `createAccount` así como la segunda parte del método `deposit`. Por otro lado, he gestionado las implementaciones relacionadas con la Issue 4 y 12. Por último, he implementado el segundo test E2E para comprobar "Se puede realizar una transferencia entre cuentas de distintos usuarios". Además, de ahí saqué una lógica común con el primer test.
 
 | Nº    | Commits      |
 |:------------: |:------------:|
@@ -115,8 +133,7 @@ He implementado test unitarios para los métodos `generateAccountNumber` y tambi
 
 #### **Alumno 4 - Marcelo Atanasio Domínguez Mateo**
 
-He implementado test unitarios para los métodos `getBalance`, `getTransactions` y la segunda mitad de `transfer`. He llevado a cabo las refactorizaciones correspondientes al Issue 7 y al Issue 11. He implementado el test E2E para comprobar que: "Se puede realizar una transferencia entre cuentas propias (de una cuenta corriente a una
-de ahorros)"
+He implementado test unitarios para los métodos `getBalance`, `getTransactions` y la segunda mitad de `transfer`. He llevado a cabo las refactorizaciones correspondientes al Issue 7 y al Issue 11. He implementado el test E2E para comprobar que: "Se puede realizar una transferencia entre cuentas propias (de una cuenta corriente a una de ahorros)".
 
 | Nº    | Commits      |
 |:------------: |:------------:|
@@ -126,3 +143,35 @@ de ahorros)"
 |4| [Remove code duplication on `deposit`](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/278e4430b71a75b511a66607baef5f1b750da58f)  |
 |5| [Extract notification and validation logic from AccountService into dedicated service classes](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/7d7d27217bd89f108a2267fcfac92429f822a9da)  |
 |6| [Add E2E test for internal transfers](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/461a43e61bb429fc874dcd45ad3a939b6edd89f0)  |
+
+---
+
+#### **Alumno 5 - Sara Guillén Martínez**
+
+He implementado test unitarios para los métodos `removeAccount` y también de `getUserAccounts`. También, he llevado a cabo los refactors que corresponden a las Issues 1 y 2. A parte, contribuí en los test E2E realizando el cuarto, que corresponde a "No se puede realizar una transferencia si no hay saldo suficiente".
+
+| Nº    | Commits      |
+|:------------: |:------------:|
+|1| [Add test for getUserAccounts method](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/8e651f6b83bc42e50a8af23821b6e135c87b0395)  |
+|2| [Add test for account removal with non-zero balance](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/101343e000365f5ddc2c68917d493325189b1ad7)  |
+|3| [Add test for account removal with zero balance](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/4f149969798eca6c4f0f3babd680c0ab01621117)  |
+|4| [Add test 4 for transfer with exceeding amount](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/79abc5e76b5b6b02c9314fbf57fbfd4e3d047e21)  |
+|5| [Add test 4 for transfer with exceeding amount](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/79abc5e76b5b6b02c9314fbf57fbfd4e3d047e21)  |
+|6| [Refactor for issue 1: magic strings](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/37cd784f676a2d047158103bcae423bdeed1d40e)  |
+|7| [Refactor issue 2: account transfer names](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/abba8199a28e18b4fd11dcece90a5f5bd200881a)  |
+|8| [Rename rm method to removeAccount in tests](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/524ec376531aee24ce795e5303f2ec2395537b3d)  |
+
+
+---
+
+#### **Alumno 6 - Gonzalo Fernández de Córdoba García**
+
+He implementado test unitarios para el métodos `getAccount` y la primera mitad de `transfer`. He llevado a cabo las refactorizaciones de los Issues 3 y 10.
+
+| Nº    | Commits      |
+|:------------: |:------------:|
+|1| ['getAccount_ExistingAccount_returnsAccount test'](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/2bf79311aa7388ae994f4f75c0b2ae2b7ee3dc0c)  |
+|2| [getAccount_nonExistingAccount_throwsExceptiontest](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/6b8fd2c6586ddbe3177cfeaf23b51b9331402600)  |
+|3| [`transfer` 1st part tests ](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/0a238f38a51b79b9050f5f4de523d0d9f611f7a2)  |
+|4| [variable seccondAccount removed](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/f741fe5f4d6035f13add9e3c75d950491569d054)  |
+|5| [Issue10-refactored](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/43289c1a33bf5738835c05622e2f1cda0d12a2da)  |

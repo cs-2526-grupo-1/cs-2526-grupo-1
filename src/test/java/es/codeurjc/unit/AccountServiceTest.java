@@ -25,6 +25,8 @@ import es.codeurjc.model.User;
 import es.codeurjc.repository.AccountRepository;
 import es.codeurjc.repository.TransactionRepository;
 import es.codeurjc.service.AccountService;
+import es.codeurjc.service.AccountNotificationService;
+import es.codeurjc.service.AccountValidationService;
 import es.codeurjc.service.RandomService;
 import es.codeurjc.model.Notification;
 import es.codeurjc.service.notifications.EmailNotificationService;
@@ -62,6 +64,12 @@ class AccountServiceTest {
 
         @BeforeEach
         void setUp() {
+                AccountNotificationService notificationService = new AccountNotificationService(emailService,
+                                smsService);
+                AccountValidationService validationService = new AccountValidationService();
+                accountService = new AccountService(accountRepository, transactionRepository, notificationService,
+                                validationService, randomService);
+
                 emailUser = new User(AccountServiceTestConstants.USER1_NAME, AccountServiceTestConstants.PASSWORD, AccountServiceTestConstants.ROLE_USER);
                 emailUser.setEmail(AccountServiceTestConstants.EMAIL_1);
                 emailUser.setNotificationType(User.NotificationType.EMAIL);
@@ -695,16 +703,16 @@ class AccountServiceTest {
                                 .hasMessage(AccountServiceTestConstants.MSG_LIMIT_TRANSFER);
         }
 
-        
+
         @Test
         @DisplayName("transfer - throws when source and destination are the same account")
         void transfer_sameAccount_throwsException() {
-                
+
                 when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
-          
+
                 assertThatThrownBy(() -> accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_A, 100.0))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Cannot transfer to same account");
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessage("Cannot transfer to same account");
 
                 /**
                  * This test should NOT pass since there is a bug in the code (the check is incorrectly implemented using "==", which mistakenly allows transactions between two instances of 
@@ -721,7 +729,7 @@ class AccountServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cannot transfer to same account");
                 
-                */
+                 */
         }
          
 

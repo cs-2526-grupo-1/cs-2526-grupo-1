@@ -2,12 +2,9 @@ package es.codeurjc.service;
 
 import es.codeurjc.model.Account;
 import es.codeurjc.model.User;
-import es.codeurjc.model.Notification;
 import es.codeurjc.model.Transaction;
 import es.codeurjc.repository.AccountRepository;
 import es.codeurjc.repository.TransactionRepository;
-import es.codeurjc.service.notifications.EmailNotificationService;
-import es.codeurjc.service.notifications.SmsNotificationService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,27 +19,21 @@ import java.util.List;
 @Service
 public class AccountService {
 
-    private static final String DEPOSIT_CONFIRMATION_MESSAGE = "Deposit Confirmation";
-    private static final String WITHDRAWAL_CONFIRMATION_MESSAGE = "Withdrawal Confirmation";
-    private static final String WITHDRAWAL_MESSAGE = "Withdrawal";
-    private static final String TRANSFER_SENT_MESSAGE = "Transfer Sent";
-    private static final String TRANSFER_RECEIVED_MESSAGE = "Transfer Received";
-
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
-    private final EmailNotificationService emailService;
-    private final SmsNotificationService smsService;
+    private final AccountNotificationService notificationService;
+    private final AccountValidationService validationService;
     private final RandomService randomService;
 
     public AccountService(AccountRepository accountRepository,
             TransactionRepository transactionRepository,
-            EmailNotificationService emailService,
-            SmsNotificationService smsService,
+            AccountNotificationService notificationService,
+            AccountValidationService validationService,
             RandomService randomService) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
-        this.emailService = emailService;
-        this.smsService = smsService;
+        this.notificationService = notificationService;
+        this.validationService = validationService;
         this.randomService = randomService;
     }
 
@@ -92,12 +83,12 @@ public class AccountService {
     @Transactional
     public Account deposit(String accountNumber, double amount, String description) {
         double roundedAmount = round(amount);
-        validateAmount(roundedAmount, 10000.0, "Amount exceeds maximum deposit limit");
+        validationService.validateAmount(roundedAmount, 10000.0, "Amount exceeds maximum deposit limit");
 
         Account account = getAccount(accountNumber);
-        
+
         account.deposit(roundedAmount);
-        
+
         account.setBalance(round(account.getBalance())); //as it is still a double the result still has the same problem->we have to fix it as above
 
         // Record transaction
@@ -108,22 +99,7 @@ public class AccountService {
         Account savedAccount = accountRepository.save(account);
 
         // Send notification
-        User.NotificationType notifType = account.getUser().getNotificationType();
-        if (notifType == User.NotificationType.EMAIL) {
-            emailService.sendNotification(
-                    account.getUser(),
-                    Notification.NotificationType.DEPOSIT,
-                    DEPOSIT_CONFIRMATION_MESSAGE,
-                    String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
-                            roundedAmount, account.getBalance()));
-        } else if (notifType == User.NotificationType.SMS) {
-            smsService.sendNotification(
-                    account.getUser(),
-                    Notification.NotificationType.DEPOSIT,
-                    DEPOSIT_CONFIRMATION_MESSAGE,
-                    String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
-                            roundedAmount, account.getBalance()));
-        }
+        notificationService.notifyDeposit(account, roundedAmount);
 
         return savedAccount;
     }
@@ -142,14 +118,12 @@ public class AccountService {
     @Transactional
     public Account withdraw(String accountNumber, double amount, String description) {
         double roundedAmount = round(amount);
-        validateAmount(roundedAmount, 5000.0, "Amount exceeds maximum withdrawal limit");
+        validationService.validateAmount(roundedAmount, 5000.0, "Amount exceeds maximum withdrawal limit");
 
         Account account = getAccount(accountNumber);
 
         // Check balance
-        if (BigDecimal.valueOf(account.getBalance()).compareTo(BigDecimal.valueOf(roundedAmount)) < 0) {
-            throw new IllegalArgumentException("Insufficient funds");
-        }
+        validationService.checkSufficientFunds(roundedAmount, account.getBalance());
 
         account.withdraw(roundedAmount);
         account.setBalance(round(account.getBalance())); // the same as above
@@ -161,20 +135,7 @@ public class AccountService {
 
         Account savedAccount = accountRepository.save(account);
 
-        User.NotificationType notifType = account.getUser().getNotificationType();
-        if (notifType == User.NotificationType.EMAIL) {
-            emailService.sendNotification(
-                    account.getUser(),
-                    Notification.NotificationType.WITHDRAWAL,
-                    WITHDRAWAL_CONFIRMATION_MESSAGE,
-                    String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", roundedAmount, account.getBalance()));
-        } else if (notifType == User.NotificationType.SMS) {
-            smsService.sendNotification(
-                    account.getUser(),
-                    Notification.NotificationType.WITHDRAWAL,
-                    WITHDRAWAL_MESSAGE,
-                    String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", roundedAmount, account.getBalance()));
-        }
+        notificationService.notifyWithdrawal(account, roundedAmount);
 
         return savedAccount;
     }
@@ -185,7 +146,7 @@ public class AccountService {
     @Transactional
     public void transfer(String fromAccountNumber, String toAccountNumber, double amount) {
         double roundedAmount = round(amount);
-        validateAmount(roundedAmount, 20000.0, "Amount exceeds maximum transfer limit");
+        validationService.validateAmount(roundedAmount, 20000.0, "Amount exceeds maximum transfer limit");
 
         Account sourceAccount = getAccount(fromAccountNumber);
         Account destinationAccount = getAccount(toAccountNumber);
@@ -196,9 +157,7 @@ public class AccountService {
         }
 
         // Check balance
-        if (BigDecimal.valueOf(sourceAccount.getBalance()).compareTo(BigDecimal.valueOf(roundedAmount)) < 0) {
-            throw new IllegalArgumentException("Insufficient funds");
-        }
+        validationService.checkSufficientFunds(roundedAmount, sourceAccount.getBalance());
 
         // Perform transfer
         sourceAccount.withdraw(roundedAmount);
@@ -225,35 +184,8 @@ public class AccountService {
         accountRepository.save(sourceAccount);
         accountRepository.save(destinationAccount);
 
-        User.NotificationType notifType = sourceAccount.getUser().getNotificationType();
-        if (notifType == User.NotificationType.EMAIL) {
-            emailService.sendNotification(
-                    sourceAccount.getUser(),
-                    Notification.NotificationType.TRANSFER,
-                    TRANSFER_SENT_MESSAGE,
-                    String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", roundedAmount, toAccountNumber, sourceAccount.getBalance()));
-        } else if (notifType == User.NotificationType.SMS) {
-            smsService.sendNotification(
-                    sourceAccount.getUser(), 
-                    Notification.NotificationType.TRANSFER, 
-                    TRANSFER_SENT_MESSAGE,
-                    String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", roundedAmount, toAccountNumber, sourceAccount.getBalance()));
-        }
-
-        User.NotificationType notifTypeTo = destinationAccount.getUser().getNotificationType();
-        if (notifTypeTo == User.NotificationType.EMAIL) {
-            emailService.sendNotification(
-                    destinationAccount.getUser(),
-                    Notification.NotificationType.TRANSFER,
-                    TRANSFER_RECEIVED_MESSAGE,
-                    String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", roundedAmount, fromAccountNumber, destinationAccount.getBalance()));
-        } else if (notifTypeTo == User.NotificationType.SMS) {
-            smsService.sendNotification(
-                destinationAccount.getUser(), 
-                Notification.NotificationType.TRANSFER, 
-                TRANSFER_RECEIVED_MESSAGE,
-                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", roundedAmount, fromAccountNumber, destinationAccount.getBalance()));
-        }
+        notificationService.notifyTransferSent(sourceAccount, roundedAmount, toAccountNumber);
+        notificationService.notifyTransferReceived(destinationAccount, roundedAmount, fromAccountNumber);
     }
 
     /**
@@ -262,9 +194,7 @@ public class AccountService {
     public void removeAccount(String accountNumber) {
         Account account = getAccount(accountNumber);
 
-        if (account.getBalance() != 0) {
-            throw new IllegalArgumentException("Cannot delete account with non-zero balance");
-        }
+        validationService.validateAccountDeletion(account);
 
         accountRepository.delete(account);
     }
@@ -283,18 +213,6 @@ public class AccountService {
         Account account = getAccount(accountNumber);
         return transactionRepository.findByAccountOrderByTimestampDesc(account);
     }
-
-    private void validateAmount(double amount, double max, String errorMsg) {
-        BigDecimal bdAmount = BigDecimal.valueOf(amount);
-        
-        if (bdAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (bdAmount.compareTo(BigDecimal.valueOf(max)) > 0) {
-            throw new IllegalArgumentException(errorMsg);
-        }
-    }
-
 
     private double round(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();

@@ -35,6 +35,17 @@ Clase `AccountService.java`, en múltiples líneas (107, 114, 156, 163)
 **Refactorización**
 Los Strings literales repetidos como por ejemplo "Deposit Confirmation" o "Transfer received" han sido extraídos a constantes `private static final String` declaradas al inicio de la clase. Así, cualquier cambio en el texto solo requerirá modificar el texto en un único lugar, eliminando el riesgo de inconsistencias.
 
+![Versión actualizada con constantes](img/refactor-1.png)
+
+```java
+// Ejemplo de centralización de mensajes en el servicio
+private static final String MSG_DEPOSIT_CONF = "Deposit Confirmation";
+private static final String MSG_TRANSFER_SENT = "Transfer Sent";
+
+// Uso en el método
+notificationService.notifyDeposit(account, roundedAmount);
+// (La lógica del mensaje ahora reside en un servicio específico o usa constantes)
+```
 ### Issue 2: Nombres de variables y métodos poco descriptivos - Detectado por análisis manual
 
 **Reporte de la issue**:
@@ -52,6 +63,29 @@ Clase `AccountService.java`, líneas 231, 232, 301
 **Refactorización**
 Las variables `m` y `o` del método `transfer` han sido renombradas a `sourceAccount` y `destination`, reflejando claramente su propósito dentro del método y dejando claro su significado. Además, el método `rm` ha sido renombrado a `removeAccount`, haciendo que su intención quede clara sin que haga falta leer la implementación. Esto hace mucho más legible y mantenible el código.
 
+![Versión actualizada de nombres de variables](img/refactor-2.png)
+
+```java
+/**
+ * Transfer money between accounts con nombres claros
+ */
+@Transactional
+public void transfer(String fromAccountNumber, String toAccountNumber, double amount) {
+    // ...
+    Account sourceAccount = getAccount(fromAccountNumber);
+    Account destinationAccount = getAccount(toAccountNumber);
+    // ...
+}
+
+/**
+ * Nombre de método que refleja su acción
+ */
+public void removeAccount(String accountNumber) {
+    Account account = getAccount(accountNumber);
+    validationService.validateAccountDeletion(account);
+    accountRepository.delete(account);
+}
+```
 ### Issue 3: Variables locales no utilizadas - Detectado por SonarQube
 
 **Reporte de la issue**:
@@ -201,6 +235,25 @@ Clase `AccountService.java`, en la cabecera métodos
 **Refactorización**
 Se han eliminado los comentarios que simplemente repetían el nombre del método y se reemplazaron por comentarios que explican el porqué y el contexto no evidente del código. Todos siguen ahora el mismo estilo, evitando que queden desactualizados y aportando información real a quien lee el código.
 
+![Comentarios refactorizados](img/refactor-8.png)
+
+```java
+/**
+ * Generate account number. This method is an infinite loop with 10^9 possible accounts.
+ * We assume the app scope is not that big. In case of needing to fix this, 
+ * we could change to UUIDs or DB sequences.
+ */
+private String generateAccountNumber() {
+    // ... implementación
+}
+
+/**
+ * Get account balance ensuring 2-decimal precision.
+ */
+public double getBalance(String accountNumber) {
+    return round(getAccount(accountNumber).getBalance());
+}
+```
 ### Issue 9: Métodos excesivamente largos - Detectado por análisis manual
 
 **Reporte de la issue**:
@@ -219,7 +272,35 @@ Clase `AccountService.java`, métodos `deposit` (línea 77), `deposit` (línea 1
 
 **Refactorización**
 Se han extraído métodos privados para separar las responsabilidades que antes estaban mezcladas en un solo método largo. `recordTransaction` ahora centraliza la creación y guardado de transacciones, evitando repetir el mismo bloque en deposit, withdraw y transfer. Para la transferencia, se han añadido dos métodos `withdrawForTransferAndSave` y `depositFromTransferAndSave`, que se encargan la operación sobre el balance de la cuenta junto con su guardado. Las validaciones y notificaciones ya han sido delegadas en las dos clases creadas : `AccountValidationService` y `AccountNotificationService` Con esto, los tres métodos públicos quedan reducidos a cinco llamadas claras: validar, operar, registrar, persistir y notificar.
+![Método transfer refactorizado](img/refactor-9.png)
 
+```java
+@Transactional
+public void transfer(String fromAccountNumber, String toAccountNumber, double amount) {
+    double roundedAmount = round(amount);
+    
+    // 1. Validar
+    validationService.validateAmount(roundedAmount, 20000.0, "Limit exceeded");
+    Account source = getAccount(fromAccountNumber);
+    Account destination = getAccount(toAccountNumber);
+    validationService.checkSufficientFunds(roundedAmount, source.getBalance());
+
+    // 2. Operar y Sanear
+    source.withdraw(roundedAmount);
+    source.setBalance(round(source.getBalance()));
+    destination.deposit(roundedAmount);
+    destination.setBalance(round(destination.getBalance()));
+
+    // 3. Registrar y Persistir
+    saveTransferTransactions(source, destination, roundedAmount);
+    accountRepository.save(source);
+    accountRepository.save(destination);
+
+    // 4. Notificar
+    notificationService.notifyTransferSent(source, roundedAmount, toAccountNumber);
+    notificationService.notifyTransferReceived(destination, roundedAmount, fromAccountNumber);
+}
+```
 
 ### Issue 10: Comprobación de tipo mediante ifs-else -  Detectado por análisis manual
 

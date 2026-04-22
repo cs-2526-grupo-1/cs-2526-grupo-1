@@ -115,7 +115,7 @@ He implementado test unitarios para los métodos `createAccount` así como la se
 
 #### **Alumno 3 - Alejandro García Prada**
 
-He implementado test unitarios para los métodos `generateAccountNumber` y también la primera de las partes de `deposit`. Seguídamente he realizado las implementaciones vinculadas a la Issues 5 y 6. Para acabar realicé el séptimo test E2E para comprobrar "No se puede realizar una transferencia a una cuenta inválida/que no existe". Como añadido, realicé el refactor para centralizar la gestión de constantes en los diferentes tests.
+He implementado test unitarios para los métodos `generateAccountNumber` y también la primera de las partes de `deposit`. Seguidamente he realizado las implementaciones vinculadas a la Issues 5 y 6. Para acabar realicé el séptimo test E2E para comprobrar "No se puede realizar una transferencia a una cuenta inválida/que no existe". Como añadido, realicé el refactor para centralizar la gestión de constantes en los diferentes tests.
 
 | Nº    | Commits      |
 |:------------: |:------------:|

@@ -152,7 +152,15 @@ He implementado test unitarios para los métodos `removeAccount` y también de `
 
 | Nº    | Commits      |
 |:------------: |:------------:|
-|1| [Issue 3 y 4 detectado](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/26017d3e0b849b587689e6fc6c0298ca15173fa5)  |
+|1| [Add test for getUserAccounts method](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/8e651f6b83bc42e50a8af23821b6e135c87b0395)  |
+|2| [Add test for account removal with non-zero balance](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/101343e000365f5ddc2c68917d493325189b1ad7)  |
+|3| [Add test for account removal with zero balance](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/4f149969798eca6c4f0f3babd680c0ab01621117)  |
+|4| [Add test 4 for transfer with exceeding amount](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/79abc5e76b5b6b02c9314fbf57fbfd4e3d047e21)  |
+|5| [Add test 4 for transfer with exceeding amount](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/79abc5e76b5b6b02c9314fbf57fbfd4e3d047e21)  |
+|6| [Refactor for issue 1: magic strings](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/37cd784f676a2d047158103bcae423bdeed1d40e)  |
+|7| [Refactor issue 2: account transfer names](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/abba8199a28e18b4fd11dcece90a5f5bd200881a)  |
+|8| [Rename rm method to removeAccount in tests](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/524ec376531aee24ce795e5303f2ec2395537b3d)  |
+
 
 ---
 
@@ -164,6 +172,6 @@ He implementado test unitarios para el métodos `getAccount` y la primera mitad 
 |:------------: |:------------:|
 |1| ['getAccount_ExistingAccount_returnsAccount test'](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/2bf79311aa7388ae994f4f75c0b2ae2b7ee3dc0c)  |
 |2| [getAccount_nonExistingAccount_throwsExceptiontest](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/6b8fd2c6586ddbe3177cfeaf23b51b9331402600)  |
-|3| [test de primera parte de transfer](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/0a238f38a51b79b9050f5f4de523d0d9f611f7a2)  |
+|3| [`transfer` 1st part tests ](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/0a238f38a51b79b9050f5f4de523d0d9f611f7a2)  |
 |4| [variable seccondAccount removed](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/f741fe5f4d6035f13add9e3c75d950491569d054)  |
 |5| [Issue10-refactored](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/43289c1a33bf5738835c05622e2f1cda0d12a2da)  |

@@ -317,8 +317,21 @@ Clase `AccountService.java`, métodos `deposit` (línea 102), `deposit` (línea 
 - En los 4 métodos se comprueba el tipo de notificación mediante bloques `if-else` encadenados. Esto se corresponde al bad smell de **Switch Statements**, ya que imposibilita la adición de tipos adicionales sin modificar el código existente (viola el **Open/Closed principle**). Esto resulta en un mayor acoplamiento del código, entorpeciendo tanto su mantenibilidad como su extensibilidad.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Para solucionar de raíz este problema (y mantener la compatibilidad con los tests ya creados), se ha aplicado un **Patrón Strategy en su variante de Estrategias Internas**. Se optó por encapsular toda la lógica de formato de mensajes e inyección según canal en dos clases envoltorio privadas `EmailNotificationStrategy` y `SmsNotificationStrategy` que se encuentran anidadas dentro del propio `AccountNotificationService`. 
 
+A su vez, estas se inicializan en un `EnumMap` interno en el constructor. De esta forma, cualquier método público localiza y ejecuta su estrategia de forma directa aplicando polimorfismo, por lo que desaparecen todos los `if-else` referidos al `NotificationType`, acatando un modelo puro y respetando íntegramente el _Open/Closed Principle_.
+
+```java
+// Ejemplo de la resolución limpia mediante polimorfismo en AccountNotificationService
+private final Map<User.NotificationType, BaseNotificationStrategy> strategies = new EnumMap<>(User.NotificationType.class);
+
+public void notifyDeposit(Account account, double amount) {
+    BaseNotificationStrategy strategy = getStrategy(account.getUser());
+    if (strategy != null) {
+        strategy.notifyDeposit(account, amount); // Desaparecen los if-else de contenido y canal
+    }
+}
+```
 
 ### Issue 11: Código duplicado en el método `deposit` - Detectado por análisis manual
 

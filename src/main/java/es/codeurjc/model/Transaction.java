@@ -1,6 +1,8 @@
 package es.codeurjc.model;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -21,7 +23,7 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionType type;
     
-    private double amount;
+    private BigDecimal amount;
     
     private String description;
     private LocalDateTime timestamp;
@@ -42,10 +44,10 @@ public class Transaction {
     public Transaction() {
     }
     
-    public Transaction(Account account, TransactionType type, double amount, String description) {
+    public Transaction(Account account, TransactionType type, Amount amount, String description) {
         this.account = account;
         this.type = type;
-        this.amount = amount;
+        this.amount = amount.getValue();
         this.description = description;
         this.timestamp = LocalDateTime.now();
     }
@@ -76,10 +78,10 @@ public class Transaction {
     }
     
     public double getAmount() {
-        return amount;
+        return amount.doubleValue();
     }
     
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
     

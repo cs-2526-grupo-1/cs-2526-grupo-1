@@ -1,6 +1,7 @@
 package es.codeurjc.service.loan;
 
 import es.codeurjc.model.Account;
+import es.codeurjc.model.Amount;
 import es.codeurjc.model.User;
 import es.codeurjc.model.Loan;
 import es.codeurjc.model.LoanEvaluationResult;
@@ -119,7 +120,7 @@ public class LoanService {
         Loan savedLoan = loanRepository.save(loan);
 
         // Disburse loan - add money to account
-        account.deposit(loan.getApprovedAmount());
+        account.deposit(Amount.fromDouble(loan.getApprovedAmount()));
         accountRepository.save(account);
 
         // Send notification
@@ -226,7 +227,7 @@ public class LoanService {
         }
 
         // Withdraw from account
-        account.withdraw(paymentAmount);
+        account.withdraw(Amount.fromDouble(paymentAmount));
         accountRepository.save(account);
 
         // Update loan

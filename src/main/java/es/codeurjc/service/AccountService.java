@@ -1,6 +1,7 @@
 package es.codeurjc.service;
 
 import es.codeurjc.model.Account;
+import es.codeurjc.model.Amount;
 import es.codeurjc.model.User;
 import es.codeurjc.model.Notification;
 import es.codeurjc.model.Transaction;
@@ -86,19 +87,9 @@ public class AccountService {
      * Deposit money into account
      */
     @Transactional
-    public Account deposit(String accountNumber, double amount, String description) {
-        if (amount == 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (amount < 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (amount > 10000) {
-            throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
-        }
-        if (amount > 50000) {
-            throw new IllegalArgumentException("Amount exceeds maximum deposit limit");
-        }
+    public Account deposit(String accountNumber, Amount amount, String description) {
+        
+        validateAmount(amount, Amount.fromDouble(10000), "Amount exceeds maximum deposit limit");
 
         Account account = getAccount(accountNumber);
         account.deposit(amount);
@@ -118,14 +109,14 @@ public class AccountService {
                     Notification.NotificationType.DEPOSIT,
                     DEPOSIT_CONFIRMATION_MESSAGE,
                     String.format("Deposit of %.2f EUR. New balance: %.2f EUR",
-                            amount, account.getBalance()));
+                            amount.getValue(), account.getBalance()));
         } else if (notifType == User.NotificationType.SMS) {
             smsService.sendNotification(
                     account.getUser(),
                     Notification.NotificationType.DEPOSIT,
                     DEPOSIT_CONFIRMATION_MESSAGE,
                     String.format("Deposit: %.2f EUR. Balance: %.2f EUR",
-                            amount, account.getBalance()));
+                            amount.getValue(), account.getBalance()));
         }
 
         return savedAccount;
@@ -135,7 +126,7 @@ public class AccountService {
      * Quick deposit without description
      */
     @Transactional
-    public Account deposit(String accountNumber, double amount) {
+    public Account deposit(String accountNumber, Amount amount) {
         return this.deposit(accountNumber, amount, "Quick deposit");
     }
 
@@ -143,20 +134,14 @@ public class AccountService {
      * Withdraw money from account
      */
     @Transactional
-    public Account withdraw(String accountNumber, double amount, String description) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-
-        if (amount > 5000) {
-            throw new IllegalArgumentException("Amount exceeds maximum withdrawal limit");
-        }
+    public Account withdraw(String accountNumber, Amount amount, String description) {
+        validateAmount(amount, Amount.fromDouble(5000), "Amount exceeds maximum withdrawal limit");
 
         Account account = getAccount(accountNumber);
         Account seccondAccount;
 
         // Check balance
-        if (account.getBalance() < amount) {
+        if (account.getBalance() < amount.getValue().doubleValue()) {
             throw new IllegalArgumentException("Insufficient funds");
         }
 
@@ -175,13 +160,13 @@ public class AccountService {
                     account.getUser(),
                     Notification.NotificationType.WITHDRAWAL,
                     WITHDRAWAL_CONFIRMATION_MESSAGE,
-                    String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", amount, account.getBalance()));
+                    String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", amount.getValue(), account.getBalance()));
         } else if (notifType == User.NotificationType.SMS) {
             smsService.sendNotification(
                     account.getUser(),
                     Notification.NotificationType.WITHDRAWAL,
                     WITHDRAWAL_MESSAGE,
-                    String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", amount, account.getBalance()));
+                    String.format("Withdrawal of %.2f EUR. New balance: %.2f EUR", amount.getValue(), account.getBalance()));
         }
 
         return savedAccount;
@@ -191,13 +176,8 @@ public class AccountService {
      * Transfer money between accounts
      */
     @Transactional
-    public void transfer(String fromAccountNumber, String toAccountNumber, double amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-        if (amount > 20000) {
-            throw new IllegalArgumentException("Amount exceeds maximum transfer limit");
-        }
+    public void transfer(String fromAccountNumber, String toAccountNumber, Amount amount) {
+        validateAmount(amount, Amount.fromDouble(20000), "Amount exceeds maximum transfer limit");
 
         Account sourceAccount = getAccount(fromAccountNumber);
         Account destinationAccount = getAccount(toAccountNumber);
@@ -208,7 +188,7 @@ public class AccountService {
         }
 
         // Check balance
-        if (sourceAccount.getBalance() < amount) {
+        if (sourceAccount.getBalance() < amount.getValue().doubleValue()) {
             throw new IllegalArgumentException("Insufficient funds");
         }
 
@@ -240,13 +220,13 @@ public class AccountService {
                     sourceAccount.getUser(),
                     Notification.NotificationType.TRANSFER,
                     TRANSFER_SENT_MESSAGE,
-                    String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", amount, toAccountNumber, sourceAccount.getBalance()));
+                    String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", amount.getValue(), toAccountNumber, sourceAccount.getBalance()));
         } else if (notifType == User.NotificationType.SMS) {
             smsService.sendNotification(
                     sourceAccount.getUser(), 
                     Notification.NotificationType.TRANSFER, 
                     TRANSFER_SENT_MESSAGE,
-                    String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", amount, toAccountNumber, sourceAccount.getBalance()));
+                    String.format("Transfer of %.2f EUR to %s. New balance: %.2f EUR", amount.getValue(), toAccountNumber, sourceAccount.getBalance()));
         }
 
         User.NotificationType notifTypeTo = destinationAccount.getUser().getNotificationType();
@@ -256,13 +236,13 @@ public class AccountService {
                     Notification.NotificationType.TRANSFER,
                     TRANSFER_RECEIVED_MESSAGE,
                     String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR",
-                        amount, fromAccountNumber, destinationAccount.getBalance()));
+                        amount.getValue(), fromAccountNumber, destinationAccount.getBalance()));
         } else if (notifTypeTo == User.NotificationType.SMS) {
             smsService.sendNotification(
                 destinationAccount.getUser(), 
                 Notification.NotificationType.TRANSFER, 
                 TRANSFER_RECEIVED_MESSAGE,
-                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", amount, fromAccountNumber, destinationAccount.getBalance()));
+                String.format("Transfer of %.2f EUR from %s. New balance: %.2f EUR", amount.getValue(), fromAccountNumber, destinationAccount.getBalance()));
         }
     }
 
@@ -294,4 +274,14 @@ public class AccountService {
         Account account = getAccount(accountNumber);
         return transactionRepository.findByAccountOrderByTimestampDesc(account);
     }
+
+    private void validateAmount(Amount amount, Amount max, String errorMsg) {
+        if (!(amount.isPositive())) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        if (amount.isGreaterThan(max)) {
+            throw new IllegalArgumentException(errorMsg);
+        }
+    }
+
 }

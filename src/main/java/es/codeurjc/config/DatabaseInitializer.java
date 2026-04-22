@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import es.codeurjc.model.Account;
+import es.codeurjc.model.Amount;
 import es.codeurjc.model.Loan;
 import es.codeurjc.model.LoanEvaluationResult;
 import es.codeurjc.model.Notification;
@@ -112,7 +113,7 @@ public class DatabaseInitializer {
         Transaction tx1 = new Transaction(
                 account1,
                 Transaction.TransactionType.DEPOSIT,
-                1000.0,
+                Amount.fromDouble(1000.0),
                 "Nómina mensual");
         tx1.setTimestamp(LocalDateTime.now().minusDays(5));
         transactionRepository.save(tx1);
@@ -120,7 +121,7 @@ public class DatabaseInitializer {
         Transaction tx2 = new Transaction(
                 account1,
                 Transaction.TransactionType.WITHDRAWAL,
-                200.0,
+                Amount.fromDouble(200.0),
                 "Cajero automático");
         tx2.setTimestamp(LocalDateTime.now().minusDays(3));
         transactionRepository.save(tx2);
@@ -128,7 +129,7 @@ public class DatabaseInitializer {
         Transaction tx3 = new Transaction(
                 account2,
                 Transaction.TransactionType.DEPOSIT,
-                5000.0,
+                Amount.fromDouble(5000.0),
                 "Ahorro");
         tx3.setTimestamp(LocalDateTime.now().minusDays(10));
         transactionRepository.save(tx3);
@@ -136,7 +137,7 @@ public class DatabaseInitializer {
         Transaction tx4 = new Transaction(
                 account3,
                 Transaction.TransactionType.TRANSFER_SENT,
-                500.0,
+                Amount.fromDouble(500.0),
                 "Transferencia a ES0001234567");
         tx4.setDestinationAccountNumber("ES0001234567");
         tx4.setTimestamp(LocalDateTime.now().minusDays(2));

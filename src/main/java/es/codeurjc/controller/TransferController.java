@@ -1,6 +1,7 @@
 package es.codeurjc.controller;
 
 import es.codeurjc.model.Account;
+import es.codeurjc.model.Amount;
 import es.codeurjc.model.User;
 import es.codeurjc.service.AccountService;
 import es.codeurjc.service.UserService;
@@ -52,8 +53,10 @@ public class TransferController {
                                   @RequestParam double amount,
                                   RedirectAttributes redirectAttributes) {
         try {
-            accountService.transfer(fromAccount, toAccount, amount);
-            redirectAttributes.addFlashAttribute("success", 
+
+            Amount amountToTranfer = Amount.fromDouble(amount);
+            accountService.transfer(fromAccount, toAccount, amountToTranfer);
+            redirectAttributes.addFlashAttribute("success",
                 "Transfer completed successfully");
             return "redirect:/dashboard";
         } catch (Exception e) {

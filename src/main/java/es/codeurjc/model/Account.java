@@ -1,6 +1,9 @@
 package es.codeurjc.model;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +24,7 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
     
-    private double balance;
+    private BigDecimal balance;
     
     private LocalDateTime createdAt;
     
@@ -45,7 +48,7 @@ public class Account {
     public Account(String accountNumber, AccountType accountType, double balance) {
         this.accountNumber = accountNumber;
         this.accountType = accountType;
-        this.balance = balance;
+        this.balance = BigDecimal.valueOf(balance).setScale(2, RoundingMode.HALF_EVEN);
         this.createdAt = LocalDateTime.now();
     }
     
@@ -75,10 +78,10 @@ public class Account {
     }
     
     public double getBalance() {
-        return balance;
+        return balance.doubleValue();
     }
     
-    public void setBalance(double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
     
@@ -110,33 +113,25 @@ public class Account {
      * Deposit money into the account
      * @param amount amount to deposit
      */
-    public void deposit(double amount) {
-        if (amount <= 0) {
+    public void deposit(Amount amount) {
+        if (!(amount.isPositive())) {
             throw new IllegalArgumentException("Amount must be positive");
         }
-        this.balance += amount;
+        setBalance(balance.add(amount.getValue()));
     }
     
     /**
      * Withdraw money from the account
      * @param amount amount to withdraw
      */
-    public void withdraw(double amount) {
-        if (amount <= 0) {
+    public void withdraw(Amount amount) {
+        if (!(amount.isPositive())) {
             throw new IllegalArgumentException("Amount must be positive");
         }
-        if (this.balance < amount) {
+        if (amount.isGreaterThan(new Amount(BigDecimal.valueOf(getBalance())))) {
             throw new IllegalArgumentException("Insufficient funds");
         }
-        this.balance -= amount;
+        setBalance(balance.subtract(amount.getValue()));
     }
     
-    /**
-     * Check if account has sufficient balance
-     * @param amount amount to check
-     * @return true if balance is sufficient
-     */
-    public boolean hasSufficientBalance(double amount) {
-        return this.balance >= amount;
-    }
 }

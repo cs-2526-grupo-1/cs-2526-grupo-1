@@ -80,9 +80,21 @@ He cooperado con el equipo en encontrar los bad smells del código. Me he encarg
 
 ### **Participación de Miembros en la Práctica 3**
 
+#### **Alumno 1 - Samuel Melián Benito**
+
+He implementado el test unitario para el método `withdraw`. Asímismo, he movido las implementaciones relacionadas con las Issues octava y novena. Por último, he creado los test E2E 5 y 6. Que corresponden con las cuestiones: "No se puede realizar una transferencia si la cantidad es negativa" y "No se puede realizar una transferencia si la cantidad supera los 20.000€".
+
+| Nº    | Commits      |
+|:------------: |:------------:|
+|1| [Issue 1 detectado](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/60b804c95f69994c1adb6f953dcbb46996c49b2e)  |
+|2| [Issue 2 detectado](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/4b7e0dd59135f38871479b031b09129b6cdc3b82)  |
+
+
+---
+
 #### **Alumno 2 - Daniel Bonachela Martínez**
 
-He implementado test unitarios para los métodos `createAccount` así como la segunda parte del método `deposit`. Por otro lado, he gestionado las implementaciones relacionadas con la Issue 4 y 12. Por último he implementado el segundo test E2E para comprobar "Se puede realizar una transferencia entre cuentas de distintos usuarios". Además, de ahí saqué una lógica común con el primer test.
+He implementado test unitarios para los métodos `createAccount` así como la segunda parte del método `deposit`. Por otro lado, he gestionado las implementaciones relacionadas con la Issue 4 y 12. Por último, he implementado el segundo test E2E para comprobar "Se puede realizar una transferencia entre cuentas de distintos usuarios". Además, de ahí saqué una lógica común con el primer test.
 
 | Nº    | Commits      |
 |:------------: |:------------:|
@@ -115,8 +127,7 @@ He implementado test unitarios para los métodos `generateAccountNumber` y tambi
 
 #### **Alumno 4 - Marcelo Atanasio Domínguez Mateo**
 
-He implementado test unitarios para los métodos `getBalance`, `getTransactions` y la segunda mitad de `transfer`. He llevado a cabo las refactorizaciones correspondientes al Issue 7 y al Issue 11. He implementado el test E2E para comprobar que: "Se puede realizar una transferencia entre cuentas propias (de una cuenta corriente a una
-de ahorros)"
+He implementado test unitarios para los métodos `getBalance`, `getTransactions` y la segunda mitad de `transfer`. He llevado a cabo las refactorizaciones correspondientes al Issue 7 y al Issue 11. He implementado el test E2E para comprobar que: "Se puede realizar una transferencia entre cuentas propias (de una cuenta corriente a una de ahorros)".
 
 | Nº    | Commits      |
 |:------------: |:------------:|
@@ -126,3 +137,15 @@ de ahorros)"
 |4| [Remove code duplication on `deposit`](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/278e4430b71a75b511a66607baef5f1b750da58f)  |
 |5| [Extract notification and validation logic from AccountService into dedicated service classes](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/7d7d27217bd89f108a2267fcfac92429f822a9da)  |
 |6| [Add E2E test for internal transfers](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/461a43e61bb429fc874dcd45ad3a939b6edd89f0)  |
+
+---
+
+#### **Alumno 5 - Sara Guillén Martínez**
+
+He implementado test unitarios para los métodos `removeAccount` y también de `getUserAccounts`. También, he llevado a cabo los refactors que corresponden a las Issues 1 y 2. A parte, contribuí en los test E2E realizando el cuarto, que corresponde a "No se puede realizar una transferencia si no hay saldo suficiente".
+
+| Nº    | Commits      |
+|:------------: |:------------:|
+|1| [Issue 3 y 4 detectado](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/26017d3e0b849b587689e6fc6c0298ca15173fa5)  |
+
+---

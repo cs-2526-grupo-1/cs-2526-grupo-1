@@ -161,7 +161,33 @@ public class TransferE2ETest {
         assertThat(account.getBalance()).isEqualTo(initialBalance);
     }
 
+    @Test
+    public void test2_makeSuccessfulTransferBetweenUsers() {
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount = E2ETestConstants.ACCOUNT_2_CHECKING;
+        double amountToTransfer = E2ETestConstants.AMOUNT_TO_TRANSFER;
+        
+        double expectedBalanceUser1 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT1_CHECKING - amountToTransfer;
+        double expectedBalanceUser2 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT2 + amountToTransfer;
 
+        simulateTransfer(fromAccount, toAccount, amountToTransfer);
+
+        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
+        
+        String balanceUser1 = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_BALANCE_PREFIX + fromAccount))).getText();
+        assertThat(Double.parseDouble(balanceUser1)).isCloseTo(expectedBalanceUser1, within(0.01));
+
+        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
+
+        login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+
+        String balanceUser2 = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_BALANCE_PREFIX + toAccount))).getText();
+        assertThat(Double.parseDouble(balanceUser2)).isCloseTo(expectedBalanceUser2, within(0.01));
+    }
+    
     @Test
     public void test5_makeTransferWithNegativeAmount() {
         String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
@@ -221,30 +247,5 @@ public class TransferE2ETest {
     }
 
 
-    @Test
-    public void test7_makeSuccessfulTransferBetweenUsers() {
-        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
-        String toAccount = E2ETestConstants.ACCOUNT_2_CHECKING;
-        double amountToTransfer = E2ETestConstants.AMOUNT_TO_TRANSFER;
-        
-        double expectedBalanceUser1 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT1_CHECKING - amountToTransfer;
-        double expectedBalanceUser2 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT2 + amountToTransfer;
 
-        simulateTransfer(fromAccount, toAccount, amountToTransfer);
-
-        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
-        
-        String balanceUser1 = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.id(E2ETestConstants.ID_BALANCE_PREFIX + fromAccount))).getText();
-        assertThat(Double.parseDouble(balanceUser1)).isCloseTo(expectedBalanceUser1, within(0.01));
-
-        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
-
-        login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
-
-        String balanceUser2 = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.id(E2ETestConstants.ID_BALANCE_PREFIX + toAccount))).getText();
-        assertThat(Double.parseDouble(balanceUser2)).isCloseTo(expectedBalanceUser2, within(0.01));
-    }
 }

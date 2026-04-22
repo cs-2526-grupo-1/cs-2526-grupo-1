@@ -143,7 +143,6 @@ public class AccountService {
         validateAmount(roundedAmount, 5000.0, "Amount exceeds maximum withdrawal limit");
 
         Account account = getAccount(accountNumber);
-        Account seccondAccount;
 
         // Check balance
         if (BigDecimal.valueOf(account.getBalance()).compareTo(BigDecimal.valueOf(roundedAmount)) < 0) {
@@ -298,6 +297,5 @@ public class AccountService {
     private double round(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
     }
-
 
 }

@@ -225,7 +225,7 @@ public class TransferE2ETest {
     public void test7_makeSuccessfulTransferBetweenUsers() {
         String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
         String toAccount = E2ETestConstants.ACCOUNT_2_CHECKING;
-        double amountToTransfer = 500.0;
+        double amountToTransfer = E2ETestConstants.AMOUNT_TO_TRANSFER;
         
         double expectedBalanceUser1 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT1_CHECKING - amountToTransfer;
         double expectedBalanceUser2 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT2 + amountToTransfer;

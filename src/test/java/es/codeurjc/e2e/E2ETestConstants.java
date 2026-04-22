@@ -20,6 +20,8 @@ public class E2ETestConstants {
     public static final Double INITIAL_BALANCE_ACCOUNT1_SAVINGS = 3000.0;
     public static final Double INITIAL_BALANCE_ACCOUNT2 = 2000.0;
 
+    public static final Double AMOUNT_TO_TRANSFER = 500.0;
+
     public static final String ERROR_NEGATIVE_AMOUNT = "Amount must be positive";
     public static final String ERROR_EXCEEDS_LIMIT = "Amount exceeds maximum transfer limit";
 

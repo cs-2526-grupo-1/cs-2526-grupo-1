@@ -170,28 +170,43 @@ public class TransferE2ETest {
         assertThat(account.getBalance()).isEqualTo(initialBalance);
     }
 
-    @Test
+@Test
     public void test1_makeTransferBetweenOwnAccounts() {
         String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
         String toAccount = E2ETestConstants.ACCOUNT_1_SAVINGS;
-        int amount = 500;
+        double amount = E2ETestConstants.AMOUNT_TO_TRANSFER;
 
         simulateTransfer(fromAccount, toAccount, amount);
+        waitForDashboard();
 
-        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
+        assertThat(getAccountBalance(fromAccount))
+                .isCloseTo(initialBalanceAccount1Checking - amount, within(0.000001));
+        
+        assertThat(getAccountBalance(toAccount))
+                .isCloseTo(initialBalanceAccount1Savings + amount, within(0.000001));
 
-        String balanceFrom = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.id(E2ETestConstants.ID_BALANCE_PREFIX + fromAccount))).getText();
-        String balanceTo = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.id(E2ETestConstants.ID_BALANCE_PREFIX + toAccount))).getText();
+        verifySuccessMessage(E2ETestConstants.TRANSFER_SUCCESS);
+    }
 
-        assertThat(Double.parseDouble(balanceFrom)).isCloseTo(initialBalanceAccount1Checking - amount,
-                within(0.000001));
-        assertThat(Double.parseDouble(balanceTo)).isCloseTo(initialBalanceAccount1Savings + amount, within(0.000001));
+    @Test
+    public void test2_makeSuccessfulTransferBetweenUsers() {
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount = E2ETestConstants.ACCOUNT_2_CHECKING;
+        double amount = E2ETestConstants.AMOUNT_TO_TRANSFER;
+        
+        double expectedBalanceUser1 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT1_CHECKING - amount;
+        double expectedBalanceUser2 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT2 + amount;
 
-        String successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.className("alert-success"))).getText();
-        assertThat(successMessage).contains(E2ETestConstants.TRANSFER_SUCCESS);
+        simulateTransfer(fromAccount, toAccount, amount);
+        waitForDashboard();
+        
+        assertThat(getAccountBalance(fromAccount))
+                .isCloseTo(expectedBalanceUser1, within(0.01));
+
+        reloginAs(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+
+        assertThat(getAccountBalance(toAccount))
+                .isCloseTo(expectedBalanceUser2, within(0.01));
     }
 
     @Test
@@ -250,5 +265,27 @@ public class TransferE2ETest {
         // Check that the balance shown in the dashboard is the same as the initial balance
         login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
         checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
+    }
+
+    private void waitForDashboard() {
+        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
+    }
+
+    private double getAccountBalance(String accountSuffix) {
+        String balanceText = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_BALANCE_PREFIX + accountSuffix))).getText();
+        return Double.parseDouble(balanceText);
+    }
+
+    private void verifySuccessMessage(String expectedMessage) {
+        String successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.className("alert-success"))).getText();
+        assertThat(successMessage).contains(expectedMessage);
+    }
+
+    private void reloginAs(String username, String password) {
+        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
+        login(username, password);
     }
 }

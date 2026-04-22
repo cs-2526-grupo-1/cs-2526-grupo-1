@@ -33,7 +33,7 @@ Clase `AccountService.java`, en múltiples líneas (107, 114, 156, 163)
 - Por qué **NO es un falso positivo (Issue real)**: No es un falso positivo puesto que esta repetición de cadenas en 4 ocasiones viola directamente el principio conocido como DRY (*Don't repeat yourself*). Al no tener estos Strings centralizados en variables o constantes, cualquier cambio requerirá modificar la lógica de servicio, lo que aumentará la probabilidad de bugs o inconsistencias como ya hemos comentado anteriormente.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Los Strings literales repetidos como por ejemplo "Deposit Confirmation" o "Transfer received" han sido extraídos a constantes `private static final String` declaradas al inicio de la clase. Así, cualquier cambio en el texto solo requerirá modificar el texto en un único lugar, eliminando el riesgo de inconsistencias.
 
 ### Issue 2: Nombres de variables y métodos poco descriptivos - Detectado por análisis manual
 
@@ -50,7 +50,7 @@ Clase `AccountService.java`, líneas 231, 232, 301
 - Hay dos variables de tipo `Account` llamadas `m` y `o`, y en el código no se aporta ningún contexto sobre qué representan (parecen ser cuenta de origen y cuenta de destino, pero lo desconocemos). Obligan a quien lee el código a deducir su propósito leyendo el resto de la función `transfer`. De igual manera, se nombra como `rm` al método para eliminar una cuenta en lugar de darle otro nombre más adecuado como deleteAccount o removeAccount. Estos nombres tan poco descriptivos obligan a estar constantemente "traduciendo" e interpretando el código, lo que dificulta detectar errores lógicos e impacta de forma negativa en la mantenibilidad.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Las variables `m` y `o` del método `transfer` han sido renombradas a `sourceAccount` y `destination`, reflejando claramente su propósito dentro del método y dejando claro su significado. Además, el método `rm` ha sido renombrado a `removeAccount`, haciendo que su intención quede clara sin que haga falta leer la implementación. Esto hace mucho más legible y mantenible el código.
 
 ### Issue 3: Variables locales no utilizadas - Detectado por SonarQube
 
@@ -145,7 +145,9 @@ Clase `AccountService.java` (al completo)
 - Esta acumulación de responsabilidades induce una violación del **Principio de Responsabilidad Única (SRP)**, ya que por razones ya apuntadas son muchas las funciones de la clase. Esto a la larga acabará dificultando el mantenimiento y aumentando el riesgo de errores. Además, aumenta sensiblemente el acoplamiento del código, lo cual, es algo a evitar en cualquier programa orientado a objetos.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Se han creado dos nuevas clases para modularizar la funcionalidad de `AccountService`: `AccountNotificationService` y `AccountValidationService`. De esta manera, toda la lógica correspondiente a enviar y recibir notificaciones, así como la de validación de diversos datos, se extrae de la lógica principal. Con esto, no solo hemos conseguido reducir el tamaño de la clase `AccountService` en ~100 líneas, sino que la hemos liberado de dos responsabilidades, siendo actualmetne responsable únicamente de orquestrar la lógica general, y no de cuestiones menores.
+
+![Constructor de la clase `AccountService` con las dos dependencias inyectadas](img/refactor-11.png)
 
 ### Issue 8: Comentarios poco útiles o mal estructurados - Detectado por análisis manual
 
@@ -229,6 +231,10 @@ Clase `AccountService.java`, método `deposit`.
 ```
 
 - Esta diferencia no justifica la duplicación de más de 40 líneas, por lo que consideraremos esta práctica un *bad smell*. Esto afecta de manera considerable a la mantenibilidad y escalabilidad del código, ya que cualquier cambio que queramos hacer en `deposit`, supondrá un cambio en ambos lugares. 
+
+**Refactorización**
+Se ha mantenido la interfaz externa de la clase, empleando el método que tomaba el argumento `description` para implementar el método `deposit` con un valor de `description` por defecto. De esta manera, la lógica solo está presente una vez en el código y es reutilizada, evitando el código duplicado.
+![Versión actualizada del método `deposit`](img/refactor-11.png)
 
 ### Issue 12: Código inalcanzable (Dead Code) - Detectado por análisis manual
 

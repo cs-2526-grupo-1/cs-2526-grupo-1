@@ -15,17 +15,23 @@ public class E2ETestConstants {
     public static final String ACCOUNT_1_CHECKING = "ES1111111111";
     public static final String ACCOUNT_1_SAVINGS = "ES2222222222";
     public static final String ACCOUNT_2_CHECKING = "ES3333333333";
+    public static final String ACCOUNT_NOT_EXISTING = "ES999999999999999999";
 
     public static final Double INITIAL_BALANCE_ACCOUNT1_CHECKING = 5000.0;
     public static final Double INITIAL_BALANCE_ACCOUNT1_SAVINGS = 3000.0;
     public static final Double INITIAL_BALANCE_ACCOUNT2 = 2000.0;
 
+    public static final Double AMOUNT_TO_TRANSFER = 500.0;
+
     public static final String ERROR_NEGATIVE_AMOUNT = "Amount must be positive";
     public static final String ERROR_EXCEEDS_LIMIT = "Amount exceeds maximum transfer limit";
     public static final String ERROR_INSUFFICIENT_FUNDS = "Insufficient funds";
+    public static final String ERROR_ACCOUNT_NOT_FOUND = "Account not found";
 
     public static final double NEGATIVE_AMOUNT = -50.0;
     public static final double EXCEEDING_AMOUNT = 30000.0;
+
+    public static final int STANDARD_AMOUNT = 100;
 
     public static final String ID_USERNAME = "username";
     public static final String ID_PASSWORD = "password";
@@ -43,4 +49,5 @@ public class E2ETestConstants {
     public static final String PATH_LOGIN = "/login";
     public static final String PATH_TRANSFER = "/transfer";
     public static final String PATH_DASHBOARD = "/dashboard";
+    public static final String TRANSFER_SUCCESS = "Transfer completed successfully";
 }

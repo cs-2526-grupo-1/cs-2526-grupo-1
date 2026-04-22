@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -57,7 +58,15 @@ public class TransferE2ETest {
 
     @BeforeEach
     public void setUp() {
-        driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--window-size=1920,1080");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--lang=en-US");
+
+        driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         driver.get(BASE_URL + this.port + E2ETestConstants.PATH_DASHBOARD);
         createTestData();
@@ -141,9 +150,9 @@ public class TransferE2ETest {
 
     private void simulateTransfer(String fromAccount, String toAccount, double amount) {
         driver.get(BASE_URL + this.port + E2ETestConstants.PATH_TRANSFER);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
-        
+
         Select fromAccountSelect = new Select(driver.findElement(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
         fromAccountSelect.selectByValue(fromAccount);
         driver.findElement(By.id(E2ETestConstants.ID_TO_ACCOUNT)).sendKeys(toAccount);
@@ -163,7 +172,47 @@ public class TransferE2ETest {
         Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
         assertThat(account.getBalance()).isEqualTo(initialBalance);
     }
+  
+    @Test
+    public void test1_makeTransferBetweenOwnAccounts() {
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount = E2ETestConstants.ACCOUNT_1_SAVINGS;
+        double amount = E2ETestConstants.AMOUNT_TO_TRANSFER;
 
+        simulateTransfer(fromAccount, toAccount, amount);
+        waitForDashboard();
+
+        assertThat(getAccountBalance(fromAccount))
+                .isCloseTo(initialBalanceAccount1Checking - amount, within(0.000001));
+        
+        assertThat(getAccountBalance(toAccount))
+                .isCloseTo(initialBalanceAccount1Savings + amount, within(0.000001));
+
+        verifySuccessMessage(E2ETestConstants.TRANSFER_SUCCESS);
+    }
+
+    @Test
+    public void test2_makeSuccessfulTransferBetweenUsers() {
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount = E2ETestConstants.ACCOUNT_2_CHECKING;
+        double amount = E2ETestConstants.AMOUNT_TO_TRANSFER;
+        
+        double expectedBalanceUser1 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT1_CHECKING - amount;
+        double expectedBalanceUser2 = E2ETestConstants.INITIAL_BALANCE_ACCOUNT2 + amount;
+
+        simulateTransfer(fromAccount, toAccount, amount);
+        waitForDashboard();
+        
+        assertThat(getAccountBalance(fromAccount))
+                .isCloseTo(expectedBalanceUser1, within(0.01));
+
+        reloginAs(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+
+        assertThat(getAccountBalance(toAccount))
+                .isCloseTo(expectedBalanceUser2, within(0.01));
+    }
+  
+  
     @Test
     public void test4_makeTransferWithExceedingAmount() {
         String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
@@ -196,7 +245,6 @@ public class TransferE2ETest {
         // balance
         login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
         checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
-    }
 
     @Test
     public void test5_makeTransferWithNegativeAmount() {
@@ -258,5 +306,54 @@ public class TransferE2ETest {
         // balance
         login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
         checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
+    }
+
+    private void waitForDashboard() {
+        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
+    }
+
+    private double getAccountBalance(String accountSuffix) {
+        String balanceText = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_BALANCE_PREFIX + accountSuffix))).getText();
+        return Double.parseDouble(balanceText);
+    }
+
+    private void verifySuccessMessage(String expectedMessage) {
+        String successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.className("alert-success"))).getText();
+        assertThat(successMessage).contains(expectedMessage);
+    }
+
+    private void reloginAs(String username, String password) {
+        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
+        login(username, password);
+    }
+    
+    @Test
+    public void test7_makeTransferToUnexistingAccount() {
+
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount =  E2ETestConstants.ACCOUNT_NOT_EXISTING;
+        int amount = E2ETestConstants.STANDARD_AMOUNT;
+
+        simulateTransfer(fromAccount, toAccount, amount);
+
+        // Wait until we remian on the transfer page after submitting the form
+        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_TRANSFER));
+
+        // Wait until the error message is visible (better than presenceOfElementLocated)
+        String errorMessage = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(
+                        By.id(E2ETestConstants.ID_ERROR_MESSAGE)))
+                .getText();
+
+        assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_ACCOUNT_NOT_FOUND);
+
+        // Wait until the dashbord elements are fully loaded before checking the balance
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
+
+        checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
     }
 }

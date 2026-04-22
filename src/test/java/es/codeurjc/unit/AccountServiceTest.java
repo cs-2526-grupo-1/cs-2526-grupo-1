@@ -100,6 +100,38 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("generateAccountNumber retries when number already exists")
+        public void generateAccountNumberRetriesOnDuplicate() {
+                // Given
+                when(randomService.nextInt(1000000000))
+                                .thenReturn(12345)
+                                .thenReturn(12345)
+                                .thenReturn(67890);
+
+                when(accountRepository.existsByAccountNumber("ES0000012345"))
+                                .thenReturn(true)
+                                .thenReturn(true);
+
+                when(accountRepository.existsByAccountNumber("ES0000067890"))
+                                .thenReturn(false);
+
+                when(accountRepository.save(any(Account.class)))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
+
+                // When
+                
+                Account account = accountService.createAccount(emailUser, Account.AccountType.CHECKING);
+
+                // Then
+                String accNumber = account.getAccountNumber();
+
+                assertThat(accNumber).isEqualTo("ES0000067890");
+
+                verify(randomService, times(3)).nextInt(1000000000);
+                verify(accountRepository, times(3)).existsByAccountNumber(anyString());
+        }
+        
+        @Test
         @DisplayName("withdraw zero or negative amount should throw IllegalArgumentException")
         public void withdrawZeroOrNegativeAmountShouldThrowIllegalArgumentException() {
                 assertThatThrownBy(() -> accountService.withdraw(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.NEGATIVE_AMOUNT, AccountServiceTestConstants.WITHDRAW_NEGATIVE_DESC))
@@ -606,7 +638,7 @@ class AccountServiceTest {
         public void removeAccountWithBalanceGreaterThanZeroShouldThrowIllegalArgumentException() {
                 when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A)).thenReturn(Optional.of(accountA));
 
-                assertThatThrownBy(() -> accountService.rm(AccountServiceTestConstants.ACC_A)).isInstanceOf(IllegalArgumentException.class)
+                assertThatThrownBy(() -> accountService.removeAccount(AccountServiceTestConstants.ACC_A)).isInstanceOf(IllegalArgumentException.class)
                                 .hasMessageContaining(AccountServiceTestConstants.MSG_CANNOT_DELETE);
         }
 
@@ -615,7 +647,7 @@ class AccountServiceTest {
         public void removeAccountWithBalanceZeroShouldDeleteAccount() {
                 Account zeroBalanceAccount = new Account(AccountServiceTestConstants.ACC_A, Account.AccountType.CHECKING, AccountServiceTestConstants.ZERO_AMOUNT);
                 when(accountRepository.findByAccountNumber(any())).thenReturn(Optional.of(zeroBalanceAccount));
-                accountService.rm(AccountServiceTestConstants.ACC_A);
+                accountService.removeAccount(AccountServiceTestConstants.ACC_A);
                 verify(accountRepository).delete(zeroBalanceAccount);
         }
 

@@ -57,7 +57,9 @@ public class AccountService {
     }
 
     /**
-     * Generate account number
+     * Generate account number. This method is an infinite loop with 1000000000 ACCOUNTS, we assume the app scope is not that big.
+     * In case of needing to fix this we could change with ids for example. But this changes the business logic, so it's not asked
+     * for the purpose of this task.
      */
     private String generateAccountNumber() {
         String accountNumber;

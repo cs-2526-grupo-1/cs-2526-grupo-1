@@ -290,6 +290,8 @@ public class TransferE2ETest {
         driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
         login(username, password);
+    }
+    
     @Test
     public void test7_makeTransferToUnexistingAccount() {
 
@@ -299,12 +301,20 @@ public class TransferE2ETest {
 
         simulateTransfer(fromAccount, toAccount, amount);
 
+        // Wait until we remian on the transfer page after submitting the form
+        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_TRANSFER));
+
+        // Wait until the error message is visible (better than presenceOfElementLocated)
         String errorMessage = wait.until(
-                ExpectedConditions.presenceOfElementLocated(
+                ExpectedConditions.visibilityOfElementLocated(
                         By.id(E2ETestConstants.ID_ERROR_MESSAGE)))
                 .getText();
 
         assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_ACCOUNT_NOT_FOUND);
+
+        // Wait until the dashbord elements are fully loaded before checking the balance
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
 
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
     }

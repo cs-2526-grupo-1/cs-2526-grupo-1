@@ -25,6 +25,7 @@ public class E2ETestConstants {
 
     public static final String ERROR_NEGATIVE_AMOUNT = "Amount must be positive";
     public static final String ERROR_EXCEEDS_LIMIT = "Amount exceeds maximum transfer limit";
+    public static final String ERROR_INSUFFICIENT_FUNDS = "Insufficient funds";
     public static final String ERROR_ACCOUNT_NOT_FOUND = "Account not found";
 
     public static final double NEGATIVE_AMOUNT = -50.0;
@@ -48,6 +49,5 @@ public class E2ETestConstants {
     public static final String PATH_LOGIN = "/login";
     public static final String PATH_TRANSFER = "/transfer";
     public static final String PATH_DASHBOARD = "/dashboard";
-
     public static final String TRANSFER_SUCCESS = "Transfer completed successfully";
 }

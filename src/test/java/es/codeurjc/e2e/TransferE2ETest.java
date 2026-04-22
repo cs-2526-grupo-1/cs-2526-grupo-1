@@ -172,8 +172,8 @@ public class TransferE2ETest {
         Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
         assertThat(account.getBalance()).isEqualTo(initialBalance);
     }
-
-@Test
+  
+    @Test
     public void test1_makeTransferBetweenOwnAccounts() {
         String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
         String toAccount = E2ETestConstants.ACCOUNT_1_SAVINGS;
@@ -211,6 +211,40 @@ public class TransferE2ETest {
         assertThat(getAccountBalance(toAccount))
                 .isCloseTo(expectedBalanceUser2, within(0.01));
     }
+  
+  
+    @Test
+    public void test4_makeTransferWithExceedingAmount() {
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount = E2ETestConstants.ACCOUNT_2_CHECKING;
+
+        // Value exceeding the balance of the source account
+        int amount = E2ETestConstants.INITIAL_BALANCE_ACCOUNT1_CHECKING.intValue() + 1;
+
+        simulateTransfer(fromAccount, toAccount, amount);
+        // We can also check that the balance of the source account has not changed
+
+        String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
+
+        // Check that the error message shown is the expected one
+        assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_INSUFFICIENT_FUNDS);
+
+        // Check that the balance of the source account has not changed (in the
+        // dashboard,
+        // as getBalance is tested in unit tests)
+        checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
+
+        // Logout to check that the other user keeps the same balance as well
+        driver.findElement(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)).click();
+
+        // Wait until we are logged out and login page is shown again
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
+
+        // Check that the balance shown in the dashboard is the same as the initial
+        // balance
+        login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
+        checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
 
     @Test
     public void test5_makeTransferWithNegativeAmount() {
@@ -226,7 +260,8 @@ public class TransferE2ETest {
         // Check that the error message shown is the expected one
         assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_NEGATIVE_AMOUNT);
 
-        // Check that the balance of the source account has not changed (in the dashboard, 
+        // Check that the balance of the source account has not changed (in the
+        // dashboard,
         // as getBalance is tested in unit tests)
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
@@ -236,7 +271,8 @@ public class TransferE2ETest {
         // Wait until we are logged out and login page is shown again
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
 
-        // Check that the balance shown in the dashboard is the same as the initial balance
+        // Check that the balance shown in the dashboard is the same as the initial
+        // balance
         login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
         checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
     }
@@ -255,7 +291,8 @@ public class TransferE2ETest {
         // Check that the error message shown is the expected one
         assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_EXCEEDS_LIMIT);
 
-        // Check that the balance of the source account has not changed (in the dashboard, 
+        // Check that the balance of the source account has not changed (in the
+        // dashboard,
         // as getBalance is tested in unit tests)
         checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
 
@@ -265,7 +302,8 @@ public class TransferE2ETest {
         // Wait until we are logged out and login page is shown again
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGIN_BUTTON)));
 
-        // Check that the balance shown in the dashboard is the same as the initial balance
+        // Check that the balance shown in the dashboard is the same as the initial
+        // balance
         login(E2ETestConstants.USER2_USERNAME, E2ETestConstants.USER2_PASSWORD);
         checkBalanceHasNotChanged(toAccount, E2ETestConstants.INITIAL_BALANCE_ACCOUNT2);
     }

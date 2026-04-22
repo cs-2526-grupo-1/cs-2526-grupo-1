@@ -153,7 +153,6 @@ public class AccountService {
         }
 
         Account account = getAccount(accountNumber);
-        Account seccondAccount;
 
         // Check balance
         if (account.getBalance() < amount) {

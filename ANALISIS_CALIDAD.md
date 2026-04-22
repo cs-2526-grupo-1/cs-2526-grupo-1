@@ -179,7 +179,16 @@ Clase `AccountService.java`, en la línea 235
 - Por qué **NO es un falso positivo (Issue real)**: No es un falso positivo porque el uso de == para comparar Strings es una práctica incorrecta en Java cuando se desea comparar su contenido. SonarQube detecta correctamente este patrón como un posible bug o code smell, ya que puede derivar en fallos funcionales difíciles de detectar. La solución adecuada es utilizar equals().
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Se ha sustituido el operador relacional `==` por el método `.equals()`. De esta forma, Java evalúa y compara carácter por carácter el contenido de ambas cadenas (el número de cuenta), garantizando que la validación de "misma cuenta" funcione correctamente sin importar cómo se instanciaron los objetos String.
+
+![Refactorización equals()](img/refactor-5.png)
+
+```java
+// Método transfer: Validación de que no sea la misma cuenta
+if (sourceAccount.getAccountNumber().equals(destinationAccount.getAccountNumber())) {
+    throw new IllegalArgumentException("Cannot transfer to same account");
+}
+```
 
 ### Issue 6: Colisiones en la generación de Número de Cuenta - Detectado por análisis manual
 
@@ -197,7 +206,28 @@ Clase `AccountService.java`, en la línea 55
 - El principal problema de este método es que no se garantiza la unicidad de los números de cuenta generados. Al basarse en un generador de números aleatorios dentro de un rango limitado, existe la posibilidad de que se produzcan colisiones, es decir, que se generen dos cuentas con el mismo identificador.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Se ha rediseñado el proceso de generación para asegurar la integridad del sistema. La solución incluye:
+1. **Bucle de validación (Check-and-Retry)**: Se ha implementado un bucle `do-while` que genera un número y consulta inmediatamente al `accountRepository` mediante el método `existsByAccountNumber`. El proceso se repite hasta encontrar un número que no esté registrado.
+2. **Abstracción del generador**: Se utiliza un `randomService` para obtener los números aleatorios, facilitando el testeo y la predictibilidad.
+3. **Formateo consistente**: Se utiliza `String.format("ES%010d", ...)` para asegurar que todos los números de cuenta tengan una longitud fija de 10 dígitos precedidos por el prefijo "ES", cumpliendo con el estándar de negocio definido.
+
+![Refactorización generación de cuenta](img/refactor-6.png)
+
+```java
+/**
+ * Generate account number asegurando unicidad mediante comprobación en repositorio.
+ */
+private String generateAccountNumber() {
+    String accountNumber;
+
+    do {
+        // Genera un número aleatorio de hasta 9 cifras con formato ES0000000000
+        accountNumber = String.format("ES%010d", randomService.nextInt(1000000000));
+    } while (accountRepository.existsByAccountNumber(accountNumber));
+
+    return accountNumber;
+}
+```
 
 ### Issue 7: Large Class - Detectado por análisis manual
 

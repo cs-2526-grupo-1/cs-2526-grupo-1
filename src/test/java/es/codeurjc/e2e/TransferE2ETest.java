@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -57,7 +58,15 @@ public class TransferE2ETest {
 
     @BeforeEach
     public void setUp() {
-        driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--window-size=1920,1080");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--lang=en-US");
+
+        driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         driver.get(BASE_URL + this.port + E2ETestConstants.PATH_DASHBOARD);
         createTestData();
@@ -138,9 +147,9 @@ public class TransferE2ETest {
 
     private void simulateTransfer(String fromAccount, String toAccount, double amount) {
         driver.get(BASE_URL + this.port + E2ETestConstants.PATH_TRANSFER);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
-        
+
         Select fromAccountSelect = new Select(driver.findElement(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
         fromAccountSelect.selectByValue(fromAccount);
         driver.findElement(By.id(E2ETestConstants.ID_TO_ACCOUNT)).sendKeys(toAccount);
@@ -154,13 +163,36 @@ public class TransferE2ETest {
                 By.id(E2ETestConstants.ID_BALANCE_PREFIX + accountNumber))).getText();
         assertThat(Double.parseDouble(balance)).isCloseTo(initialBalance, within(0.000001));
 
-        // Despite balance is tested in unit tests, we can also check 
+        // Despite balance is tested in unit tests, we can also check
         // it here to ensure it has not changed
 
         Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
         assertThat(account.getBalance()).isEqualTo(initialBalance);
     }
 
+    @Test
+    public void test1_makeTransferBetweenOwnAccounts() {
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount = E2ETestConstants.ACCOUNT_1_SAVINGS;
+        int amount = 500;
+
+        simulateTransfer(fromAccount, toAccount, amount);
+
+        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
+
+        String balanceFrom = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_BALANCE_PREFIX + fromAccount))).getText();
+        String balanceTo = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id(E2ETestConstants.ID_BALANCE_PREFIX + toAccount))).getText();
+
+        assertThat(Double.parseDouble(balanceFrom)).isCloseTo(initialBalanceAccount1Checking - amount,
+                within(0.000001));
+        assertThat(Double.parseDouble(balanceTo)).isCloseTo(initialBalanceAccount1Savings + amount, within(0.000001));
+
+        String successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.className("alert-success"))).getText();
+        assertThat(successMessage).contains(E2ETestConstants.TRANSFER_SUCCESS);
+    }
 
     @Test
     public void test5_makeTransferWithNegativeAmount() {
@@ -172,7 +204,7 @@ public class TransferE2ETest {
 
         String errorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
-        
+
         // Check that the error message shown is the expected one
         assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_NEGATIVE_AMOUNT);
 

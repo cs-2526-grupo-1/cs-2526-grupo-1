@@ -745,3 +745,80 @@ class AccountServiceTest {
         }
 
 }
+
+
+/**
+ * Análisis Ramas Alcanzables AccountService.java
+Los métodos que no se consideren en este documento no tienen ramificaciones.
+
+
+Método getAccount():
+Según si se encuentra la cuenta dado el número de cuenta:
+1. Sí => Se devuelve la cuenta
+2. No => Se devuelve una excepción
+
+Método deposit() con descripción:
+Según el valor de amount tenemos las siguientes ramificaciones:
+	Ramificaciones que devuelven excepciones:
+	1. amount == 0 => Devolvemos excepción
+	2. amount < 0 => Devolvemos excepción
+	3. amount > 10000 => Devolvemos excepción
+	4. amount > 50000 => Devolvemos excepción. Notamos que esta ramificación es inalcanzable; en caso de que amount sea > 50000 entrará en 3.
+	
+	Ramificación flujo principal
+	5. 0 < amount <= 10000:
+		
+		5.1 account.getBalance() < amount (no hay tanto dinero en la cuenta) => Devolvemos excepción
+		
+		5.2 account.getBalance() >= amount => >Generamos la transacción. Según el tipo de notificación que tenga la cuenta:
+			
+			5.2.1 Tipo EMAIL => Envíamos transacción por email
+			
+			5.2.2 Tipo SMS => Envíamos transacción por email
+
+Método deposit() sin descripción: Las ramificaciones son completamente análogas, solo cambia que la descripción de Transaction se setea siempre como "Quick deposit".
+
+Método withdraw(): 
+De nuevo según el valor de amount tenemos las siguientes ramificaciones:
+	Ramificaciones que devuelven excepciones:
+	1. amount <= 0 => Devolvemos excepción
+	2. amount > 5000 => Devolvemos excepción
+
+	Ramificación flujo principal
+	3. 0 < amount <=5000:
+
+		3.1 account.getBalance() < amount (No hay tanto dinero en la cuenta) => Devolvemos excepción
+
+		3.2  account.getBalance() >= amount. Generamos la transacción. Según el tipo de notificaciones tenemos:
+
+			3.2.1 Tipo EMAIL => Envíamos transacción por email
+			
+			3.2.2 Tipo SMS => Envíamos transacción por email
+
+Método transfer():
+Evaluamos el valor de amount:
+	Ramificaciones que devuelven excepciones:
+	1. amount <= 0 => Devolvemos excepción
+	2. amount > 20000 => Devolvemos excepción
+
+	Ramificación flujo principal
+	3. 0 < amount <= 20000. Comprobamos si las cuentas son iguales:
+		3.1 Las cuentas son iguales => Devolvemos excepción
+		3.2 Las cuentas son distintas. Revisamos el dinero en la cuenta:
+			3.2.1 m.getBalance() < amount (falta dinero en la cuenta) => devolvemos excepción
+			3.2.2 m.getBalance() >= amount. Generamos la transacción. Según el tipo de notificaciones tenemos 4 casos (cada usuario puede tener dos combinaciones y hay dos implicados):
+				Para el usuario que recibe el dinero
+				3.2.2.1 Tipo EMAIL => Envíamos transacción por email
+			
+				3.2.2.2 Tipo SMS => Envíamos transacción por email
+				
+				Para el usuario que envía el dinero
+				3.2.2.3 Tipo EMAIL => Envíamos transacción por email
+			
+				3.2.2.4 Tipo SMS => Envíamos transacción por email
+Método rm():
+Hay dos ramificaciones:
+	1. Si la cuenta tiene dinero (account.getBalance() != 0) => Devolvemos excepción
+	2. Si la cuenta no tiene dinero (account.getBalance() == 0) => Borramos la cuenta
+
+ */

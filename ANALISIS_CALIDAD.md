@@ -33,7 +33,7 @@ Clase `AccountService.java`, en múltiples líneas (107, 114, 156, 163)
 - Por qué **NO es un falso positivo (Issue real)**: No es un falso positivo puesto que esta repetición de cadenas en 4 ocasiones viola directamente el principio conocido como DRY (*Don't repeat yourself*). Al no tener estos Strings centralizados en variables o constantes, cualquier cambio requerirá modificar la lógica de servicio, lo que aumentará la probabilidad de bugs o inconsistencias como ya hemos comentado anteriormente.
 
 **Refactorización**
-Se utilizará una captura de pantalla del código o código resaltado para mostrar la solución. Se acompañará dicha solución de un breve comentario explicándola.
+Los Strings literales repetidos como por ejemplo "Deposit Confirmation" o "Transfer received" han sido extraídos a constantes `private static final String` declaradas al inicio de la clase. Así, cualquier cambio en el texto solo requerirá modificar el texto en un único lugar, eliminando el riesgo de inconsistencias.
 
 ### Issue 2: Nombres de variables y métodos poco descriptivos - Detectado por análisis manual
 

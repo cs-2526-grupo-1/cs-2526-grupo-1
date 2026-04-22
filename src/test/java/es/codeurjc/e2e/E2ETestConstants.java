@@ -44,4 +44,6 @@ public class E2ETestConstants {
     public static final String PATH_LOGIN = "/login";
     public static final String PATH_TRANSFER = "/transfer";
     public static final String PATH_DASHBOARD = "/dashboard";
+
+    public static final String TRANSFER_SUCCESS = "Transfer completed successfully";
 }

@@ -175,4 +175,4 @@ He implementado test unitarios para el métodos `getAccount` y la primera mitad 
 |3| [`transfer` 1st part tests ](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/0a238f38a51b79b9050f5f4de523d0d9f611f7a2)  |
 |4| [variable seccondAccount removed](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/f741fe5f4d6035f13add9e3c75d950491569d054)  |
 |5| [Issue10-refactored](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/43289c1a33bf5738835c05622e2f1cda0d12a2da)  |
-|6| [Test 3 E2E Transfer to Same Account]()  |
+|6| [Test 3 E2E Transfer to Same Account](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/0a75f183182aa1cdbc7e496d6c69fefca00e59fd)  |

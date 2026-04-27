@@ -237,7 +237,25 @@ public class TransferE2ETest {
     @Test
     public void test3_makeTransferToSameAccount() {
 
-        assertThat(true);
+        // The same account is assigned to the source and destination account
+        String fromAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+        String toAccount = E2ETestConstants.ACCOUNT_1_CHECKING;
+
+        simulateTransfer(fromAccount, toAccount, E2ETestConstants.STANDARD_AMOUNT);
+
+        String errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.id(E2ETestConstants.ID_ERROR_MESSAGE))).getText();
+
+        // Check that the error message coincides with the expected one
+        assertThat(errorMessage).isEqualTo(E2ETestConstants.ERROR_SAME_ACCOUNT);
+
+        // Check that the balance of the source account has not changed (in the dashboard, as getBalance is tested in unit tests)
+        checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
+
+        // Relogin and check that the source amount has not changed, once again
+        reloginAs(E2ETestConstants.USER1_USERNAME, E2ETestConstants.USER1_PASSWORD);
+
+        checkBalanceHasNotChanged(fromAccount, initialBalanceAccount1Checking);
     }
 
     @Test

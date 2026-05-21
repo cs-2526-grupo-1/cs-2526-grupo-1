@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.time.LocalDateTime;
 
 // Service for managing accounts, including creation, retrieval, deposits, withdrawals, transfers, and deletion
 @Service
@@ -103,6 +104,22 @@ public class AccountService {
         Account account = getAccount(accountNumber);
         validationService.checkSufficientFunds(roundedAmount, account.getBalance());
 
+        LocalDateTime twentyFourHoursAgo = LocalDateTime.now().minusHours(24);
+        List<Transaction> recentWithdrawals = transactionRepository
+                .findByAccountAndTypeAndTimestampAfter(
+                        account, 
+                        Transaction.TransactionType.WITHDRAWAL, 
+                        twentyFourHoursAgo
+                );
+
+        double totalWithdrawnIn24h = recentWithdrawals.stream()
+                .mapToDouble(Transaction::getAmount)
+                .sum();
+
+        if (roundedAmount + totalWithdrawnIn24h > 5000.0) {
+            throw new IllegalArgumentException("Operation cancelled: Total withdrawals in the last 24 hours would exceed the 5000 limit");
+        }
+        
         account.withdraw(roundedAmount);
         account.setBalance(round(account.getBalance()));
 

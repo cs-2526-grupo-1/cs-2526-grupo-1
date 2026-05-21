@@ -1,0 +1,70 @@
+name: Nightly Matrix Test and Deliver
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  matrix-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            browser: chrome
+          - os: ubuntu-latest
+            browser: firefox
+          - os: windows-latest
+            browser: chrome
+          - os: windows-latest
+            browser: firefox
+          - os: windows-latest
+            browser: edge
+          - os: macos-latest
+            browser: chrome
+          - os: macos-latest
+            browser: firefox
+          - os: macos-latest
+            browser: safari
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Run E2E Test
+        run: |
+          mvn verify -Dtest="es.codeurjc.e2e.TransferE2ETest" -Dbrowser=${{ matrix.browser }}
+
+  publish-nightly:
+    runs-on: ubuntu-latest
+    needs: matrix-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Extract version
+        run: |
+          echo "TODAY=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Publish Nightly Image
+        run: |
+          mvn spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=${{ secrets.DOCKERHUB_USERNAME }}/banking-app:nightly-${{ env.TODAY }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/banking-app:nightly-${{ env.TODAY }}

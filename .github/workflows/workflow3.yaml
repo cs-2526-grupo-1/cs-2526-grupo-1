@@ -110,7 +110,13 @@ jobs:
           registryPassword: ${{ secrets.DOCKERHUB_TOKEN }}
           
       - name: Wait for Azure App to Boot
-        run: sleep 40
+        run: |
+          timeout 300s bash -c '
+            until [[ "$(curl -s -o /dev/null -w "%{http_code}" https://banking-app-production.agreeableriver-79aa3808.spaincentral.azurecontainerapps.io/login)" == "200" ]] || [[ "$(curl -s -o /dev/null -w "%{http_code}" https://banking-app-production.agreeableriver-79aa3808.spaincentral.azurecontainerapps.io/login)" == "302" ]]; do
+              echo "Waiting for Azure Container App to wake up and start Spring Boot..."
+              sleep 5
+            done
+          '
 
       - name: Run Smoke Test on Azure
         run: |

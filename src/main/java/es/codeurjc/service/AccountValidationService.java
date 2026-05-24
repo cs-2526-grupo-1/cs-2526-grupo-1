@@ -30,4 +30,10 @@ public class AccountValidationService {
             throw new IllegalArgumentException("Insufficient funds");
         }
     }
+
+    public void checkUserNotBanned(Account account, String errorMsg) {
+        if (account.getUser() != null && account.getUser().isBanned()) {
+            throw new IllegalArgumentException(errorMsg);
+        }
+    }
 }

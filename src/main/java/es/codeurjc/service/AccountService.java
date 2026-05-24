@@ -75,6 +75,9 @@ public class AccountService {
         validationService.validateAmount(roundedAmount, 10000.0, "Amount exceeds maximum deposit limit");
 
         Account account = getAccount(accountNumber);
+
+        validationService.checkUserNotBanned(account, "Banned user cannot deposit money");
+
         account.deposit(roundedAmount);
         account.setBalance(round(account.getBalance()));
 
@@ -101,6 +104,9 @@ public class AccountService {
         validationService.validateAmount(roundedAmount, 5000.0, "Amount exceeds maximum withdrawal limit");
 
         Account account = getAccount(accountNumber);
+
+        validationService.checkUserNotBanned(account, "Banned user cannot withdraw money");
+
         validationService.checkSufficientFunds(roundedAmount, account.getBalance());
 
         account.withdraw(roundedAmount);
@@ -126,6 +132,9 @@ public class AccountService {
         if (sourceAccount.getAccountNumber().equals(destinationAccount.getAccountNumber())) {
             throw new IllegalArgumentException("Cannot transfer to same account");
         }
+
+        validationService.checkUserNotBanned(sourceAccount, "Banned user cannot transfer money");
+        validationService.checkUserNotBanned(destinationAccount, "Cannot transfer money to a banned user");
 
         // Check balance in source account
         validationService.checkSufficientFunds(roundedAmount, sourceAccount.getBalance());

@@ -34,6 +34,10 @@ jobs:
         run: |
           mvn spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=${{ secrets.DOCKERHUB_USERNAME}}/banking-app:${{ env.VERSION }}
 
+          docker tag \
+          ${{ secrets.DOCKERHUB_USERNAME }}/banking-app:${{ env.VERSION }} \
+          ${{ secrets.DOCKERHUB_USERNAME }}/banking-app:latest
+
       - name: Launch Application in Background
         run: |
           docker run -d --name banking-app-container -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/banking-app:${{ env.VERSION }}
@@ -66,6 +70,7 @@ jobs:
       - name: Publish Image to DockerHub
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/banking-app:${{ env.VERSION }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/banking-app:latest
 
   deploy:
     runs-on: ubuntu-latest

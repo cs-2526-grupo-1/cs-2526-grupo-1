@@ -62,6 +62,11 @@ public class AccountServiceTestConstants {
     public static final String WITHDRAW_ZERO_DESC = "Withdraw zero amount";
     public static final String WITHDRAW_NEGATIVE_DESC = "Withdraw negative amount";
 
+    public static final String MSG_BANNED_WITHDRAWAL = "Banned user cannot withdraw money";
+    public static final String MSG_BANNED_DEPOSIT = "Banned user cannot deposit money";
+    public static final String MSG_BANNED_TRANSFER_SOURCE =  "Banned user cannot transfer money";
+    public static final String MSG_BANNED_TRANSFER_DESTINATION =  "Cannot transfer money to a banned user";
+
 
 
     public static final String WITHDRAW_FORMAT="Withdrawal of %.2f EUR. New balance: %.2f EUR";

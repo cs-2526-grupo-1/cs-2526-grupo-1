@@ -744,6 +744,72 @@ class AccountServiceTest {
                                 .hasMessage(AccountServiceTestConstants.MSG_INSUFFICIENT_FUNDS);
         }
 
+
+        @Test
+        @DisplayName("withdraw by a banned user should throw IllegalArgumentException")
+        public void withdrawBannedUserShouldThrowIllegalArgumentException() {
+            emailUser.setBanned(true);
+            when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A))
+                .thenReturn(Optional.of(accountA));
+
+            assertThatThrownBy(() -> accountService.withdraw(AccountServiceTestConstants.ACC_A, 50.0, AccountServiceTestConstants.TEST_DESC))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(AccountServiceTestConstants.MSG_BANNED_WITHDRAWAL);
+
+            verify(accountRepository, never()).save(any(Account.class));
+            verifyNoInteractions(transactionRepository);
+        }
+
+        @Test
+        @DisplayName("deposit by a banned user should throw IllegalArgumentException")
+        public void depositBannedUserShouldThrowIllegalArgumentException() {
+            emailUser.setBanned(true);
+            when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A))
+                .thenReturn(Optional.of(accountA));
+
+            assertThatThrownBy(() -> accountService.deposit(AccountServiceTestConstants.ACC_A, 50.0, AccountServiceTestConstants.TEST_DESC))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(AccountServiceTestConstants.MSG_BANNED_DEPOSIT);
+
+            verify(accountRepository, never()).save(any(Account.class));
+            verifyNoInteractions(transactionRepository);
+        }
+
+
+        @Test
+        @DisplayName("transfer from a banned user should throw IllegalArgumentException")
+        public void transferBannedSourceUserShouldThrowIllegalArgumentException() {
+            emailUser.setBanned(true); 
+            when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A))
+                .thenReturn(Optional.of(accountA));
+            when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_B))
+                .thenReturn(Optional.of(accountB));
+
+            assertThatThrownBy(() -> accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, 50.0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(AccountServiceTestConstants.MSG_BANNED_TRANSFER_SOURCE);
+
+            verify(accountRepository, never()).save(any(Account.class));
+
+        }
+
+        @Test
+        @DisplayName("transfer to a banned user should throw IllegalArgumentException")
+        public void transferBannedDestinationUserShouldThrowIllegalArgumentException() {
+            smsUser.setBanned(true);
+            when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A))
+                .thenReturn(Optional.of(accountA));
+            when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_B))
+                .thenReturn(Optional.of(accountB));
+
+            assertThatThrownBy(() -> accountService.transfer(AccountServiceTestConstants.ACC_A, AccountServiceTestConstants.ACC_B, 50.0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(AccountServiceTestConstants.MSG_BANNED_TRANSFER_DESTINATION);
+
+            verify(accountRepository, never()).save(any(Account.class));
+        }
+
+
 }
 
 

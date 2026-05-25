@@ -30,6 +30,8 @@ import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.safari.SafariOptions;
 import java.time.Duration;
 
 import es.codeurjc.BankingApplication;
@@ -84,6 +86,11 @@ public class TransferE2ETest {
                 EdgeOptions edgeOptions = new EdgeOptions();
                 edgeOptions.addArguments("--headless");
                 driver = new EdgeDriver(edgeOptions);
+                break;
+            case "safari":
+                // safari doesn't support headless lol
+                SafariOptions safariOptions = new SafariOptions();
+                driver = new SafariDriver(safariOptions);
                 break;
             case "chrome":
             default:

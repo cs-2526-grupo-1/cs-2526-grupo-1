@@ -221,7 +221,7 @@ class AccountServiceTest {
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
 
-         @Test
+        @Test
         @DisplayName("withdraw exceeding 24h accumulated limit should throw exception")
         public void withdrawExceeding24hLimitShouldThrowException() {
 
@@ -280,6 +280,32 @@ class AccountServiceTest {
                 assertThat(result.getBalance()).isEqualTo(AccountServiceTestConstants.OVER_LIMIT_D - AccountServiceTestConstants.MICRO_AMOUNT);
         }
         
+        @Test
+        @DisplayName("withdraw after 24h should reset accumulated limit")
+        public void withdrawAfter24HoursShouldSucceed() {
+
+                accountA.setBalance(AccountServiceTestConstants.OVER_LIMIT_D);
+
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A))
+                                .thenReturn(Optional.of(accountA));
+
+                when(transactionRepository.findByAccountAndTypeAndTimestampAfter(
+                                eq(accountA),
+                                eq(Transaction.TransactionType.WITHDRAWAL),
+                                any(LocalDateTime.class)))
+                                .thenReturn(List.of());
+
+                when(accountRepository.save(any(Account.class)))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
+
+                Account result = accountService.withdraw(
+                                AccountServiceTestConstants.ACC_A,
+                                AccountServiceTestConstants.STANDARD_AMOUNT_D,
+                                AccountServiceTestConstants.TEST_DESC);
+
+                assertThat(result.getBalance())
+                                .isEqualTo(AccountServiceTestConstants.OVER_LIMIT_D - AccountServiceTestConstants.STANDARD_AMOUNT_D);
+        }
 
         @Test
         @DisplayName("create account")

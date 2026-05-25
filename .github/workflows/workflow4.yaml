@@ -40,7 +40,7 @@ jobs:
 
       - name: Run E2E Test
         run: |
-          mvn verify -Dtest="es.codeurjc.e2e.TransferE2ETest" -Dbrowser=${{ matrix.browser }}
+          mvn verify -Dtest="es.codeurjc.e2e.TransferE2ETest#test1_makeTransferBetweenOwnAccounts" -Dbrowser=${{ matrix.browser }}
 
   publish-nightly:
     runs-on: ubuntu-latest

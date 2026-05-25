@@ -35,7 +35,8 @@ public class AccountServiceTestConstants {
     public static final int SMALL_AMOUNT = 100;
     public static final int OVER_AMOUNT = 20000;
     public static final int EXTRA_OVER_AMOUNT = 60000;
-     public static final double MICRO_AMOUNT_D = 50.0;
+    public static final double MICRO_AMOUNT_D = 50.0;
+    public static final double MEDIUM_AMOUNT_D = 4500.0;
     public static final double STANDARD_AMOUNT_D = 600.0;
     public static final double OVER_LIMIT_D = 20001.0;
 
@@ -46,6 +47,7 @@ public class AccountServiceTestConstants {
     public static final String MSG_INSUFFICIENT_FUNDS = "Insufficient funds";
     public static final String MSG_ACCOUNT_NOT_FOUND = "Account not found";
     public static final String MSG_CANNOT_DELETE = "Cannot delete account with non-zero balance";
+    public static final String MSG_24_HOUR_LIMIT = "Operation cancelled: Total withdrawals in the last 24 hours would exceed the 5000 limit";
 
     public static final String TITLE_WITHDRAWAL_CONFIRMATION = "Withdrawal Confirmation";
     public static final String TITLE_WITHDRAWAL = "Withdrawal";

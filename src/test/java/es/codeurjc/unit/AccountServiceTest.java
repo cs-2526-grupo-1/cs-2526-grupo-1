@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
@@ -216,6 +220,66 @@ class AccountServiceTest {
                 verify(emailService, never()).sendNotification(any(), any(), any(), any());
                 verify(smsService, never()).sendNotification(any(), any(), any(), any());
         }
+
+         @Test
+        @DisplayName("withdraw exceeding 24h accumulated limit should throw exception")
+        public void withdrawExceeding24hLimitShouldThrowException() {
+
+                Account account = new Account();
+                account.setAccountNumber(AccountServiceTestConstants.ACC_A);
+                account.setBalance(AccountServiceTestConstants.OVER_LIMIT_D);
+
+                Transaction previousWithdrawal = new Transaction();
+                previousWithdrawal.setAmount(AccountServiceTestConstants.MEDIUM_AMOUNT_D);
+
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A))
+                                .thenReturn(Optional.of(account));
+
+                when(transactionRepository.findByAccountAndTypeAndTimestampAfter(
+                                eq(account),
+                                eq(Transaction.TransactionType.WITHDRAWAL),
+                                any(LocalDateTime.class)))
+                                .thenReturn(List.of(previousWithdrawal));
+
+                assertThatThrownBy(() -> accountService.withdraw(
+                                AccountServiceTestConstants.ACC_A,
+                                AccountServiceTestConstants.STANDARD_AMOUNT_D,
+                                AccountServiceTestConstants.TEST_DESC))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining(
+                                                AccountServiceTestConstants.MSG_24_HOUR_LIMIT);
+        }
+
+        
+        @Test
+        @DisplayName("withdraw reaching exactly 24h limit should succeed")
+        public void withdrawReachingExactly24hLimitShouldSucceed() {
+
+                accountA.setBalance(AccountServiceTestConstants.OVER_LIMIT_D);
+
+                Transaction previousWithdrawal = new Transaction();
+                previousWithdrawal.setAmount(AccountServiceTestConstants.MEDIUM_AMOUNT_D);
+
+                when(accountRepository.findByAccountNumber(AccountServiceTestConstants.ACC_A))
+                                .thenReturn(Optional.of(accountA));
+
+                when(transactionRepository.findByAccountAndTypeAndTimestampAfter(
+                                eq(accountA),
+                                eq(Transaction.TransactionType.WITHDRAWAL),
+                                any(LocalDateTime.class)))
+                                .thenReturn(List.of(previousWithdrawal));
+
+                when(accountRepository.save(any(Account.class)))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
+
+                Account result = accountService.withdraw(
+                                AccountServiceTestConstants.ACC_A,
+                                AccountServiceTestConstants.MICRO_AMOUNT,
+                                AccountServiceTestConstants.TEST_DESC);
+
+                assertThat(result.getBalance()).isEqualTo(AccountServiceTestConstants.OVER_LIMIT_D - AccountServiceTestConstants.MICRO_AMOUNT);
+        }
+        
 
         @Test
         @DisplayName("create account")

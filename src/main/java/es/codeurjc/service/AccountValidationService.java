@@ -3,7 +3,10 @@ package es.codeurjc.service;
 import org.springframework.stereotype.Service;
 
 import es.codeurjc.model.Account;
+import es.codeurjc.model.User;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Period;
 
 @Service
 public class AccountValidationService {
@@ -34,6 +37,13 @@ public class AccountValidationService {
     public void checkUserNotBanned(Account account, String errorMsg) {
         if (account.getUser() != null && account.getUser().isBanned()) {
             throw new IllegalArgumentException(errorMsg);
+        }
+    }
+
+    public void validateUserAgeForTransfer(User user) {
+        if (user.getBirthdate() != null &&
+                Period.between(user.getBirthdate(), LocalDate.now()).getYears() < 18) {
+            throw new IllegalArgumentException("User must be 18 years old to make transfers");
         }
     }
 }

@@ -40,6 +40,8 @@ public class User {
     //Banned atribute
     private boolean banned = false;
 
+    private LocalDate birthdate;
+    
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType = NotificationType.EMAIL;
 
@@ -59,9 +61,10 @@ public class User {
         this.roles = List.of(roles);
     }
 
-    public User(String firstName, String lastName, String dni, String email,
-            String phone, String username, String password,
-            LocalDate registrationDate, double monthlyIncome, String... roles) {
+    
+    public User(String firstName, String lastName, String dni, String email, 
+                String phone, String username, String password, 
+                LocalDate registrationDate, double monthlyIncome, LocalDate birthdate, String... roles) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dni = dni;
@@ -71,6 +74,7 @@ public class User {
         this.password = password;
         this.registrationDate = registrationDate;
         this.monthlyIncome = monthlyIncome;
+        this.birthdate = birthdate;
         this.roles = List.of(roles);
     }
 
@@ -206,5 +210,13 @@ public class User {
 
     public void setBanned(boolean banned) {
         this.banned = banned;
+    }
+    
+    public LocalDate getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
     }
 }

@@ -146,6 +146,8 @@ public class AccountService {
         Account sourceAccount = getAccount(fromAccountNumber);
         Account destinationAccount = getAccount(toAccountNumber);
 
+        validationService.validateUserAgeForTransfer(sourceAccount.getUser());
+
         if (sourceAccount.getAccountNumber().equals(destinationAccount.getAccountNumber())) {
             throw new IllegalArgumentException("Cannot transfer to same account");
         }

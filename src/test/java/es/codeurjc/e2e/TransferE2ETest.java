@@ -121,6 +121,7 @@ public class TransferE2ETest {
                 passwordEncoder.encode(E2ETestConstants.USER1_PASSWORD),
                 LocalDate.now(),
                 3000.0,
+                LocalDate.of(1990, 1, 1),
                 "CUSTOMER");
         testUser1.setNotificationType(User.NotificationType.EMAIL);
         testUser1 = userRepository.save(testUser1);
@@ -147,6 +148,7 @@ public class TransferE2ETest {
                 passwordEncoder.encode(E2ETestConstants.USER2_PASSWORD),
                 LocalDate.now(),
                 2500.0,
+                LocalDate.of(1995, 6, 15),
                 "CUSTOMER");
         testUser2.setNotificationType(User.NotificationType.SMS);
         testUser2 = userRepository.save(testUser2);

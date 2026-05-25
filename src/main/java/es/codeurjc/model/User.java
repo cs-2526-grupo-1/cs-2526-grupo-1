@@ -36,6 +36,7 @@ public class User {
     private String phone;
     private LocalDate registrationDate;
     private double monthlyIncome;
+    private LocalDate birthdate;
     
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType = NotificationType.EMAIL;
@@ -58,7 +59,7 @@ public class User {
     
     public User(String firstName, String lastName, String dni, String email, 
                 String phone, String username, String password, 
-                LocalDate registrationDate, double monthlyIncome, String... roles) {
+                LocalDate registrationDate, double monthlyIncome, LocalDate birthdate, String... roles) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dni = dni;
@@ -68,6 +69,7 @@ public class User {
         this.password = password;
         this.registrationDate = registrationDate;
         this.monthlyIncome = monthlyIncome;
+        this.birthdate = birthdate;
         this.roles = List.of(roles);
     }
     
@@ -195,5 +197,13 @@ public class User {
     
     public boolean hasMultipleProducts() {
         return accounts != null && accounts.size() > 1;
+    }
+
+    public LocalDate getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
     }
 }

@@ -57,6 +57,7 @@ public class DatabaseInitializer {
         user1.setPhone("+34600111222");
         user1.setRegistrationDate(LocalDate.now().minusYears(5));
         user1.setMonthlyIncome(2500.0);
+        user1.setBirthdate(LocalDate.of(1990, 3, 15));
         user1 = userRepository.save(user1);
 
         User user2 = new User(
@@ -70,6 +71,7 @@ public class DatabaseInitializer {
         user2.setPhone("+34600333444");
         user2.setRegistrationDate(LocalDate.now().minusYears(3));
         user2.setMonthlyIncome(3200.0);
+        user2.setBirthdate(LocalDate.of(1995, 7, 22));
         user2 = userRepository.save(user2);
 
         User user3 = new User(
@@ -83,6 +85,7 @@ public class DatabaseInitializer {
         user3.setPhone("+34600555666");
         user3.setRegistrationDate(LocalDate.now().minusYears(1));
         user3.setMonthlyIncome(1800.0);
+        user3.setBirthdate(LocalDate.of(1985, 11, 8));
         user3 = userRepository.save(user3);
 
         // Create accounts for user 1

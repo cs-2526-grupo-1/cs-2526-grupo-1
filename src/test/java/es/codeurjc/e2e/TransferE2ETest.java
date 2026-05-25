@@ -20,6 +20,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.By;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import java.time.Duration;
 
 import es.codeurjc.BankingApplication;
 import es.codeurjc.model.Account;
@@ -58,16 +69,33 @@ public class TransferE2ETest {
 
     @BeforeEach
     public void setUp() {
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--window-size=1920,1080");
-        options.addArguments("--disable-gpu");
-        options.addArguments("--lang=en-US");
+        String browser = System.getProperty("browser", "chrome").toLowerCase();
+        WebDriver driver;
 
-        driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        System.out.println("::notice:: testing in browser " + browser);
+
+        switch (browser) {
+            case "firefox":
+                FirefoxOptions ffOptions = new FirefoxOptions();
+                ffOptions.addArguments("--headless");
+                driver = new FirefoxDriver(ffOptions);
+                break;
+            case "edge":
+                EdgeOptions edgeOptions = new EdgeOptions();
+                edgeOptions.addArguments("--headless");
+                driver = new EdgeDriver(edgeOptions);
+                break;
+            case "chrome":
+            default:
+                ChromeOptions chOptions = new ChromeOptions();
+                chOptions.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage", "--window-size=1920,1080");
+                driver = new ChromeDriver(chOptions);
+                break;
+        }
+
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+    
         driver.get(BASE_URL + this.port + E2ETestConstants.PATH_DASHBOARD);
         createTestData();
         login(E2ETestConstants.USER1_USERNAME, E2ETestConstants.USER1_PASSWORD);

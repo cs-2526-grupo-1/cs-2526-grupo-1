@@ -46,6 +46,7 @@ public class AccountServiceTestConstants {
     public static final String MSG_INSUFFICIENT_FUNDS = "Insufficient funds";
     public static final String MSG_ACCOUNT_NOT_FOUND = "Account not found";
     public static final String MSG_CANNOT_DELETE = "Cannot delete account with non-zero balance";
+    public static final String MSG_UNDER_AGE = "User must be 18 years old to make transfers";
 
     public static final String TITLE_WITHDRAWAL_CONFIRMATION = "Withdrawal Confirmation";
     public static final String TITLE_WITHDRAWAL = "Withdrawal";

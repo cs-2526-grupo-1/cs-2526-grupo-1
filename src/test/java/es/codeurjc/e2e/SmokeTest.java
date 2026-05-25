@@ -49,7 +49,7 @@ public class SmokeTest {
             baseUrl = E2ETestConstants.BASE_URL + this.port;
         }
 
-        expectedVersion = System.getProperty("app.version", "1.0.0");
+        expectedVersion = System.getProperty("app.version");
     }
 
     @AfterEach

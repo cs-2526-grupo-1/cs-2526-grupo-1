@@ -176,14 +176,29 @@ public class TransferE2ETest {
      * Helper para evitar el cuelgue de sendKeys en Safari.
      */
     private void safeSendKeys(WebElement element, String text) {
-        System.out.println("::notice:: Ejecutando safeSendKeys para el elemento: " + element.getAttribute("id"));
         String browser = System.getProperty("browser", "chrome").toLowerCase();
+
         if ("safari".equals(browser)) {
             JavascriptExecutor js = (JavascriptExecutor) driver;
-            js.executeScript("arguments[0].value = '';", element);
-            js.executeScript("arguments[0].value = arguments[1];", element, text);
-            js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", element);
-            js.executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", element);
+
+            js.executeScript("""
+                arguments[0].focus();
+                arguments[0].value = arguments[1];
+
+                arguments[0].dispatchEvent(new InputEvent('input', {
+                    bubbles: true,
+                    cancelable: true,
+                    inputType: 'insertText',
+                    data: arguments[1]
+                }));
+
+                arguments[0].dispatchEvent(new Event('change', {
+                    bubbles: true
+                }));
+
+                arguments[0].blur();
+            """, element, text);
+
         } else {
             element.clear();
             element.sendKeys(text);
@@ -201,8 +216,9 @@ public class TransferE2ETest {
         
         driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
         wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
-    }
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.id(E2ETestConstants.ID_LOGOUT_BUTTON);
+));    }
 
     private void simulateTransfer(String fromAccount, String toAccount, double amount) {
         driver.get(BASE_URL + this.port + E2ETestConstants.PATH_TRANSFER);

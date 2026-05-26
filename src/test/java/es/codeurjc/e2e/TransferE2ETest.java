@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.JavascriptExecutor;
@@ -96,6 +97,7 @@ public class TransferE2ETest {
         }
 
         this.driver = driver;
+        this.driver.manage().window().setSize(new Dimension(1920, 1080));
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     
         createTestData();

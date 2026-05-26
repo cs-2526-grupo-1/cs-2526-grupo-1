@@ -56,7 +56,6 @@ public class AccountServiceTestConstants {
     public static final String MSG_BANNED_DEPOSIT = "Banned user cannot deposit money";
     public static final String MSG_BANNED_TRANSFER_SOURCE = "Banned user cannot transfer money";
     public static final String MSG_BANNED_TRANSFER_DESTINATION = "Cannot transfer money to a banned user";
-    public static final String MSG_UNDER_AGE = "User must be 18 years old to make transfers";
 
     public static final String TITLE_WITHDRAWAL_CONFIRMATION = "Withdrawal Confirmation";
     public static final String TITLE_WITHDRAWAL = "Withdrawal";

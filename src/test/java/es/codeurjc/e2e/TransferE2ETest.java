@@ -162,9 +162,6 @@ public class TransferE2ETest {
 
     private void cleanTestData() {
         // Clean up test data after each test
-        // As database initializer has @Profile("!test"),
-        // the test data created here will only be used for
-        // testing and deleting them won't delete any more data
         transactionRepository.deleteAll();
         notificationRepository.deleteAll();
         accountRepository.deleteAll();
@@ -172,18 +169,13 @@ public class TransferE2ETest {
     }
 
     private void safeSendKeys(WebElement element, String text) {
-
         String browser = System.getProperty("browser", "chrome").toLowerCase();
-
         if ("safari".equals(browser)) {
-            // sendKeys se cuelga en Safari 26 (HttpTimeoutException en SafariDriver).
-            // Se asigna el valor directamente via JS; para formularios HTML planos esto
-            // es equivalente a escribirlo: el valor se incluye en la submission del form.
+            // sendKeys doesn't trigger events in Safari, so we use JavaScript to set the value and dispatch events manually
             ((JavascriptExecutor) driver).executeScript(
-                "const el = arguments[0]; const val = arguments[1];" +
-                "el.value = val;" +
-                "el.dispatchEvent(new Event('input',  {bubbles:true}));" +
-                "el.dispatchEvent(new Event('change', {bubbles:true}));",
+                "arguments[0].value = arguments[1];" +
+                "arguments[0].dispatchEvent(new Event('input',  {bubbles:true}));" +
+                "arguments[0].dispatchEvent(new Event('change', {bubbles:true}));",
                 element, text);
         } else {
             element.clear();
@@ -200,8 +192,6 @@ public class TransferE2ETest {
         safeSendKeys(usernameField, username);
         safeSendKeys(passwordField, password);
 
-        // En Safari el click nativo/JS sobre el boton submit no desencadena la submission;
-        // form.submit() via JS la realiza directamente e incluye todos los campos (CSRF incluido).
         String browser = System.getProperty("browser", "chrome").toLowerCase();
         if ("safari".equals(browser)) {
             ((JavascriptExecutor) driver).executeScript("document.querySelector('form').submit();");

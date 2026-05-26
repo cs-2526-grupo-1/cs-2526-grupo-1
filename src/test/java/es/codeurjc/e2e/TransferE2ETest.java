@@ -215,9 +215,11 @@ public class TransferE2ETest {
         safeSendKeys(passwordField, password);
         
         driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
+        System.out.println(driver.getCurrentUrl());
+        System.out.println(driver.getPageSource());
         wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
         wait.until(ExpectedConditions.visibilityOfElementLocated(
-            By.id(E2ETestConstants.ID_LOGOUT_BUTTON);
+            By.id(E2ETestConstants.ID_LOGOUT_BUTTON)
 ));    }
 
     private void simulateTransfer(String fromAccount, String toAccount, double amount) {

@@ -181,8 +181,7 @@ public class TransferE2ETest {
         driver.findElement(By.id(E2ETestConstants.ID_PASSWORD)).sendKeys(password);
         driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
         wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)
-));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
     }
 
     private void simulateTransfer(String fromAccount, String toAccount, double amount) {

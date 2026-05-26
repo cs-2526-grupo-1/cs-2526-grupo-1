@@ -103,7 +103,6 @@ public class TransferE2ETest {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     
-        driver.get(BASE_URL + this.port + E2ETestConstants.PATH_DASHBOARD);
         createTestData();
         login(E2ETestConstants.USER1_USERNAME, E2ETestConstants.USER1_PASSWORD);
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
@@ -181,7 +180,7 @@ public class TransferE2ETest {
         driver.findElement(By.id(E2ETestConstants.ID_USERNAME)).sendKeys(username);
         driver.findElement(By.id(E2ETestConstants.ID_PASSWORD)).sendKeys(password);
         driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
     }
 
     private void simulateTransfer(String fromAccount, String toAccount, double amount) {

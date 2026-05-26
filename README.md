@@ -268,7 +268,8 @@ Se preparan los cambios, se realizan los commits correspondientes al código y a
 
 ```bash
 $ git add .
-$git commit -m "feature2 functionality"$ git commit -m "Banned Test"
+$ git commit -m "feature2 functionality"
+$ git commit -m "Banned Test"
 $ git push origin feature-2
 ```
 
@@ -293,8 +294,10 @@ Se registran los cambios mediante commits firmados y se suben a la plataforma:
 
 ```bash
 $ git add .
-$git commit -m "Add feature-3. Birthdate in users and check > 18 years to transfer money"$ git commit -m "Add underage transfer message constant"
-$git commit -m "Feat: add tests to check user age when transfering"$ git push origin feature-3
+$ git commit -m "Add feature-3. Birthdate in users and check > 18 years to transfer money"
+$ git commit -m "Add underage transfer message constant"
+$ git commit -m "Feat: add tests to check user age when transfering"
+$ git push origin feature-3
 ```
 
 > **Acción en GitHub:** Se genera el Pull Request (PR #51). Una vez que el pipeline del **Workflow 2** da la luz verde asegurando que no rompe ninguna de las funcionalidades previas, se aprueba el Merge. La versión final corporativa **1.3.0** queda desplegada de forma automática en Azure por el **Workflow 3**.

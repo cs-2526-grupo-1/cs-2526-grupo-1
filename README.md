@@ -249,7 +249,7 @@ $ git commit -m "24h withdrawal Test"
 $ git commit -m "Extra Test for simulating not transactions"
 $ git push origin feature-1
 ```
-> **Acción en GitHub:** Se abre el Pull Request (PR #49) de `feature-1` hacia `main`. Esto dispara automáticamente el **Workflow 2** (verificación de calidad y tests). Tras pasar los checks sin errores, se realiza el Merge integrado, lo que ejecuta el **Workflow 3** y despliega de manera automática la versión **1.1.0** en Azure.
+> **Acción en GitHub:** Se abre el Pull Request (PR #52) de `feature-1` hacia `main`. Esto dispara automáticamente el **Workflow 2** (verificación de calidad y tests). Tras pasar los checks sin errores, se realiza el Merge integrado, lo que ejecuta el **Workflow 3** y despliega de manera automática la versión **1.1.0** en Azure.
 
 #### Feature 2
 * **Asignados:** Gonzalo Fernández de Córdoba García y Daniel Bonachela Martínez.
@@ -273,7 +273,7 @@ $ git commit -m "Banned Test"
 $ git push origin feature-2
 ```
 
-> **Acción en GitHub:** Se abre el Pull Request (PR #50) de `feature-2` hacia `main`. El **Workflow 2** valida la compilación y la cobertura de código. Al completarse el Merge, el **Workflow 3** toma el relevo actualizando el entorno de producción en Azure.
+> **Acción en GitHub:** Se abre el Pull Request (PR #53) de `feature-2` hacia `main`. El **Workflow 2** valida la compilación y la cobertura de código. Al completarse el Merge, el **Workflow 3** toma el relevo actualizando el entorno de producción en Azure.
 
 ---
 
@@ -300,7 +300,7 @@ $ git commit -m "Feat: add tests to check user age when transfering"
 $ git push origin feature-3
 ```
 
-> **Acción en GitHub:** Se genera el Pull Request (PR #51). Una vez que el pipeline del **Workflow 2** da la luz verde asegurando que no rompe ninguna de las funcionalidades previas, se aprueba el Merge. La versión final corporativa **1.3.0** queda desplegada de forma automática en Azure por el **Workflow 3**.
+> **Acción en GitHub:** Se genera el Pull Request (PR #54). Una vez que el pipeline del **Workflow 2** da la luz verde asegurando que no rompe ninguna de las funcionalidades previas, se aprueba el Merge. La versión final corporativa **1.3.0** queda desplegada de forma automática en Azure por el **Workflow 3**.
 
 
 

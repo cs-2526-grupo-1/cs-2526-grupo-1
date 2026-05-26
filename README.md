@@ -196,12 +196,28 @@ He implementado test unitarios para el métodos `getAccount` y la primera mitad 
 
 ### Asignación de tareas
 
-| Tarea | Alumno/es asignado/s | Commits asociado |
+| Tarea | Alumnos asignados | Commits asociados |
 |:--- |:--- |:--- |
 | feature-1 | Marcelo Atanasio Domínguez Mateo, Alejandro García Prada | [Implement last 24h withdraw limit](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/c0a58801dd268af19f125c44986f353142a1a9c4), [24h withdrawal Test](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/8eb103edd97ab643371f4b23cfbac4074ba68c5d) |
 | feature-2 | Gonzalo Fernández de Córdoba García, Daniel Bonachela Martínez | [feature2 functionality](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/69d8edf9b0f353b5af50d534ef2dbac51ccb7bbf), [Banned Test](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/e0dd06ea66bcff88152de8385dd6400049765913) |
 | feature-3 | Samuel Melián Benito, Sara Guillén Martínez  | [Add feature-3. Birthdate in users and check > 18 years to transfer money](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/38c77b4c96aa139ec40e8bc0678bab263564ad9f), [Feat: add tests to check user age when transfering](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/cf13fed933142a90e4f82a871d584d3d052aafbe) |
->| refactoring-1 | [Nombre 5] | [Commit 5](URL_commit_5) ... | Nosotros no tenemos esto
+
+#### Desglose detallado de contribuciones individuales:
+
+* **Marcelo Atanasio Domínguez Mateo:** Responsable de la configuración inicial del entorno de desarrollo (Paso 1), diseño e implementación de la lógica de negocio de la `feature-1` (Límite de retirada 24h) y desarrollo técnico de los pipelines de integración continua **Workflow 1** (Unit Testing on Commit), **Workflow 2** (Unit + E2E Testing on PR) y **Workflow 4** (Nightly Matrix Test con entornos distribuidos).
+* **Alejandro García Prada:** Responsable del diseño y ejecución de la batería completa de pruebas unitarias y de integración para asegurar la robustez de la `feature-1`.
+* **Gonzalo Fernández de Córdoba García:** Responsable del diseño e implementación de la lógica de negocio de la `feature-2` (Baneo de usuarios) y desarrollo de los pipelines críticos de infraestructura de **Workflow 3** (Build and Deploy on Push en Azure).
+* **Daniel Bonachela Martínez:** Responsable de la creación del entorno de constantes de prueba, así como del diseño, implementación y validación de la suite de tests unitarios asociados a la lógica de baneo de la `feature-2`.
+* **Samuel Melián Benito:** Responsable de la implementación del modelo de datos (añadiendo la fecha de nacimiento) y del desarrollo de las reglas de validación de mayoría de edad para las transferencias en la `feature-3`.
+* **Sara Guillén Martínez:** Responsable de la cobertura de código, asegurando la calidad de la `feature-3` mediante la suite de tests unitarios de validación de edad.
+
+Se adjunta aquí mismo un desglose de los commits de creación de los workflows:
+| Tarea | Alumno asignado | Commits asociado |
+|:--- |:--- |:--- |
+| workflow-1 | Marcelo Atanasio Domínguez Mateo | [Add github workflow1](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/4c48b92ebda104b6a070fc4d49a4a45be90b0bcf) |
+| workflow-2 | Marcelo Atanasio Domínguez Mateo | [Add github workflow2](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/5ff6e201033beaf5ad8553a5af0bbe58a90ef14a) |
+| workflow-3 | Gonzalo Fernández de Córdoba García | [Add Azure CD Workflow 3](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/671a59afd44962c3e01d8746aa693872c21eac9e) |
+| workflow-4 | Marcelo Atanasio Domínguez Mateo | [Add github workflow4](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/10dc9416948176f8fed510b7e497772b7c07f282) |
 
 ### Pasos seguidos
 
@@ -213,17 +229,17 @@ Clonamos el repositorio
 $ git clone git@github.com:cs-2526-grupo-1/cs-2526-grupo-1.git
 ```
 
-A partir de aquí, el equipo trabajó en paralelo siguiendo una estrategia estricta de ramificación, actualización de versiones (SemVer) e integración continua. A continuación, se detallan los comandos cronológicos y pasos seguidos para el desarrollo de las funcionalidades:
+A partir de aquí, el equipo trabajó en paralelo siguiendo una estrategia estricta de ramificación, actualización de versiones (**SemVer**) e integración continua. A continuación, se detallan los comandos cronológicos y pasos seguidos para el desarrollo de las funcionalidades:
 #### Feature 1
-Asignados: Marcelo Atanasio Domínguez Mateo y Alejandro García Prada.
+* **Asignados:** Marcelo Atanasio Domínguez Mateo y Alejandro García Prada.
 
-El equipo se sitúa en main, se asegura de tener la última versión y crea la rama local para la primera funcionalidad:
+El equipo se sitúa en `main`, se asegura de tener la última versión y crea la rama local para la primera funcionalidad:
 ```bash
 $ git checkout main
 $ git pull origin main
 $ git checkout -b feature-1
 ```
-Se implementa la lógica del límite de retirada de 24 horas en el servicio y se desarrollan sus correspondientes tests unitarios. Siguiendo el versionado semántico, se modifica el pom.xml para establecer la versión 1.1.0 (nueva funcionalidad menor).
+Se implementa la lógica del límite de retirada de 24 horas en el servicio y se desarrollan sus correspondientes tests unitarios. Siguiendo el versionado semántico, se modifica el `pom.xml` para establecer la versión **1.1.0** (nueva funcionalidad menor).
 
 Se añaden los archivos, se realizan los commits descriptivos y se sube la rama al repositorio remoto:
 ```bash
@@ -233,10 +249,10 @@ $ git commit -m "24h withdrawal Test"
 $ git commit -m "Extra Test for simulating not transactions"
 $ git push origin feature-1
 ```
-Acción en GitHub: Se abre el Pull Request (PR #49) de feature-1 hacia main. Esto dispara automáticamente el Workflow 2 (verificación de calidad y tests). Tras pasar los checks sin errores, se realiza el Merge integrado, lo que ejecuta el Workflow 3 y despliega de manera automática la versión 1.1.0 en Azure.
+> **Acción en GitHub:** Se abre el Pull Request (PR #49) de `feature-1` hacia `main`. Esto dispara automáticamente el **Workflow 2** (verificación de calidad y tests). Tras pasar los checks sin errores, se realiza el Merge integrado, lo que ejecuta el **Workflow 3** y despliega de manera automática la versión **1.1.0** en Azure.
 
 #### Feature 2
-Asignados: Gonzalo Fernández de Córdoba García y Daniel Bonachela Martínez
+* **Asignados:** Gonzalo Fernández de Córdoba García y Daniel Bonachela Martínez.
 
 Para trabajar en la segunda funcionalidad sin interferir con la primera, se crea la rama correspondiente desde el estado actual:
 
@@ -245,49 +261,120 @@ $ git checkout main
 $ git pull origin main
 $ git checkout -b feature-2
 ```
-Se desarrolla el control de baneo en las operaciones financieras (bloqueando depósitos, retiradas y transferencias) y se añaden los tests unitarios para validar las excepciones. Al ser otra funcionalidad que añade valor al negocio, se actualiza el pom.xml a la versión 1.2.0.
+
+Se desarrolla el control de baneo en las operaciones financieras (bloqueando depósitos, retiradas y transferencias) y se añaden los tests unitarios para validar las excepciones. Al ser otra funcionalidad que añade valor al negocio, se actualiza el `pom.xml` a la versión **1.2.0**.
 
 Se preparan los cambios, se realizan los commits correspondientes al código y a las pruebas, y se publica la rama:
 
-
 ```bash
 $ git add .
-$ git commit -m "feature2 functionality"
-$ git commit -m "Banned Test"
+$git commit -m "feature2 functionality"$ git commit -m "Banned Test"
 $ git push origin feature-2
 ```
 
-Acción en GitHub: Se abre el Pull Request (PR #50) de feature-2 hacia main. El Workflow 2 valida la compilación y la cobertura de código. Al completarse el Merge, el Workflow 3 toma el relevo actualizando el entorno de producción en Azure.
+> **Acción en GitHub:** Se abre el Pull Request (PR #50) de `feature-2` hacia `main`. El **Workflow 2** valida la compilación y la cobertura de código. Al completarse el Merge, el **Workflow 3** toma el relevo actualizando el entorno de producción en Azure.
 
+---
 
 #### Feature 3
-Asignados: Samuel Melián Benito y Sara Guillén Martínez
+* **Asignados:** Samuel Melián Benito y Sara Guillén Martínez.
 
-El tercer equipo actualiza su copia local de main (que ya contiene las características 1 y 2) y abre su línea de trabajo:
+El tercer equipo actualiza su copia local de `main` (que ya contiene las características 1 y 2) y abre su línea de trabajo:
 
 ```bash
 $ git checkout main
 $ git pull origin main
 $ git checkout -b feature-3
 ```
-Se añade el campo de fecha de nacimiento al modelo de usuario, la validación de mayores de 18 años en el flujo de transferencias y su batería de pruebas de software. El fichero pom.xml se incrementa a la versión 1.3.0.
+
+Se añade el campo de fecha de nacimiento al modelo de usuario, la validación de mayores de 18 años en el flujo de transferencias y su batería de pruebas de software. El fichero `pom.xml` se incrementa a la versión **1.3.0**.
 
 Se registran los cambios mediante commits firmados y se suben a la plataforma:
+
 ```bash
 $ git add .
-$ git commit -m "Add feature-3. Birthdate in users and check > 18 years to transfer money"
-$ git commit -m "Add underage transfer message constant"
-$ git commit -m "Feat: add tests to check user age when transfering"
-$ git push origin feature-3
+$git commit -m "Add feature-3. Birthdate in users and check > 18 years to transfer money"$ git commit -m "Add underage transfer message constant"
+$git commit -m "Feat: add tests to check user age when transfering"$ git push origin feature-3
 ```
 
-Acción en GitHub: Se genera el Pull Request (PR #51). Una vez que el pipeline del Workflow 2 da la luz verde asegurando que no rompe ninguna de las funcionalidades previas, se aprueba el Merge. La versión final corporativa 1.3.0 queda desplegada de forma automática en Azure por el Workflow 3.
+> **Acción en GitHub:** Se genera el Pull Request (PR #51). Una vez que el pipeline del **Workflow 2** da la luz verde asegurando que no rompe ninguna de las funcionalidades previas, se aprueba el Merge. La versión final corporativa **1.3.0** queda desplegada de forma automática en Azure por el **Workflow 3**.
 
 
-> Inserta aquí todos los comandos que has utilizado para crear la rama, implementar la funcionalidad, hacer el commit y push a GitHub, crear el pull request y hacer el merge a main. Acompaña cada comando con una breve explicación de lo que has hecho.
 
-## Workflow 4
+## Arquitectura de CI/CD: Automatización con GitHub Actions
 
-Todos los días a las XX:XX se ejecuta el job de Nightly que ...
+Para garantizar la calidad del software, la estabilidad de la rama principal y la entrega continua en el entorno de producción, se han implementado 4 flujos de trabajo (workflows) automatizados.
 
-- [ÚLTIMA EJECUCIÓN](URL_ultima_ejecucion_workflow_4)
+---
+
+### Workflow 1: Unit Testing on Commit
+Este pipeline actúa como la primera línea de defensa. Se ejecuta de manera aislada en las ramas de desarrollo para asegurar que ningún cambio local rompa las reglas de negocio básicas antes de proponer una integración.
+
+* **Disparador (Trigger):** Cualquier `push` en ramas distintas a `main` (excluyendo cambios en documentación o archivos de configuración del propio workflow). Cuenta también con ejecución manual (`workflow_dispatch`).
+* **Tareas principales (Jobs):**
+    * **`unit-tests`:** Levanta un entorno Linux, configura Java 21 (Temurin) y ejecuta exclusivamente la suite de pruebas unitarias (`mvn test -Dtest=es.codeurjc.unit.**.*`).
+
+- **[ENLACE A LA ÚLTIMA EJECUCIÓN DEL WORKFLOW 1](URL_DE_TU_GITHUB_ACTIONS_WORKFLOW_1)**
+
+---
+
+### Workflow 2: Unit + E2E Testing on PR
+Flujo diseñado para validar la integridad completa del sistema de manera previa o concurrente a la consolidación de cambios en la rama troncal, asegurando que tanto la lógica de negocio como los flujos de interfaz de usuario siguen siendo íntegros.
+
+* **Disparador (Trigger):** Se activa automáticamente al realizar un `push` sobre la rama `main` (ej. tras la fusión de un Pull Request) o mediante disparo manual.
+* **Tareas principales (Jobs):**
+    * **`unit-e2e-tests`:** Ejecuta de forma secuencial la suite completa de pruebas unitarias y, acto seguido, toda la batería de pruebas de extremo a extremo (*End-to-End*) utilizando Selenium (`mvn test -Dtest=es.codeurjc.e2e.**.*`).
+
+- **[ENLACE A LA ÚLTIMA EJECUCIÓN DEL WORKFLOW 2](URL_DE_TU_GITHUB_ACTIONS_WORKFLOW_2)**
+
+---
+
+### Workflow 3: Build and Deploy on Push
+El pipeline principal de Entrega y Despliegue Continuo (CD). Automatiza la creación de la imagen de producción, su empaquetado, la validación de despliegue en local y la posterior actualización del entorno en la nube.
+
+* **Disparador (Trigger):** Automatizado ante cualquier `push` directo o integración vía PR en la rama `main`.
+* **Etapas del Pipeline:**
+    1.  **Fase de Construcción (`build`):**
+        * Extrae dinámicamente la versión declarada en el `pom.xml`.
+        * Compila y genera la imagen Docker optimizada mediante Cloud Native Buildpacks (`spring-boot:build-image`).
+        * **Control de Calidad Pre-Publish (Smoke Test):** Levanta la aplicación de forma aislada en el *runner* (`docker run`), espera activamente mediante un bucle de *polling* a que el servidor de Spring Boot responda con un código HTTP válido, y lanza un test de humo (`SmokeTest`) local.
+        * Si el test de humo es correcto, publica la imagen en **DockerHub** etiquetándola tanto con su versión de lanzamiento (`${version}`) como con el tag `latest`.
+    2.  **Fase de Despliegue (`deploy`):**
+        * Se autentica de forma segura en **Azure** mediante credenciales federadas (OIDC).
+        * Despliega el contenedor actualizado en **Azure Container Apps** (`banking-app-production`).
+        * Realiza un nuevo *polling* de 300 segundos sobre la URL pública de producción para asegurar el correcto arranque en la nube y vuelve a ejecutar el test de humo sobre el entorno real.
+
+- **[ENLACE A LA ÚLTIMA EJECUCIÓN DEL WORKFLOW 3](URL_DE_TU_GITHUB_ACTIONS_WORKFLOW_3)**
+
+---
+
+### Workflow 4: Nightly Matrix Test and Deliver
+Flujo de ejecución periódica nocturna encargado de realizar pruebas de regresión masiva en escenarios heterogéneos multiplataforma, garantizando la compatibilidad entre diferentes sistemas operativos y navegadores web.
+
+* **Disparador (Trigger):** Programado de manera automática todos los días a las **00:00 UTC** (`cron: "0 0 * * *"`).
+* **Estrategia de Matriz de Pruebas (`matrix-test`):**
+    El pipeline genera una matriz cruzada de ejecución combinando los siguientes entornos y navegadores:
+
+    | Sistema Operativo | Navegador |
+    | :--- | :--- |
+    | `ubuntu-latest` | Chrome |
+    | `ubuntu-latest` | Firefox |
+    | `windows-latest` | Chrome |
+    | `windows-latest` | Firefox |
+    | `windows-latest` | Edge |
+    | `macos-latest` | Chrome |
+    | `macos-latest` | Firefox |
+    | `macos-latest` | Safari |
+
+    Cada uno de estos entornos ejecuta de forma paralela la prueba E2E de transferencias bancarias (`TransferE2ETest`). El parámetro `fail-fast: false` asegura que, si una combinación específica de sistema/navegador falla, el resto de pruebas continúen ejecutándose para aislar problemas de compatibilidad gráfica.
+
+* **Entrega Diaria (`publish-nightly`):**
+    Tras finalizar con éxito todas las pruebas de la matriz, el pipeline genera una compilación diaria automatizada firmada con la fecha actual (`nightly-YYYYMMDD`) y la publica en DockerHub para disponer de artefactos históricos de control.
+
+- **[ENLACE A LA ÚLTIMA EJECUCIÓN DEL WORKFLOW 4](URL_DE_TU_GITHUB_ACTIONS_WORKFLOW_4)**
+
+### Secretos configurados en GitHub
+Para el correcto funcionamiento de los pipelines de despliegue (CD) y pruebas nocturnas, se deben configurar los siguientes *Repository Secrets* en GitHub:
+* `DOCKERHUB_USERNAME` y `DOCKERHUB_TOKEN`: Credenciales para la publicación de imágenes en DockerHub.
+* `AZURE_CLIENT_ID`, `AZURE_TENANT_ID` y `AZURE_SUBSCRIPTION_ID`: Credenciales de federación de identidad (OIDC) para autenticar las Actions contra Azure de forma segura sin contraseñas expuestas.
+* `AZURE_RESOURCE_GROUP`: Grupo de recursos en Azure donde reside la Container App.

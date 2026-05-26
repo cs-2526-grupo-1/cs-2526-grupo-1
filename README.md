@@ -197,9 +197,10 @@ He implementado test unitarios para el métodos `getAccount` y la primera mitad 
 
 | Tarea | Alumno/es asignado/s | Commits asociado |
 |:--- |:--- |:--- |
-| feature-1 | [Nombre 1], [Nombre 2] | [Commit 1](URL_commit_1), [Commit 2](URL_commit_2) |
-| feature-2 | [Nombre 3], [Nombre 4] | [Commit 3](URL_commit_3), [Commit 4](URL_commit_4) |
-| refactoring-1 | [Nombre 5] | [Commit 5](URL_commit_5) ... |
+| feature-1 | Marcelo Atanasio Domínguez Mateo, Alejandro García Prada | [Implement last 24h withdraw limit](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/c0a58801dd268af19f125c44986f353142a1a9c4), [24h withdrawal Test](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/8eb103edd97ab643371f4b23cfbac4074ba68c5d) |
+| feature-2 | Gonzalo Fernández de Córdoba García, Daniel Bonachela Martínez | [feature2 functionality](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/69d8edf9b0f353b5af50d534ef2dbac51ccb7bbf), [Banned Test](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/e0dd06ea66bcff88152de8385dd6400049765913) |
+| feature-3 | Samuel Melián Benito, Sara Guillén Martínez  | [Add feature-3. Birthdate in users and check > 18 years to transfer money](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/38c77b4c96aa139ec40e8bc0678bab263564ad9f), [Feat: add tests to check user age when transfering](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/commit/cf13fed933142a90e4f82a871d584d3d052aafbe) |
+>| refactoring-1 | [Nombre 5] | [Commit 5](URL_commit_5) ... | Nosotros no tenemos esto
 
 ### Pasos seguidos
 

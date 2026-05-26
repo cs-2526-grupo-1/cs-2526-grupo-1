@@ -212,6 +212,7 @@ public class User {
         this.banned = banned;
     }
     
+
     public LocalDate getBirthdate() {
         return birthdate;
     }

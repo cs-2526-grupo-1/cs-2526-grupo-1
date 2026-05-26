@@ -358,10 +358,10 @@ Como se solicita, no solo se proporcionan puntos donde se ejecuta dicho workflow
 - **[Merge pull request #52 from cs-2526-grupo-1/feature-2](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467604435)**
 - **[Merge pull request #53 from cs-2526-grupo-1/feature-3](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26468308653)**
 - **[Workflow 3](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/blob/main/.github/workflows/workflow3.yaml)**
-
-
-- METER IMAGEN DOCKERHUB
-- METER LO DE AZURE
+- Despliegue en Azure:
+  - URL: https://banking-app-production.agreeableriver-79aa3808.spaincentral.azurecontainerapps.io/login
+- DockerHub:
+    - [cs-2526-grupo-1/banking-app:1.2.0](https://hub.docker.com/r/sa4dus/banking-app)
 ---
 
 ### Workflow 4: Nightly Matrix Test and Deliver

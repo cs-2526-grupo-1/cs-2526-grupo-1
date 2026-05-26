@@ -229,11 +229,13 @@ public class TransferE2ETest {
         safeSendKeys(toAccountField, toAccount);
         safeSendKeys(amountField, String.valueOf(amount));
 
+        WebElement transferButton = driver.findElement(By.id(E2ETestConstants.ID_TRANSFER_BUTTON));
         String browser = System.getProperty("browser", "chrome").toLowerCase();
         if ("safari".equals(browser)) {
-            ((JavascriptExecutor) driver).executeScript("document.querySelector('form').submit();");
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].closest('form').submit();", transferButton);
         } else {
-            driver.findElement(By.id(E2ETestConstants.ID_TRANSFER_BUTTON)).click();
+            transferButton.click();
         }
     }
 

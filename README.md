@@ -317,7 +317,7 @@ Este pipeline actúa como la primera línea de defensa. Se ejecuta de manera ais
 * **Tareas principales (Jobs):**
     * **`unit-tests`:** Levanta un entorno Linux, configura Java 21 (Temurin) y ejecuta exclusivamente la suite de pruebas unitarias (`mvn test -Dtest=es.codeurjc.unit.**.*`).
 
-- **[Update AccountServiceTestConstants.java](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26468184352)**
+- **[Bump version from 1.2.0 to 1.3.0](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26468184352)**
 - **[Bump version from 1.1.0 to 1.2.0](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467521589)**
 - **[Bump version from 1.0.0 to 1.1.0](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26466962469)**
 - **[Workflow 1](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/blob/main/.github/workflows/workflow1.yaml)**

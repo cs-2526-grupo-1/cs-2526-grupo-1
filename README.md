@@ -209,9 +209,80 @@ Una vez creados los workflows y funcionando estos, pasamos a crear la nueva func
 
 Clonamos el repositorio
 
+```bash
+$ git clone git@github.com:cs-2526-grupo-1/cs-2526-grupo-1.git
 ```
-$ git clone git@github.com:codigus-formacion-se/banking-app-2026.git
+
+A partir de aquí, el equipo trabajó en paralelo siguiendo una estrategia estricta de ramificación, actualización de versiones (SemVer) e integración continua. A continuación, se detallan los comandos cronológicos y pasos seguidos para el desarrollo de las funcionalidades:
+#### Feature 1
+Asignados: Marcelo Atanasio Domínguez Mateo y Alejandro García Prada.
+
+El equipo se sitúa en main, se asegura de tener la última versión y crea la rama local para la primera funcionalidad:
+```bash
+$ git checkout main
+$ git pull origin main
+$ git checkout -b feature-1
 ```
+Se implementa la lógica del límite de retirada de 24 horas en el servicio y se desarrollan sus correspondientes tests unitarios. Siguiendo el versionado semántico, se modifica el pom.xml para establecer la versión 1.1.0 (nueva funcionalidad menor).
+
+Se añaden los archivos, se realizan los commits descriptivos y se sube la rama al repositorio remoto:
+```bash
+$ git add .
+$ git commit -m "Implement last 24h withdraw limit"
+$ git commit -m "24h withdrawal Test"
+$ git commit -m "Extra Test for simulating not transactions"
+$ git push origin feature-1
+```
+Acción en GitHub: Se abre el Pull Request (PR #49) de feature-1 hacia main. Esto dispara automáticamente el Workflow 2 (verificación de calidad y tests). Tras pasar los checks sin errores, se realiza el Merge integrado, lo que ejecuta el Workflow 3 y despliega de manera automática la versión 1.1.0 en Azure.
+
+#### Feature 2
+Asignados: Gonzalo Fernández de Córdoba García y Daniel Bonachela Martínez
+
+Para trabajar en la segunda funcionalidad sin interferir con la primera, se crea la rama correspondiente desde el estado actual:
+
+```bash
+$ git checkout main
+$ git pull origin main
+$ git checkout -b feature-2
+```
+Se desarrolla el control de baneo en las operaciones financieras (bloqueando depósitos, retiradas y transferencias) y se añaden los tests unitarios para validar las excepciones. Al ser otra funcionalidad que añade valor al negocio, se actualiza el pom.xml a la versión 1.2.0.
+
+Se preparan los cambios, se realizan los commits correspondientes al código y a las pruebas, y se publica la rama:
+
+
+```bash
+$ git add .
+$ git commit -m "feature2 functionality"
+$ git commit -m "Banned Test"
+$ git push origin feature-2
+```
+
+Acción en GitHub: Se abre el Pull Request (PR #50) de feature-2 hacia main. El Workflow 2 valida la compilación y la cobertura de código. Al completarse el Merge, el Workflow 3 toma el relevo actualizando el entorno de producción en Azure.
+
+
+#### Feature 3
+Asignados: Samuel Melián Benito y Sara Guillén Martínez
+
+El tercer equipo actualiza su copia local de main (que ya contiene las características 1 y 2) y abre su línea de trabajo:
+
+```bash
+$ git checkout main
+$ git pull origin main
+$ git checkout -b feature-3
+```
+Se añade el campo de fecha de nacimiento al modelo de usuario, la validación de mayores de 18 años en el flujo de transferencias y su batería de pruebas de software. El fichero pom.xml se incrementa a la versión 1.3.0.
+
+Se registran los cambios mediante commits firmados y se suben a la plataforma:
+```bash
+$ git add .
+$ git commit -m "Add feature-3. Birthdate in users and check > 18 years to transfer money"
+$ git commit -m "Add underage transfer message constant"
+$ git commit -m "Feat: add tests to check user age when transfering"
+$ git push origin feature-3
+```
+
+Acción en GitHub: Se genera el Pull Request (PR #51). Una vez que el pipeline del Workflow 2 da la luz verde asegurando que no rompe ninguna de las funcionalidades previas, se aprueba el Merge. La versión final corporativa 1.3.0 queda desplegada de forma automática en Azure por el Workflow 3.
+
 
 > Inserta aquí todos los comandos que has utilizado para crear la rama, implementar la funcionalidad, hacer el commit y push a GitHub, crear el pull request y hacer el merge a main. Acompaña cada comando con una breve explicación de lo que has hecho.
 

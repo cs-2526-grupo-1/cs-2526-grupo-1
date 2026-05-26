@@ -176,27 +176,31 @@ public class TransferE2ETest {
      * Helper para evitar el cuelgue de sendKeys en Safari.
      */
     private void safeSendKeys(WebElement element, String text) {
+
         String browser = System.getProperty("browser", "chrome").toLowerCase();
 
         if ("safari".equals(browser)) {
+
             JavascriptExecutor js = (JavascriptExecutor) driver;
 
             js.executeScript("""
-                arguments[0].focus();
-                arguments[0].value = arguments[1];
+                const element = arguments[0];
+                const value = arguments[1];
 
-                arguments[0].dispatchEvent(new InputEvent('input', {
-                    bubbles: true,
-                    cancelable: true,
-                    inputType: 'insertText',
-                    data: arguments[1]
-                }));
+                element.focus();
 
-                arguments[0].dispatchEvent(new Event('change', {
-                    bubbles: true
-                }));
+                const nativeInputValueSetter =
+                    Object.getOwnPropertyDescriptor(
+                        window.HTMLInputElement.prototype,
+                        "value"
+                    ).set;
 
-                arguments[0].blur();
+                nativeInputValueSetter.call(element, value);
+
+                element.dispatchEvent(new Event('input', { bubbles: true }));
+                element.dispatchEvent(new Event('change', { bubbles: true }));
+
+                element.blur();
             """, element, text);
 
         } else {
@@ -213,7 +217,6 @@ public class TransferE2ETest {
         
         safeSendKeys(usernameField, username);
         safeSendKeys(passwordField, password);
-        
         driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
         System.out.println(driver.getCurrentUrl());
         System.out.println(driver.getPageSource());

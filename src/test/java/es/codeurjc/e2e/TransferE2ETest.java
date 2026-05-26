@@ -1,11 +1,10 @@
 package es.codeurjc.e2e;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-
 import java.time.Duration;
 import java.time.LocalDate;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,13 +12,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -180,29 +178,12 @@ public class TransferE2ETest {
         String browser = System.getProperty("browser", "chrome").toLowerCase();
 
         if ("safari".equals(browser)) {
-
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-
-            js.executeScript("""
-                const element = arguments[0];
-                const value = arguments[1];
-
-                element.focus();
-
-                const nativeInputValueSetter =
-                    Object.getOwnPropertyDescriptor(
-                        window.HTMLInputElement.prototype,
-                        "value"
-                    ).set;
-
-                nativeInputValueSetter.call(element, value);
-
-                element.dispatchEvent(new Event('input', { bubbles: true }));
-                element.dispatchEvent(new Event('change', { bubbles: true }));
-
-                element.blur();
-            """, element, text);
-
+            // Use native WebDriver interactions: click to focus, then clear and type.
+            // The previous JavaScript nativeInputValueSetter approach caused Safari 26 to
+            // not submit form values (especially password fields), leaving the page at /login.
+            element.click();
+            element.clear();
+            element.sendKeys(text);
         } else {
             element.clear();
             element.sendKeys(text);
@@ -217,37 +198,8 @@ public class TransferE2ETest {
         
         safeSendKeys(usernameField, username);
         safeSendKeys(passwordField, password);
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        WebElement loginButton =
-            driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON));
-
-        System.out.println("BUTTON ENABLED: " + loginButton.isEnabled());
-        System.out.println("BUTTON DISPLAYED: " + loginButton.isDisplayed());
-        System.out.println("BUTTON DISABLED ATTR: " + loginButton.getAttribute("disabled"));
-
-        ((JavascriptExecutor) driver)
-            .executeScript("arguments[0].click();", loginButton);
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("CURRENT URL: " + driver.getCurrentUrl());
-
-        System.out.println("PAGE SOURCE:");
-        System.out.println(driver.getPageSource());
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(
-            By.id(E2ETestConstants.ID_LOGOUT_BUTTON)
-        ));
+        driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
+        wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
         wait.until(ExpectedConditions.visibilityOfElementLocated(
             By.id(E2ETestConstants.ID_LOGOUT_BUTTON)
         ));

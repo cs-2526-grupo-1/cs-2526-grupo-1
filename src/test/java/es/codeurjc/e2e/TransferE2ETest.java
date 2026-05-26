@@ -176,6 +176,7 @@ public class TransferE2ETest {
      * Helper para evitar el cuelgue de sendKeys en Safari.
      */
     private void safeSendKeys(WebElement element, String text) {
+        System.out.println("::notice:: Ejecutando safeSendKeys para el elemento: " + element.getAttribute("id"));
         String browser = System.getProperty("browser", "chrome").toLowerCase();
         if ("safari".equals(browser)) {
             JavascriptExecutor js = (JavascriptExecutor) driver;

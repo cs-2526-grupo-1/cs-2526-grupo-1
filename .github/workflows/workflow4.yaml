@@ -26,7 +26,7 @@ jobs:
             browser: chrome
           - os: macos-latest
             browser: firefox
-          - os: macos-12
+          - os: macos-15
             browser: safari
 
     steps:

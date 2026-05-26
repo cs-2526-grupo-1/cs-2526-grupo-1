@@ -184,7 +184,7 @@ He implementado test unitarios para el métodos `getAccount` y la primera mitad 
 ### Captura de la aplicación desplegada en Azure
 
 
-![Captura Aplicación en Azure](img/capturas/azure-deployed.png)
+![Captura Aplicación en Azure](img/capturas/azure_deployed_def.png)
 
 
 ### Captura del dashboard de Azure con la última versión desplegada

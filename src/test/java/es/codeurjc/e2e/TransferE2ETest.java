@@ -13,7 +13,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -180,29 +179,12 @@ public class TransferE2ETest {
         String browser = System.getProperty("browser", "chrome").toLowerCase();
 
         if ("safari".equals(browser)) {
-
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-
-            js.executeScript("""
-                const element = arguments[0];
-                const value = arguments[1];
-
-                element.focus();
-
-                const nativeInputValueSetter =
-                    Object.getOwnPropertyDescriptor(
-                        window.HTMLInputElement.prototype,
-                        "value"
-                    ).set;
-
-                nativeInputValueSetter.call(element, value);
-
-                element.dispatchEvent(new Event('input', { bubbles: true }));
-                element.dispatchEvent(new Event('change', { bubbles: true }));
-
-                element.blur();
-            """, element, text);
-
+            // Use native WebDriver interactions: click to focus, then clear and type.
+            // The previous JavaScript nativeInputValueSetter approach caused Safari 26 to
+            // not submit form values (especially password fields), leaving the page at /login.
+            element.click();
+            element.clear();
+            element.sendKeys(text);
         } else {
             element.clear();
             element.sendKeys(text);

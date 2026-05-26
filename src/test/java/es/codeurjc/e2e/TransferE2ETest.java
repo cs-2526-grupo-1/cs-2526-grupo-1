@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -170,20 +171,20 @@ public class TransferE2ETest {
         userRepository.deleteAll();
     }
 
-    /**
-     * Helper para evitar el cuelgue de sendKeys en Safari.
-     */
     private void safeSendKeys(WebElement element, String text) {
 
         String browser = System.getProperty("browser", "chrome").toLowerCase();
 
         if ("safari".equals(browser)) {
-            // Use native WebDriver interactions: click to focus, then clear and type.
-            // The previous JavaScript nativeInputValueSetter approach caused Safari 26 to
-            // not submit form values (especially password fields), leaving the page at /login.
-            element.click();
-            element.clear();
-            element.sendKeys(text);
+            // sendKeys se cuelga en Safari 26 (HttpTimeoutException en SafariDriver).
+            // Se asigna el valor directamente via JS; para formularios HTML planos esto
+            // es equivalente a escribirlo: el valor se incluye en la submission del form.
+            ((JavascriptExecutor) driver).executeScript(
+                "const el = arguments[0]; const val = arguments[1];" +
+                "el.value = val;" +
+                "el.dispatchEvent(new Event('input',  {bubbles:true}));" +
+                "el.dispatchEvent(new Event('change', {bubbles:true}));",
+                element, text);
         } else {
             element.clear();
             element.sendKeys(text);
@@ -198,7 +199,16 @@ public class TransferE2ETest {
         
         safeSendKeys(usernameField, username);
         safeSendKeys(passwordField, password);
-        driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
+
+        // En Safari el click nativo/JS sobre el boton submit no desencadena la submission;
+        // form.submit() via JS la realiza directamente e incluye todos los campos (CSRF incluido).
+        String browser = System.getProperty("browser", "chrome").toLowerCase();
+        if ("safari".equals(browser)) {
+            ((JavascriptExecutor) driver).executeScript("document.querySelector('form').submit();");
+        } else {
+            driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
+        }
+
         wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
         wait.until(ExpectedConditions.visibilityOfElementLocated(
             By.id(E2ETestConstants.ID_LOGOUT_BUTTON)
@@ -218,8 +228,13 @@ public class TransferE2ETest {
         
         safeSendKeys(toAccountField, toAccount);
         safeSendKeys(amountField, String.valueOf(amount));
-        
-        driver.findElement(By.id(E2ETestConstants.ID_TRANSFER_BUTTON)).click();
+
+        String browser = System.getProperty("browser", "chrome").toLowerCase();
+        if ("safari".equals(browser)) {
+            ((JavascriptExecutor) driver).executeScript("document.querySelector('form').submit();");
+        } else {
+            driver.findElement(By.id(E2ETestConstants.ID_TRANSFER_BUTTON)).click();
+        }
     }
 
     private void checkBalanceHasNotChanged(String accountNumber, Double initialBalance) {

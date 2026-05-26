@@ -317,7 +317,10 @@ Este pipeline actúa como la primera línea de defensa. Se ejecuta de manera ais
 * **Tareas principales (Jobs):**
     * **`unit-tests`:** Levanta un entorno Linux, configura Java 21 (Temurin) y ejecuta exclusivamente la suite de pruebas unitarias (`mvn test -Dtest=es.codeurjc.unit.**.*`).
 
-- **[ENLACE A LA ÚLTIMA EJECUCIÓN DEL WORKFLOW 1](URL_DE_TU_GITHUB_ACTIONS_WORKFLOW_1)**
+- **[Update AccountServiceTestConstants.java](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26468184352)**
+- **[Bump version from 1.1.0 to 1.2.0](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467521589)**
+- **[Bump version from 1.0.0 to 1.1.0](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26466962469)**
+
 
 ---
 
@@ -328,7 +331,9 @@ Flujo diseñado para validar la integridad completa del sistema de manera previa
 * **Tareas principales (Jobs):**
     * **`unit-e2e-tests`:** Ejecuta de forma secuencial la suite completa de pruebas unitarias y, acto seguido, toda la batería de pruebas de extremo a extremo (*End-to-End*) utilizando Selenium (`mvn test -Dtest=es.codeurjc.e2e.**.*`).
 
-- **[ENLACE A LA ÚLTIMA EJECUCIÓN DEL WORKFLOW 2](URL_DE_TU_GITHUB_ACTIONS_WORKFLOW_2)**
+- **[Feature 1](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467048810)**
+- **[Feature 2](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467539881)**
+- **[Feature 3](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26468196898)**
 
 ---
 
@@ -347,8 +352,13 @@ El pipeline principal de Entrega y Despliegue Continuo (CD). Automatiza la creac
         * Despliega el contenedor actualizado en **Azure Container Apps** (`banking-app-production`).
         * Realiza un nuevo *polling* de 300 segundos sobre la URL pública de producción para asegurar el correcto arranque en la nube y vuelve a ejecutar el test de humo sobre el entorno real.
 
-- **[ENLACE A LA ÚLTIMA EJECUCIÓN DEL WORKFLOW 3](URL_DE_TU_GITHUB_ACTIONS_WORKFLOW_3)**
+Como se solicita, no solo se proporcionan puntos donde se ejecuta dicho workflow sino además enlaces a la imagen de DockerHub y la URL de despliegue en Azure.
+- **[Merge pull request #51 from cs-2526-grupo-1/feature-1](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467111644)**
+- **[Merge pull request #52 from cs-2526-grupo-1/feature-2](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467604435)**
+- **[Merge pull request #53 from cs-2526-grupo-1/feature-3](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26468308653)**
 
+- METER IMAGEN DOCKERHUB
+- METER LO DE AZURE
 ---
 
 ### Workflow 4: Nightly Matrix Test and Deliver

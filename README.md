@@ -320,8 +320,7 @@ Este pipeline actúa como la primera línea de defensa. Se ejecuta de manera ais
 - **[Update AccountServiceTestConstants.java](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26468184352)**
 - **[Bump version from 1.1.0 to 1.2.0](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467521589)**
 - **[Bump version from 1.0.0 to 1.1.0](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26466962469)**
-
-
+- **[Workflow 1](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/blob/main/.github/workflows/workflow1.yaml)**
 ---
 
 ### Workflow 2: Unit + E2E Testing on PR
@@ -334,6 +333,7 @@ Flujo diseñado para validar la integridad completa del sistema de manera previa
 - **[Feature 1](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467048810)**
 - **[Feature 2](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467539881)**
 - **[Feature 3](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26468196898)**
+- **[Workflow 2](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/blob/main/.github/workflows/workflow2.yaml)**
 
 ---
 
@@ -352,10 +352,13 @@ El pipeline principal de Entrega y Despliegue Continuo (CD). Automatiza la creac
         * Despliega el contenedor actualizado en **Azure Container Apps** (`banking-app-production`).
         * Realiza un nuevo *polling* de 300 segundos sobre la URL pública de producción para asegurar el correcto arranque en la nube y vuelve a ejecutar el test de humo sobre el entorno real.
 
-Como se solicita, no solo se proporcionan puntos donde se ejecuta dicho workflow sino además enlaces a la imagen de DockerHub y la URL de despliegue en Azure.
+
+Como se solicita, no solo se proporcionan puntos donde se ejecuta dicho workflow sino además enlaces al propio workflow, la imagen de DockerHub y la URL de despliegue en Azure.
 - **[Merge pull request #51 from cs-2526-grupo-1/feature-1](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467111644)**
 - **[Merge pull request #52 from cs-2526-grupo-1/feature-2](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26467604435)**
 - **[Merge pull request #53 from cs-2526-grupo-1/feature-3](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26468308653)**
+- **[Workflow 3](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/blob/main/.github/workflows/workflow3.yaml)**
+
 
 - METER IMAGEN DOCKERHUB
 - METER LO DE AZURE
@@ -384,7 +387,9 @@ Flujo de ejecución periódica nocturna encargado de realizar pruebas de regresi
 * **Entrega Diaria (`publish-nightly`):**
     Tras finalizar con éxito todas las pruebas de la matriz, el pipeline genera una compilación diaria automatizada firmada con la fecha actual (`nightly-YYYYMMDD`) y la publica en DockerHub para disponer de artefactos históricos de control.
 
-- **[ENLACE A LA ÚLTIMA EJECUCIÓN DEL WORKFLOW 4](URL_DE_TU_GITHUB_ACTIONS_WORKFLOW_4)**
+- **[Nightly Matrix Test and Deliver](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/actions/runs/26468670493)**
+- **[Workflow 4](https://github.com/cs-2526-grupo-1/cs-2526-grupo-1/blob/main/.github/workflows/workflow4.yaml)**
+
 
 ### Secretos configurados en GitHub
 Para el correcto funcionamiento de los pipelines de despliegue (CD) y pruebas nocturnas, se deben configurar los siguientes *Repository Secrets* en GitHub:

@@ -37,6 +37,17 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "21"
+      
+      - name: Configure Safari
+        if: matrix.browser == 'safari'
+        run: |
+          pkill -x Safari 2>/dev/null || true
+          safaridriver --enable || sudo safaridriver --enable
+          defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
+          defaults write com.apple.Safari AllowRemoteAutomation 1
+          defaults write com.apple.Safari.autofill.autoFillPasswords -bool false
+          defaults write com.apple.Safari IncludeDevelopMenu 1
+
 
       - name: Run E2E Test
         run: |

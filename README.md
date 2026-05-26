@@ -182,14 +182,15 @@ He implementado test unitarios para el métodos `getAccount` y la primera mitad 
 
 
 ### Captura de la aplicación desplegada en Azure
-> Inserta aquí una captura dela aplicación desplegada. Debe aparecer la URL de la aplicación desplegada y el número de versión desplegada (pantalla de login)
 
-![Captura Aplicación en Azure](URL_captura_dashboard_azure)
+
+![Captura Aplicación en Azure](img/capturas/azure-deployed.png)
 
 
 ### Captura del dashboard de Azure con la última versión desplegada
-> Inserta aquí una captura del dashboard de Azure. La captura debe mostrar lo mismo que aparece en la diapositiva 26 de "Anexo -Despliegue de aplicaciones en Azure"
 
+
+![Captura Dashboard en Azure](img/capturas/azure-dashborard.png)
 
 ## Desarrollo con GitHubFlow
 

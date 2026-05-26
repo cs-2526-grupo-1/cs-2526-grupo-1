@@ -11,8 +11,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
+import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.safari.SafariOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -20,19 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.edge.EdgeOptions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.By;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.safari.SafariDriver;
-import org.openqa.selenium.safari.SafariOptions;
-import java.time.Duration;
 
 import es.codeurjc.BankingApplication;
 import es.codeurjc.model.Account;
@@ -175,10 +170,32 @@ public class TransferE2ETest {
         userRepository.deleteAll();
     }
 
+    /**
+     * Helper para evitar el cuelgue de sendKeys en Safari.
+     */
+    private void safeSendKeys(WebElement element, String text) {
+        String browser = System.getProperty("browser", "chrome").toLowerCase();
+        if ("safari".equals(browser)) {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript("arguments[0].value = '';", element);
+            js.executeScript("arguments[0].value = arguments[1];", element, text);
+            js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", element);
+            js.executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", element);
+        } else {
+            element.clear();
+            element.sendKeys(text);
+        }
+    }
+
     private void login(String username, String password) {
         driver.get(BASE_URL + this.port + E2ETestConstants.PATH_LOGIN);
-        driver.findElement(By.id(E2ETestConstants.ID_USERNAME)).sendKeys(username);
-        driver.findElement(By.id(E2ETestConstants.ID_PASSWORD)).sendKeys(password);
+        
+        WebElement usernameField = driver.findElement(By.id(E2ETestConstants.ID_USERNAME));
+        WebElement passwordField = driver.findElement(By.id(E2ETestConstants.ID_PASSWORD));
+        
+        safeSendKeys(usernameField, username);
+        safeSendKeys(passwordField, password);
+        
         driver.findElement(By.id(E2ETestConstants.ID_LOGIN_BUTTON)).click();
         wait.until(ExpectedConditions.urlContains(E2ETestConstants.PATH_DASHBOARD));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(E2ETestConstants.ID_LOGOUT_BUTTON)));
@@ -191,8 +208,13 @@ public class TransferE2ETest {
 
         Select fromAccountSelect = new Select(driver.findElement(By.id(E2ETestConstants.ID_FROM_ACCOUNT)));
         fromAccountSelect.selectByValue(fromAccount);
-        driver.findElement(By.id(E2ETestConstants.ID_TO_ACCOUNT)).sendKeys(toAccount);
-        driver.findElement(By.id(E2ETestConstants.ID_AMOUNT)).sendKeys(String.valueOf(amount));
+        
+        WebElement toAccountField = driver.findElement(By.id(E2ETestConstants.ID_TO_ACCOUNT));
+        WebElement amountField = driver.findElement(By.id(E2ETestConstants.ID_AMOUNT));
+        
+        safeSendKeys(toAccountField, toAccount);
+        safeSendKeys(amountField, String.valueOf(amount));
+        
         driver.findElement(By.id(E2ETestConstants.ID_TRANSFER_BUTTON)).click();
     }
 

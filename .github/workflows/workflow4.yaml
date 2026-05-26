@@ -50,8 +50,13 @@ jobs:
 
 
       - name: Run E2E Test
-        run: |
-          mvn verify -Dtest="es.codeurjc.e2e.TransferE2ETest#test1_makeTransferBetweenOwnAccounts" -Dbrowser=${{ matrix.browser }}
+              shell: bash
+              run: |
+                if [ "$RUNNER_OS" = "Linux" ]; then
+                  xvfb-run -a mvn verify -Dtest="es.codeurjc.e2e.TransferE2ETest#test1_makeTransferBetweenOwnAccounts" -Dbrowser=${{ matrix.browser }}
+                else
+                  mvn verify -Dtest="es.codeurjc.e2e.TransferE2ETest#test1_makeTransferBetweenOwnAccounts" -Dbrowser=${{ matrix.browser }}
+                fi
 
   publish-nightly:
     runs-on: ubuntu-latest
